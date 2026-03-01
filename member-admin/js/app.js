@@ -365,6 +365,7 @@ window.memberApp = {
   chatOpenChannel,
   chatBackToList,
   chatSendMessage,
+  toggleSearchBar,
 };
 
 // --- キーボードショートカット ---
