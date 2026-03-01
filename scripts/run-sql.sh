@@ -20,23 +20,15 @@ set -e
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT_REF="jfsxywwufwdprqdkyxhr"
 
+# .env ファイルから環境変数を読み込み
+if [ -f "$REPO_DIR/.env" ]; then
+  export $(grep -v '^#' "$REPO_DIR/.env" | xargs)
+fi
+
 # Supabase アクセストークンの取得
-# 優先順: 環境変数 > Supabase CLIの保存トークン
 get_token() {
   if [ -n "$SUPABASE_ACCESS_TOKEN" ]; then
     echo "$SUPABASE_ACCESS_TOKEN"
-    return
-  fi
-  # Supabase CLI が保存しているトークンを探す
-  local token_file="$HOME/.supabase/access-token"
-  if [ -f "$token_file" ]; then
-    cat "$token_file"
-    return
-  fi
-  # Windows の AppData パスも確認
-  local win_token_file="$HOME/AppData/Roaming/supabase/access-token"
-  if [ -f "$win_token_file" ]; then
-    cat "$win_token_file"
     return
   fi
   echo ""
