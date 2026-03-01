@@ -246,6 +246,9 @@ async function showApp(email) {
   // 未対応バッジ更新（60秒ごと自動更新）
   startBadgePolling();
 
+  // スケジュールデータをバックグラウンドで事前フェッチ（GAS APIウォームアップ）
+  prefetchSchedule();
+
   // チャット初期化
   const chatStaff = getStaffByEmail(email);
   console.log('chat init: email=', email, 'staff=', chatStaff);
