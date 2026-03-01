@@ -152,10 +152,17 @@ https://member-manager-nu.vercel.app が更新される
 Claude Code アプリから GitHub リポジトリに直接接続して編集できます。
 PCと同じように Claude にお願いするだけでコード編集が可能です。
 
+Claude Code アプリは変更時に**別ブランチ（枝）+ PR（Pull Request）**を自動作成しますが、
+**GitHub Actions で自動マージ**を設定済みなので、すべて自動で master に反映されます。
+
 ```
 スマホの Claude Code アプリ → GitHub リポジトリに接続
     ↓
-Claude にコード変更を依頼 → GitHub に直接コミット
+Claude にコード変更を依頼
+    ↓
+別ブランチ作成 → PR 作成（Claude Code が自動で行う）
+    ↓
+[自動] GitHub Actions が PR を master に即マージ＆ブランチ削除
     ↓
 Vercel が自動デプロイ → サイト更新
     ↓
@@ -163,6 +170,8 @@ Vercel が自動デプロイ → サイト更新
     ↓
 [自動] git pull（最新コードを取得） → そのまま作業OK
 ```
+
+> ブランチやPRは裏側で自動処理されるので、あなたが意識する必要はありません。
 
 #### 方法2: GitHub のWeb画面/アプリで手動編集
 
