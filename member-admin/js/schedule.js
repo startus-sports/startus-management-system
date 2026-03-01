@@ -706,6 +706,103 @@ function renderYearView(events) {
 
 // --- Event Detail Modal ---
 
+// タイプ別の概要表示フィールド（プライバシー保護: 住所・電話・メール等は除外）
+const SUMMARY_FIELDS = {
+  trial: [
+    { key: 'desired_date', label: '希望日' },
+    { key: 'desired_classes', label: '希望教室' },
+    { key: 'omoi', label: '想い' },
+  ],
+  join: [
+    { key: 'grade', label: '学年' },
+    { key: 'school', label: '学校' },
+    { key: 'desired_classes', label: '希望教室' },
+  ],
+  withdrawal: [
+    { key: 'desired_classes', label: '退会教室' },
+    { key: 'last_date', label: '最終参加予定日' },
+    { key: 'reason', label: '退会理由' },
+  ],
+  suspension: [
+    { key: 'desired_classes', label: '対象教室' },
+    { key: 'start_date', label: '休会開始予定日' },
+    { key: 'return_date', label: '復会予定日' },
+    { key: 'reason', label: '休会理由' },
+  ],
+  reinstatement: [
+    { key: 'desired_classes', label: '対象教室' },
+    { key: 'return_date', label: '復会予定日' },
+  ],
+};
+
+const TYPE_LABELS = {
+  trial: '体験', join: '入会', withdrawal: '退会',
+  suspension: '休会', reinstatement: '復会',
+};
+
+function renderAppSummaryCard(app, type) {
+  const fd = app.form_data || {};
+  const fields = SUMMARY_FIELDS[type] || [];
+  const detailFunc = type === 'trial' ? 'showTrialDetail' : 'showApplicationDetail';
+
+  const fieldsHtml = fields.map(f => {
+    let value = fd[f.key];
+    if (Array.isArray(value)) value = value.join('、');
+    if (!value) return '';
+    return `<div class="sch-summary-field">
+      <span class="sch-summary-label">${escapeHtml(f.label)}</span>
+      <span class="sch-summary-value">${escapeHtml(String(value))}</span>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  return `
+    <div class="sch-summary-card" id="sch-summary-${app.id}">
+      ${fieldsHtml || '<p class="text-muted" style="margin:0;font-size:0.8rem">概要情報なし</p>'}
+      <button class="sch-summary-btn" onclick="event.stopPropagation();window.memberApp.${detailFunc}('${app.id}')">
+        <span class="material-icons" style="font-size:16px">open_in_new</span>
+        詳細を見る
+      </button>
+    </div>`;
+}
+
+function renderAppRow(app, type) {
+  return `
+    <div class="sch-detail-app-wrapper">
+      <div class="sch-detail-app-row" onclick="window.memberApp.toggleAppSummary('${app.id}', '${type}')">
+        <span>${escapeHtml(app.form_data?.name || '---')}</span>
+        <div class="sch-detail-app-row-right">
+          <span class="badge badge-app-${app.status}">${escapeHtml(statusLabel(app.status))}</span>
+          <span class="material-icons sch-detail-app-chevron" id="sch-chevron-${app.id}" style="font-size:18px;color:var(--gray-400)">expand_more</span>
+        </div>
+      </div>
+      <div class="sch-summary-slot" id="sch-slot-${app.id}"></div>
+    </div>`;
+}
+
+export function toggleAppSummary(appId, type) {
+  const slot = document.getElementById(`sch-slot-${appId}`);
+  const chevron = document.getElementById(`sch-chevron-${appId}`);
+  if (!slot) return;
+
+  if (slot.innerHTML.trim()) {
+    // 閉じる
+    slot.innerHTML = '';
+    if (chevron) chevron.textContent = 'expand_more';
+  } else {
+    // 開く: アプリデータを探す
+    const allApps = cachedAppData
+      ? [...(cachedAppData.trials || []), ...(cachedAppData.joins || []),
+         ...(cachedAppData.withdrawals || []), ...(cachedAppData.suspensions || []),
+         ...(cachedAppData.reinstatements || [])]
+      : [];
+    const app = allApps.find(a => a.id === appId);
+    if (!app) return;
+
+    slot.innerHTML = renderAppSummaryCard(app, type);
+    if (chevron) chevron.textContent = 'expand_less';
+  }
+}
+
 export function showScheduleEventDetail(eventId) {
   const event = allFetchedEvents.find(e => e.id === eventId);
   if (!event) return;
@@ -721,43 +818,23 @@ export function showScheduleEventDetail(eventId) {
   const dateLabel = `${eventDate.getFullYear()}年${eventDate.getMonth() + 1}月${eventDate.getDate()}日（${DAY_NAMES[eventDate.getDay()]}）`;
 
   const trialRows = trials.length > 0
-    ? trials.map(t => `
-        <div class="sch-detail-app-row" onclick="window.memberApp.showTrialDetail('${t.id}')">
-          <span>${escapeHtml(t.form_data?.name || '---')}</span>
-          <span class="badge badge-app-${t.status}">${escapeHtml(statusLabel(t.status))}</span>
-        </div>`).join('')
+    ? trials.map(t => renderAppRow(t, 'trial')).join('')
     : '<p class="text-muted">なし</p>';
 
   const joinRows = joins.length > 0
-    ? joins.map(j => `
-        <div class="sch-detail-app-row" onclick="window.memberApp.showApplicationDetail('${j.id}')">
-          <span>${escapeHtml(j.form_data?.name || '---')}</span>
-          <span class="badge badge-app-${j.status}">${escapeHtml(statusLabel(j.status))}</span>
-        </div>`).join('')
+    ? joins.map(j => renderAppRow(j, 'join')).join('')
     : '<p class="text-muted">なし</p>';
 
   const withdrawalRows = withdrawals.length > 0
-    ? withdrawals.map(w => `
-        <div class="sch-detail-app-row" onclick="window.memberApp.showApplicationDetail('${w.id}')">
-          <span>${escapeHtml(w.form_data?.name || '---')}</span>
-          <span class="badge badge-app-${w.status}">${escapeHtml(statusLabel(w.status))}</span>
-        </div>`).join('')
+    ? withdrawals.map(w => renderAppRow(w, 'withdrawal')).join('')
     : '<p class="text-muted">なし</p>';
 
   const suspensionRows = suspensions.length > 0
-    ? suspensions.map(s => `
-        <div class="sch-detail-app-row" onclick="window.memberApp.showApplicationDetail('${s.id}')">
-          <span>${escapeHtml(s.form_data?.name || '---')}</span>
-          <span class="badge badge-app-${s.status}">${escapeHtml(statusLabel(s.status))}</span>
-        </div>`).join('')
+    ? suspensions.map(s => renderAppRow(s, 'suspension')).join('')
     : '<p class="text-muted">なし</p>';
 
   const reinstatementRows = reinstatements.length > 0
-    ? reinstatements.map(r => `
-        <div class="sch-detail-app-row" onclick="window.memberApp.showApplicationDetail('${r.id}')">
-          <span>${escapeHtml(r.form_data?.name || '---')}</span>
-          <span class="badge badge-app-${r.status}">${escapeHtml(statusLabel(r.status))}</span>
-        </div>`).join('')
+    ? reinstatements.map(r => renderAppRow(r, 'reinstatement')).join('')
     : '<p class="text-muted">なし</p>';
 
   const content = `
