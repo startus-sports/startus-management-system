@@ -312,7 +312,7 @@ function updateAppFilterBadge() {
 }
 
 export function resetAppFilters() {
-  appFilters = { types: [], status: [], assignee: [], query: '' };
+  appFilters = { types: [], status: [], classes: [], assignee: [], query: '' };
   // UIのチェックボックスをリセット
   document.querySelectorAll('#app-filter-panel input[type="checkbox"]').forEach(cb => { cb.checked = false; });
   const searchInput = document.getElementById('app-search-input');
