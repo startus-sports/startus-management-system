@@ -8,7 +8,7 @@ import {
 import { openImportModal, removeImportRow, executeImport } from './import.js';
 import { exportCSV, exportApplicationsCSV, exportTrialsCSV } from './export.js';
 import { openFeeEditForm, onFiscalYearChange, cancelFeeEdit } from './fees.js';
-import { initTabs, switchTab } from './views.js';
+import { initTabs, switchTab, getCurrentTab } from './views.js';
 import { renderFeeOverview, onFeeOverviewYearChange } from './fee-overview.js';
 import { openGradeUpdateModal, executeGradeUpdate } from './grade-update.js';
 import { renderStats, changeStatsFY } from './stats.js';
