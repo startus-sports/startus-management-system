@@ -14,3 +14,11 @@ ALTER TABLE staff ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false;
 -- ========================================
 UPDATE staff SET is_admin = true WHERE email = 'hisashimatsui@startus-kanazawa.org' AND is_admin = false;
 UPDATE staff SET is_admin = true WHERE email = 'matsui@startus-kanazawa.org' AND is_admin = false;
+UPDATE staff SET is_admin = true WHERE email = 'hisasimatu3117@gmail.com' AND is_admin = false;
+
+-- ========================================
+-- 3. 管理者用アカウント（システムアカウント）を追加
+-- ========================================
+INSERT INTO staff (name, furigana, role, email, is_admin, status, note)
+VALUES ('管理者', '', '事務局', 'startus@startus-kanazawa.org', true, '在籍', 'システム管理用アカウント')
+ON CONFLICT DO NOTHING;

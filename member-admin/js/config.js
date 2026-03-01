@@ -20,7 +20,8 @@ export const GOOGLE_OAUTH_CLIENT_ID = '692539813382-20e73l8vfc83sqmfgd4hom3umror
 // staff テーブルが空またはアクセスできない場合のみ使用。
 export const ALLOWED_EMAILS = [
   'hisashimatsui@startus-kanazawa.org',
-  'hisasimatu3117@gmail.com'
+  'hisasimatu3117@gmail.com',
+  'startus@startus-kanazawa.org'
 ];
 
 // 管理者メール（フォールバック）
@@ -28,7 +29,8 @@ export const ALLOWED_EMAILS = [
 // DBの is_admin に加えて、初期セットアップやロックアウト時の復旧用。
 export const ADMIN_EMAILS = [
   'hisashimatsui@startus-kanazawa.org',
-  'hisasimatu3117@gmail.com'
+  'hisasimatu3117@gmail.com',
+  'startus@startus-kanazawa.org'
 ];
 
 // アプリ名（フォールバック）→ 本来は app_config テーブルで管理
