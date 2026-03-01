@@ -474,7 +474,5 @@ export function initStaffFilters() {
 
 export function toggleStaffFilterPanel() {
   const panel = document.getElementById('staff-filter-panel');
-  if (panel) {
-    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-  }
+  if (panel) panel.classList.toggle('open');
 }
