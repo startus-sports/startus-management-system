@@ -917,8 +917,29 @@ export function initAppFilters() {
     });
   }
 
+  // 教室フィルタ
+  updateAppClassFilter();
+
   // 担当者フィルタ
   updateAppAssigneeFilter();
+}
+
+function updateAppClassFilter() {
+  const container = document.getElementById('app-class-filter');
+  if (!container) return;
+
+  const classrooms = getActiveClassrooms();
+  container.innerHTML = classrooms.map(c =>
+    `<label class="filter-pill"><input type="checkbox" value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</label>`
+  ).join('');
+
+  container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      appFilters.classes = Array.from(container.querySelectorAll('input:checked')).map(c => c.value);
+      applyAppFilters();
+      renderAppListOnly();
+    });
+  });
 }
 
 function updateAppAssigneeFilter() {
