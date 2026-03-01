@@ -369,21 +369,29 @@ window.memberApp = {
 
 // --- キーボードショートカット ---
 
-const TAB_SEARCH_MAP = {
-  members: 'search-input',
-  applications: 'app-search-input',
-  trials: 'trial-search-input',
-  staff: 'staff-search-input',
-  master: 'classroom-search-input',
+const TAB_SEARCH_KEY_MAP = {
+  members: 'member',
+  applications: 'app',
+  trials: 'trial',
+  staff: 'staff',
+  master: 'classroom',
 };
 
 document.addEventListener('keydown', (e) => {
   if (e.key === '/' && !isInputFocused()) {
     e.preventDefault();
-    const inputId = TAB_SEARCH_MAP[getCurrentTab()];
-    if (inputId) {
-      const el = document.getElementById(inputId);
-      if (el) el.focus();
+    const key = TAB_SEARCH_KEY_MAP[getCurrentTab()];
+    if (key) {
+      const cfg = SEARCH_BAR_MAP[key];
+      if (cfg) {
+        const bar = document.getElementById(cfg.barId);
+        if (bar && !bar.classList.contains('open')) {
+          toggleSearchBar(key);
+        } else {
+          const input = document.getElementById(cfg.inputId);
+          if (input) input.focus();
+        }
+      }
     }
   }
 });
