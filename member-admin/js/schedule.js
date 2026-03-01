@@ -9,7 +9,7 @@ import { getClassrooms } from './classroom.js';
 // --- State ---
 
 let currentDate = new Date();
-let currentView = 'week'; // 'day' | 'week' | 'month' | 'year'
+let currentView = 'week'; // 'week' | 'month' | 'year'
 
 // 日付ベース統合キャッシュ
 let eventsByDate = {};         // { "2026-03-01": [event, ...], ... }
@@ -17,7 +17,7 @@ let fetchedDateSet = new Set(); // 取得済み日付のセット
 let allFetchedEvents = [];     // flat array of all fetched events (for detail modal)
 
 // アプリデータキャッシュ（範囲管理付き）
-let cachedAppData = null;      // { trials, joins, withdrawals }
+let cachedAppData = null;      // { trials, joins, withdrawals, suspensions, reinstatements }
 let appDataRange = null;       // { start: "YYYY-MM-DD", end: "YYYY-MM-DD" }
 
 // 教室インデックスキャッシュ
@@ -28,7 +28,7 @@ let classroomIndex = null;     // { calendarTag: classroom }
 const DAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
 const HOUR_HEIGHT = 60;
 const TOTAL_HOURS = CALENDAR_END_HOUR - CALENDAR_START_HOUR;
-const VIEW_LABELS = { day: '日', week: '週', month: '月', year: '年' };
+const VIEW_LABELS = { week: '週', month: '月', year: '年' };
 
 // --- Description Parser ---
 
@@ -249,7 +249,7 @@ async function fetchApplicationCounts(startDate, endDate) {
   const fetchStart = appDataRange ? (startStr < appDataRange.start ? startStr : appDataRange.start) : startStr;
   const fetchEnd = appDataRange ? (endStr > appDataRange.end ? endStr : appDataRange.end) : endStr;
 
-  const [trialsRes, joinsRes, withdrawalsRes] = await Promise.all([
+  const [trialsRes, joinsRes, withdrawalsRes, suspensionsRes, reinstatementsRes] = await Promise.all([
     supabase
       .from('applications')
       .select('id, type, status, form_data, created_at')
@@ -268,12 +268,26 @@ async function fetchApplicationCounts(startDate, endDate) {
       .eq('type', 'withdrawal')
       .gte('created_at', `${fetchStart}T00:00:00`)
       .lte('created_at', `${fetchEnd}T23:59:59`),
+    supabase
+      .from('applications')
+      .select('id, type, status, form_data, created_at')
+      .eq('type', 'suspension')
+      .gte('created_at', `${fetchStart}T00:00:00`)
+      .lte('created_at', `${fetchEnd}T23:59:59`),
+    supabase
+      .from('applications')
+      .select('id, type, status, form_data, created_at')
+      .eq('type', 'reinstatement')
+      .gte('created_at', `${fetchStart}T00:00:00`)
+      .lte('created_at', `${fetchEnd}T23:59:59`),
   ]);
 
   cachedAppData = {
     trials: trialsRes.data || [],
     joins: joinsRes.data || [],
     withdrawals: withdrawalsRes.data || [],
+    suspensions: suspensionsRes.data || [],
+    reinstatements: reinstatementsRes.data || [],
   };
   appDataRange = { start: fetchStart, end: fetchEnd };
 
@@ -354,6 +368,36 @@ function getWithdrawalsForClass(enrichedEvent, appData) {
   });
 }
 
+function getSuspensionsForClass(enrichedEvent, appData) {
+  if (!appData || !appData.suspensions || !enrichedEvent.classroom) return [];
+  const classroomName = enrichedEvent.classroomName;
+
+  return appData.suspensions.filter(s => {
+    const fd = s.form_data || {};
+    const desiredClasses = Array.isArray(fd.desired_classes)
+      ? fd.desired_classes
+      : [fd.desired_classes].filter(Boolean);
+    return classroomName && desiredClasses.some(c =>
+      c === classroomName || c.includes(classroomName) || classroomName.includes(c)
+    );
+  });
+}
+
+function getReinstatementsForClass(enrichedEvent, appData) {
+  if (!appData || !appData.reinstatements || !enrichedEvent.classroom) return [];
+  const classroomName = enrichedEvent.classroomName;
+
+  return appData.reinstatements.filter(r => {
+    const fd = r.form_data || {};
+    const desiredClasses = Array.isArray(fd.desired_classes)
+      ? fd.desired_classes
+      : [fd.desired_classes].filter(Boolean);
+    return classroomName && desiredClasses.some(c =>
+      c === classroomName || c.includes(classroomName) || classroomName.includes(c)
+    );
+  });
+}
+
 // --- Main Render ---
 
 export async function renderSchedule() {
@@ -418,9 +462,6 @@ function renderView(container, events, appData) {
   let viewHtml = '';
 
   switch (currentView) {
-    case 'day':
-      viewHtml = renderDayView(events, appData);
-      break;
     case 'week':
       viewHtml = renderWeekView(events, appData);
       break;
@@ -441,14 +482,6 @@ function prefetchAdjacentRange(date, view) {
   const ranges = [];
 
   switch (view) {
-    case 'day': {
-      const prev = new Date(date);
-      prev.setDate(prev.getDate() - 1);
-      const next = new Date(date);
-      next.setDate(next.getDate() + 1);
-      ranges.push({ start: prev, end: prev }, { start: next, end: next });
-      break;
-    }
     case 'week': {
       const prevWeekStart = new Date(getWeekStart(date));
       prevWeekStart.setDate(prevWeekStart.getDate() - 7);
@@ -512,89 +545,6 @@ function renderScheduleToolbar() {
     </div>`;
 }
 
-// --- Day View ---
-
-function renderDayView(events, appData) {
-  const dayEvents = events
-    .filter(e => isSameDay(new Date(e.start), currentDate))
-    .map(e => enrichEvent(e))
-    .sort((a, b) => new Date(a.start) - new Date(b.start));
-
-  const gridHeight = TOTAL_HOURS * HOUR_HEIGHT;
-
-  // Time labels
-  let timeLabelsHtml = '';
-  let hourLinesHtml = '';
-  for (let h = CALENDAR_START_HOUR; h < CALENDAR_END_HOUR; h++) {
-    const top = (h - CALENDAR_START_HOUR) * HOUR_HEIGHT;
-    timeLabelsHtml += `<div class="cal-time-label" style="top:${top}px">${String(h).padStart(2, '0')}:00</div>`;
-    hourLinesHtml += `<div class="cal-hour-line" style="top:${(h - CALENDAR_START_HOUR) * HOUR_HEIGHT}px"></div>`;
-  }
-
-  // Event blocks
-  const eventBlocksHtml = dayEvents.map(e => {
-    const start = new Date(e.start);
-    const end = new Date(e.end);
-    const startMin = (start.getHours() - CALENDAR_START_HOUR) * 60 + start.getMinutes();
-    const endMin = (end.getHours() - CALENDAR_START_HOUR) * 60 + end.getMinutes();
-    const top = Math.max(0, startMin) * (HOUR_HEIGHT / 60);
-    const height = Math.max(80, (Math.min(endMin, TOTAL_HOURS * 60) - Math.max(0, startMin)) * (HOUR_HEIGHT / 60));
-
-    const trials = getTrialsForEvent(e, appData);
-    const joins = getJoinsForClass(e, appData);
-    const withdrawals = getWithdrawalsForClass(e, appData);
-
-    return `
-      <div class="sch-event-block" style="top:${top}px;min-height:${height}px"
-           onclick="window.memberApp.showScheduleEventDetail('${escapeHtml(e.id)}')">
-        <div class="sch-event-title">${escapeHtml(e.eventTitle)}</div>
-        ${e.classroomName ? `<div class="sch-event-classroom">${escapeHtml(e.classroomName)}</div>` : ''}
-        <div class="sch-event-time">${escapeHtml(e.timeSlot)}</div>
-        ${e.venue ? `<div class="sch-event-venue"><span class="material-icons" style="font-size:14px">place</span>${escapeHtml(e.venue)}</div>` : ''}
-        <div class="sch-event-staff">
-          ${e.mainCoach ? `<span class="sch-coach-badge">担当: ${escapeHtml(e.mainCoach)}</span>` : ''}
-          ${e.patrolCoach ? `<span class="sch-patrol-badge">巡回: ${escapeHtml(e.patrolCoach)}</span>` : ''}
-        </div>
-        <div class="sch-event-tags">
-          ${!e.taikenOk ? '<span class="sch-tag-ng">体験NG</span>' : '<span class="sch-tag-ok">体験OK</span>'}
-          ${!e.furikaeOk ? '<span class="sch-tag-ng">振替NG</span>' : ''}
-          ${e.capacity != null ? `<span class="sch-tag-cap">定員${e.capacity}</span>` : ''}
-        </div>
-        <div class="sch-event-counts">
-          ${trials.length > 0 ? `<span class="sch-count sch-count-trial">体験 ${trials.length}</span>` : ''}
-          ${joins.length > 0 ? `<span class="sch-count sch-count-join">入会 ${joins.length}</span>` : ''}
-          ${withdrawals.length > 0 ? `<span class="sch-count sch-count-withdrawal">退会 ${withdrawals.length}</span>` : ''}
-        </div>
-        ${e.memo ? `<div class="sch-event-memo">${escapeHtml(e.memo)}</div>` : ''}
-      </div>`;
-  }).join('');
-
-  // Now line
-  let nowLineHtml = '';
-  if (isSameDay(currentDate, new Date())) {
-    const now = new Date();
-    const nowMin = (now.getHours() - CALENDAR_START_HOUR) * 60 + now.getMinutes();
-    if (nowMin >= 0 && nowMin < TOTAL_HOURS * 60) {
-      const nowTop = nowMin * (HOUR_HEIGHT / 60);
-      nowLineHtml = `<div class="cal-now-line" style="top:${nowTop}px"></div>`;
-    }
-  }
-
-  return `
-    <div class="sch-day-grid">
-      <div class="sch-day-time-col">
-        <div class="cal-time-labels" style="height:${gridHeight}px;position:relative">
-          ${timeLabelsHtml}
-        </div>
-      </div>
-      <div class="sch-day-events-col" style="height:${gridHeight}px;position:relative">
-        ${hourLinesHtml}
-        ${eventBlocksHtml}
-        ${nowLineHtml}
-      </div>
-    </div>`;
-}
-
 // --- Week View ---
 
 function renderWeekView(events, appData) {
@@ -617,6 +567,10 @@ function renderWeekView(events, appData) {
 
     const eventCards = dayEvents.map(e => {
       const trials = getTrialsForEvent(e, appData);
+      const joins = getJoinsForClass(e, appData);
+      const withdrawals = getWithdrawalsForClass(e, appData);
+      const suspensions = getSuspensionsForClass(e, appData);
+      const reinstatements = getReinstatementsForClass(e, appData);
 
       return `
         <div class="sch-week-card" onclick="window.memberApp.showScheduleEventDetail('${escapeHtml(e.id)}')">
@@ -625,9 +579,15 @@ function renderWeekView(events, appData) {
           ${e.venue ? `<div class="sch-week-card-venue">${escapeHtml(e.venue)}</div>` : ''}
           <div class="sch-week-card-meta">
             ${e.mainCoach ? `<span class="sch-meta-coach">${escapeHtml(e.mainCoach)}</span>` : ''}
-            ${trials.length > 0 ? `<span class="sch-count sch-count-trial">体験${trials.length}</span>` : ''}
             ${!e.taikenOk ? '<span class="sch-tag-ng-sm">体験NG</span>' : ''}
             ${!e.furikaeOk ? '<span class="sch-tag-ng-sm">振替NG</span>' : ''}
+          </div>
+          <div class="sch-event-counts">
+            ${trials.length > 0 ? `<span class="sch-count sch-count-trial">体験${trials.length}</span>` : ''}
+            ${joins.length > 0 ? `<span class="sch-count sch-count-join">入会${joins.length}</span>` : ''}
+            ${withdrawals.length > 0 ? `<span class="sch-count sch-count-withdrawal">退会${withdrawals.length}</span>` : ''}
+            ${suspensions.length > 0 ? `<span class="sch-count sch-count-suspension">休会${suspensions.length}</span>` : ''}
+            ${reinstatements.length > 0 ? `<span class="sch-count sch-count-reinstatement">復会${reinstatements.length}</span>` : ''}
           </div>
           ${e.memo ? `<div class="sch-week-card-memo">${escapeHtml(e.memo)}</div>` : ''}
         </div>`;
@@ -685,7 +645,7 @@ function renderMonthView(events, appData) {
 
     cellsHtml += `
       <div class="sch-month-cell ${isCurrentMonth ? '' : 'sch-month-other'} ${isToday ? 'sch-month-today' : ''}"
-           onclick="window.memberApp.navigateScheduleToDate('${dateStr}','day')">
+           onclick="window.memberApp.navigateScheduleToDate('${dateStr}','week')">
         <div class="sch-month-date">${dateNum}</div>
         ${chips}${more}
       </div>`;
@@ -725,7 +685,7 @@ function renderYearView(events) {
 
       return `<div class="sch-year-day ${intensity} ${isToday ? 'sch-year-today' : ''}"
         title="${m + 1}/${d + 1}: ${count}件"
-        onclick="window.memberApp.navigateScheduleToDate('${dateStr}','day')">${d + 1}</div>`;
+        onclick="window.memberApp.navigateScheduleToDate('${dateStr}','week')">${d + 1}</div>`;
     }).join('');
 
     // Weekday header
@@ -754,6 +714,8 @@ export function showScheduleEventDetail(eventId) {
   const trials = cachedAppData ? getTrialsForEvent(e, cachedAppData) : [];
   const joins = cachedAppData ? getJoinsForClass(e, cachedAppData) : [];
   const withdrawals = cachedAppData ? getWithdrawalsForClass(e, cachedAppData) : [];
+  const suspensions = cachedAppData ? getSuspensionsForClass(e, cachedAppData) : [];
+  const reinstatements = cachedAppData ? getReinstatementsForClass(e, cachedAppData) : [];
 
   const eventDate = new Date(e.start);
   const dateLabel = `${eventDate.getFullYear()}年${eventDate.getMonth() + 1}月${eventDate.getDate()}日（${DAY_NAMES[eventDate.getDay()]}）`;
@@ -779,6 +741,22 @@ export function showScheduleEventDetail(eventId) {
         <div class="sch-detail-app-row" onclick="window.memberApp.showApplicationDetail('${w.id}')">
           <span>${escapeHtml(w.form_data?.name || '---')}</span>
           <span class="badge badge-app-${w.status}">${escapeHtml(statusLabel(w.status))}</span>
+        </div>`).join('')
+    : '<p class="text-muted">なし</p>';
+
+  const suspensionRows = suspensions.length > 0
+    ? suspensions.map(s => `
+        <div class="sch-detail-app-row" onclick="window.memberApp.showApplicationDetail('${s.id}')">
+          <span>${escapeHtml(s.form_data?.name || '---')}</span>
+          <span class="badge badge-app-${s.status}">${escapeHtml(statusLabel(s.status))}</span>
+        </div>`).join('')
+    : '<p class="text-muted">なし</p>';
+
+  const reinstatementRows = reinstatements.length > 0
+    ? reinstatements.map(r => `
+        <div class="sch-detail-app-row" onclick="window.memberApp.showApplicationDetail('${r.id}')">
+          <span>${escapeHtml(r.form_data?.name || '---')}</span>
+          <span class="badge badge-app-${r.status}">${escapeHtml(statusLabel(r.status))}</span>
         </div>`).join('')
     : '<p class="text-muted">なし</p>';
 
@@ -820,6 +798,16 @@ export function showScheduleEventDetail(eventId) {
         <h4>退会申請 (${withdrawals.length}件)</h4>
         ${withdrawalRows}
       </div>
+
+      <div class="sch-detail-section">
+        <h4>休会申請 (${suspensions.length}件)</h4>
+        ${suspensionRows}
+      </div>
+
+      <div class="sch-detail-section">
+        <h4>復会申請 (${reinstatements.length}件)</h4>
+        ${reinstatementRows}
+      </div>
     </div>`;
 
   openModal('スケジュール詳細', content);
@@ -830,9 +818,6 @@ export function showScheduleEventDetail(eventId) {
 
 export function navigateSchedule(offset) {
   switch (currentView) {
-    case 'day':
-      currentDate.setDate(currentDate.getDate() + offset);
-      break;
     case 'week':
       currentDate.setDate(currentDate.getDate() + offset * 7);
       break;
@@ -886,12 +871,8 @@ function formatTime(date) {
 function getDateLabel(date, view) {
   const y = date.getFullYear();
   const m = date.getMonth() + 1;
-  const d = date.getDate();
-  const dow = DAY_NAMES[date.getDay()];
 
   switch (view) {
-    case 'day':
-      return `${y}年${m}月${d}日（${dow}）`;
     case 'week': {
       const ws = getWeekStart(date);
       const we = new Date(ws);
@@ -912,8 +893,6 @@ function getDateLabel(date, view) {
 
 function getDateRange(date, view) {
   switch (view) {
-    case 'day':
-      return { start: new Date(date), end: new Date(date) };
     case 'week': {
       const start = getWeekStart(date);
       const end = new Date(start);
