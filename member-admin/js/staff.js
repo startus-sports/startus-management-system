@@ -340,9 +340,15 @@ function openStaffForm(staff) {
           ${classroomCheckboxes}
         </div>
       </div>
-      <div class="form-group">
-        <label>登録日</label>
-        <input type="date" name="joined_date" value="${s.joined_date || ''}">
+      <div class="form-row">
+        <div class="form-group">
+          <label>登録日</label>
+          <input type="date" name="joined_date" value="${s.joined_date || ''}">
+        </div>
+        <div class="form-group">
+          <label>カレンダー色</label>
+          <input type="color" name="calendar_color" value="${s.calendar_color || '#3b82f6'}" style="height:40px;padding:4px">
+        </div>
       </div>
       <div class="form-group">
         <label>メモ</label>
@@ -384,6 +390,7 @@ async function saveStaff(form, id) {
     classes: classesArray,
     joined_date: fd.get('joined_date') || null,
     note: fd.get('note') || '',
+    calendar_color: fd.get('calendar_color') || '',
   };
 
   let error;

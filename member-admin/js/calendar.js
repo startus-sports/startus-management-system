@@ -3,10 +3,8 @@
 import {
   GOOGLE_CALENDAR_API_KEY,
   GOOGLE_OAUTH_CLIENT_ID,
-  STAFF_CALENDARS,
-  CALENDAR_START_HOUR,
-  CALENDAR_END_HOUR,
 } from './config.js';
+import { getStaffCalendars, getCalendarStartHour, getCalendarEndHour } from './app-settings.js';
 import { showToast } from './app.js';
 import { escapeHtml } from './utils.js';
 
@@ -23,7 +21,6 @@ let pendingRender = false;
 
 const API_BASE = 'https://www.googleapis.com/calendar/v3/calendars';
 const HOUR_HEIGHT = 60; // px per hour
-const TOTAL_HOURS = CALENDAR_END_HOUR - CALENDAR_START_HOUR;
 const DAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
 const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
 
@@ -99,7 +96,7 @@ export async function renderCalendar() {
   }
 
   const dateStr = formatDateJP(currentDate);
-  const gridHeight = TOTAL_HOURS * HOUR_HEIGHT;
+  const gridHeight = (getCalendarEndHour() - getCalendarStartHour()) * HOUR_HEIGHT;
 
   // Toolbar
   const toolbar = `
@@ -121,19 +118,19 @@ export async function renderCalendar() {
 
   // Time labels
   let timeLabelsHtml = '';
-  for (let h = CALENDAR_START_HOUR; h < CALENDAR_END_HOUR; h++) {
-    const top = (h - CALENDAR_START_HOUR) * HOUR_HEIGHT;
+  for (let h = getCalendarStartHour(); h < getCalendarEndHour(); h++) {
+    const top = (h - getCalendarStartHour()) * HOUR_HEIGHT;
     timeLabelsHtml += `<div class="cal-time-label" style="top:${top}px">${String(h).padStart(2, '0')}:00</div>`;
   }
 
   // Hour lines
   let hourLinesHtml = '';
-  for (let h = 0; h < TOTAL_HOURS; h++) {
+  for (let h = 0; h < (getCalendarEndHour() - getCalendarStartHour()); h++) {
     hourLinesHtml += `<div class="cal-hour-line" style="top:${h * HOUR_HEIGHT}px"></div>`;
   }
 
   // Staff columns
-  const columnsHtml = STAFF_CALENDARS.map(staff => `
+  const columnsHtml = getStaffCalendars().map(staff => `
     <div class="cal-column" data-calendar-id="${escapeHtml(staff.id)}">
       <div class="cal-column-header" style="border-top:3px solid ${staff.color}">
         ${escapeHtml(staff.name)}
@@ -214,7 +211,7 @@ async function fetchAndRenderEvents() {
 
   try {
     const results = await Promise.allSettled(
-      STAFF_CALENDARS.map(async (staff) => {
+      getStaffCalendars().map(async (staff) => {
         const url = new URL(`${API_BASE}/${encodeURIComponent(staff.id)}/events`);
         url.searchParams.set('timeMin', timeMin);
         url.searchParams.set('timeMax', timeMax);
@@ -280,7 +277,7 @@ async function fetchAndRenderEvents() {
 // --- Event Rendering ---
 
 function renderEvents(eventsByCalendar) {
-  STAFF_CALENDARS.forEach((staff) => {
+  getStaffCalendars().forEach((staff) => {
     const column = document.querySelector(
       `.cal-column[data-calendar-id="${CSS.escape(staff.id)}"] .cal-column-body`
     );
@@ -300,14 +297,14 @@ function renderEvents(eventsByCalendar) {
       const start = new Date(startStr);
       const end = new Date(endStr);
 
-      const startMinutes = (start.getHours() - CALENDAR_START_HOUR) * 60 + start.getMinutes();
-      const endMinutes = (end.getHours() - CALENDAR_START_HOUR) * 60 + end.getMinutes();
+      const startMinutes = (start.getHours() - getCalendarStartHour()) * 60 + start.getMinutes();
+      const endMinutes = (end.getHours() - getCalendarStartHour()) * 60 + end.getMinutes();
 
       // Skip if outside visible range
-      if (endMinutes <= 0 || startMinutes >= TOTAL_HOURS * 60) return;
+      if (endMinutes <= 0 || startMinutes >= (getCalendarEndHour() - getCalendarStartHour()) * 60) return;
 
       const clampedStart = Math.max(0, startMinutes);
-      const clampedEnd = Math.min(endMinutes, TOTAL_HOURS * 60);
+      const clampedEnd = Math.min(endMinutes, (getCalendarEndHour() - getCalendarStartHour()) * 60);
       const topPx = clampedStart * (HOUR_HEIGHT / 60);
       const heightPx = Math.max(20, (clampedEnd - clampedStart) * (HOUR_HEIGHT / 60));
 
@@ -339,8 +336,8 @@ function renderNowLine() {
   if (toISODate(currentDate) !== toISODate(new Date())) return;
 
   const now = new Date();
-  const nowMinutes = (now.getHours() - CALENDAR_START_HOUR) * 60 + now.getMinutes();
-  if (nowMinutes < 0 || nowMinutes >= TOTAL_HOURS * 60) return;
+  const nowMinutes = (now.getHours() - getCalendarStartHour()) * 60 + now.getMinutes();
+  if (nowMinutes < 0 || nowMinutes >= (getCalendarEndHour() - getCalendarStartHour()) * 60) return;
 
   const topPx = nowMinutes * (HOUR_HEIGHT / 60);
 
@@ -364,7 +361,7 @@ function autoScrollToNow() {
   if (toISODate(currentDate) !== toISODate(new Date())) return;
 
   const now = new Date();
-  const scrollTo = ((now.getHours() - CALENDAR_START_HOUR - 1) * HOUR_HEIGHT);
+  const scrollTo = ((now.getHours() - getCalendarStartHour() - 1) * HOUR_HEIGHT);
   const wrapper = document.querySelector('.cal-grid-wrapper');
   if (wrapper && scrollTo > 0) {
     wrapper.scrollTop = scrollTo;

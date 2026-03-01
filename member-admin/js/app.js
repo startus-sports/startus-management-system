@@ -1,5 +1,5 @@
-import { APP_NAME } from './config.js';
 import { checkSession, isAllowedEmail, signInWithGoogle, signOut, onAuthStateChange } from './auth.js';
+import { loadAppSettings, loadStaffCalendars, getAppName, renderAppSettings } from './app-settings.js';
 import {
   loadMembers, showDetail, openAddForm, openEditForm,
   confirmDelete, deleteMember, initSortSelect, initSearchInput,
@@ -160,16 +160,20 @@ function toggleSearchBar(key) {
 // --- 初期化 ---
 
 async function init() {
-  // タイトル設定
+  // DB設定を読み込み（フォールバック値はconfig.jsから）
+  await loadAppSettings();
+
+  // タイトル設定（DB設定があればそれを使用）
+  const appName = getAppName();
   const titleEl = document.getElementById('app-title');
-  if (titleEl) titleEl.textContent = APP_NAME;
-  document.title = APP_NAME;
+  if (titleEl) titleEl.textContent = appName;
+  document.title = appName;
 
   const session = await checkSession();
 
   if (session && session.user) {
     const email = session.user.email;
-    if (!isAllowedEmail(email)) {
+    if (!(await isAllowedEmail(email))) {
       showLoginError('このアカウントではアクセスできません');
       await signOut();
       return;
@@ -182,7 +186,7 @@ async function init() {
   onAuthStateChange(async (session) => {
     if (session && session.user) {
       const email = session.user.email;
-      if (!isAllowedEmail(email)) {
+      if (!(await isAllowedEmail(email))) {
         showLoginError('このアカウントではアクセスできません');
         await signOut();
         return;
@@ -219,7 +223,7 @@ async function showApp(email) {
     if (tabName === 'staff') loadStaff();
     if (tabName === 'calendar') renderCalendar();
     if (tabName === 'schedule') renderSchedule();
-    if (tabName === 'master') renderClassroomScreen();
+    if (tabName === 'master') { renderClassroomScreen(); renderAppSettings(); }
   });
 
   // 申請フィルタ・ソート初期化
@@ -241,6 +245,7 @@ async function showApp(email) {
   // データ読み込み
   await loadClassrooms();
   await loadStaff();
+  await loadStaffCalendars();
   loadMembers();
 
   // 未対応バッジ更新（60秒ごと自動更新）

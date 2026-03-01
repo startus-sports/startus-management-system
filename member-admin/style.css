@@ -4294,3 +4294,29 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== App Settings ===== */
+
+.app-settings-section {
+  margin-top: 8px;
+}
+
+.app-settings-form .settings-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.app-settings-form .settings-card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  margin: 0 0 16px 0;
+}
+
+.app-settings-form .form-actions {
+  padding: 0;
+  border-top: none;
+}
