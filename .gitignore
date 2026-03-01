@@ -1,6 +1,7 @@
 .vercel/
 .claude/
 .vscode/
+.env
 nul
 *.tmp
 .DS_Store
