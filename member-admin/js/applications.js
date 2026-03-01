@@ -300,7 +300,7 @@ function applyAppFilters() {
 }
 
 function updateAppFilterBadge() {
-  const count = appFilters.types.length + appFilters.status.length + appFilters.assignee.length;
+  const count = appFilters.types.length + appFilters.status.length + appFilters.classes.length + appFilters.assignee.length;
   const btn = document.getElementById('app-filter-toggle');
   if (!btn) return;
   const existing = btn.querySelector('.filter-badge');
