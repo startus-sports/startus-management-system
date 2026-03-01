@@ -85,3 +85,102 @@ export async function exportCSV() {
 
   showToast(`${members.length}件エクスポートしました`, 'success');
 }
+
+// --- 申請CSV出力 ---
+
+export function exportApplicationsCSV() {
+  const apps = getFilteredApplications();
+  if (apps.length === 0) {
+    showToast('エクスポートするデータがありません', 'warning');
+    return;
+  }
+
+  const headers = [
+    '受付日', '種別', '氏名', 'フリガナ', '教室', '会員番号',
+    'ステータス', '担当者', '電話番号', 'メール', '管理メモ'
+  ];
+
+  const rows = apps.map(a => {
+    const fd = a.form_data || {};
+    const staff = a.assigned_to ? getStaffById(a.assigned_to) : null;
+    return [
+      a.created_at ? formatDate(a.created_at) : '',
+      APP_TYPE_LABELS[a.type] || a.type || '',
+      fd.name || '',
+      fd.furigana || '',
+      Array.isArray(fd.desired_classes) ? fd.desired_classes.join('・') : (fd.desired_classes || fd.classroom || ''),
+      fd.member_number || '',
+      APP_STATUS_LABELS[a.status] || a.status || '',
+      staff ? staff.name : '',
+      fd.phone || '',
+      fd.email || '',
+      a.admin_note || '',
+    ];
+  });
+
+  downloadCSV('申請一覧', headers, rows, apps.length);
+}
+
+// --- 体験CSV出力 ---
+
+export function exportTrialsCSV() {
+  const trials = getFilteredTrials();
+  if (trials.length === 0) {
+    showToast('エクスポートするデータがありません', 'warning');
+    return;
+  }
+
+  const headers = [
+    '受付日', '氏名', 'フリガナ', '学年', '学校',
+    '教室', '体験希望日', 'ステータス', '担当者',
+    'きっかけ', '電話番号', 'メール', '管理メモ'
+  ];
+
+  const rows = trials.map(t => {
+    const fd = t.form_data || {};
+    const staff = t.assigned_to ? getStaffById(t.assigned_to) : null;
+    return [
+      t.created_at ? formatDate(t.created_at) : '',
+      fd.name || '',
+      fd.furigana || '',
+      fd.grade || '',
+      fd.school || '',
+      Array.isArray(fd.desired_classes) ? fd.desired_classes.join('・') : (fd.desired_classes || ''),
+      fd.desired_date || '',
+      TRIAL_STATUS_LABELS[t.status] || t.status || '',
+      staff ? staff.name : '',
+      fd.route || '',
+      fd.phone || '',
+      fd.email || '',
+      t.admin_note || '',
+    ];
+  });
+
+  downloadCSV('体験一覧', headers, rows, trials.length);
+}
+
+// --- 共通ダウンロード ---
+
+function downloadCSV(prefix, headers, rows, count) {
+  const csvContent = [headers, ...rows]
+    .map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+    .join('\r\n');
+
+  const bom = '\uFEFF';
+  const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const filename = `${prefix}_${dateStr}.csv`;
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast(`${count}件エクスポートしました`, 'success');
+}
