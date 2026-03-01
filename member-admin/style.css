@@ -2577,12 +2577,12 @@ body {
 /* === Week View === */
 .sch-week-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 1px;
   background: var(--gray-200);
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .sch-week-col {
@@ -2610,6 +2610,12 @@ body {
   color: var(--gray-500);
   font-weight: 600;
 }
+
+/* 土曜日（青）・日曜日（赤） */
+.sch-week-sun .sch-week-dow,
+.sch-week-sun .sch-week-date { color: var(--danger-color); }
+.sch-week-sat .sch-week-dow,
+.sch-week-sat .sch-week-date { color: #2563eb; }
 
 .sch-week-date {
   font-size: 0.88rem;
@@ -2702,12 +2708,15 @@ body {
   background: white;
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow-x: auto;
 }
+
+.sch-month-cell.sch-cell-sun .sch-month-date { color: var(--danger-color); }
+.sch-month-cell.sch-cell-sat .sch-month-date { color: #2563eb; }
 
 .sch-month-header-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   background: var(--gray-50);
   border-bottom: 1px solid var(--gray-200);
 }
@@ -2720,9 +2729,12 @@ body {
   color: var(--gray-500);
 }
 
+.sch-month-header-cell.sch-header-sun { color: var(--danger-color); }
+.sch-month-header-cell.sch-header-sat { color: #2563eb; }
+
 .sch-month-body {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
 .sch-month-cell {
@@ -2808,7 +2820,7 @@ body {
 
 .sch-year-dow-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   margin-bottom: 2px;
 }
 
@@ -2820,9 +2832,12 @@ body {
 
 .sch-year-days {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 1px;
 }
+
+.sch-year-dow-header.sch-header-sun { color: var(--danger-color); }
+.sch-year-dow-header.sch-header-sat { color: #2563eb; }
 
 .sch-year-day {
   width: 100%;
@@ -2844,6 +2859,8 @@ body {
   cursor: default;
 }
 
+.sch-year-sun { color: var(--danger-color); }
+.sch-year-sat { color: #2563eb; }
 .sch-year-low { background: #dbeafe; color: #1d4ed8; }
 .sch-year-mid { background: #93c5fd; color: #1e40af; }
 .sch-year-high { background: #3b82f6; color: white; }
@@ -3604,11 +3621,13 @@ body {
   }
 
   .sch-week-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(7, minmax(110px, 1fr));
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sch-week-col {
-    min-height: auto;
+    min-height: 120px;
   }
 
   .sch-month-cell {

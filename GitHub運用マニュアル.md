@@ -96,8 +96,12 @@ member-manager/
 │       ├── calendar.js    ← カレンダー連携
 │       ├── chat.js        ← チャット機能
 │       └── ...            ← その他の機能
+├── scripts/               ← 自動化スクリプト
+│   ├── setup-auto-sync.sh ← 自動コミット＆プッシュ設定
+│   └── run-sql.sh         ← SQL実行ヘルパー
 ├── *.sql                  ← データベース定義ファイル
 ├── *-spec.md              ← 仕様書
+├── CLAUDE.md              ← Claude Code プロジェクト設定
 ├── .gitignore             ← Gitに含めないファイルの設定
 └── GitHub運用マニュアル.md ← このファイル
 ```
@@ -346,6 +350,26 @@ git add -A
 git commit -m "まとめてコミット: ○○の変更"
 git push
 ```
+
+### ケース10: 自動コミット＆プッシュを設定したい（新しいPCやスマホ）
+
+新しい環境で Claude Code を使い始める時に、自動同期を設定します：
+
+```bash
+bash scripts/setup-auto-sync.sh
+```
+
+これで Claude Code がコード変更するたびに自動で commit → push → Vercel デプロイされます。
+
+### ケース11: Supabase にSQLを実行したい
+
+マイグレーションファイルやデータ追加SQLを実行する場合：
+
+```bash
+bash scripts/run-sql.sh migration-xxx.sql
+```
+
+初回は Supabase CLI のセットアップが必要です。スクリプトがガイドします。
 
 ---
 

@@ -615,6 +615,7 @@ function renderWeekView(events, appData) {
     const isToday = isSameDay(day, new Date());
     const dayLabel = `${day.getMonth() + 1}/${day.getDate()}`;
     const dowLabel = DAY_NAMES[day.getDay()];
+    const dowClass = day.getDay() === 0 ? 'sch-week-sun' : day.getDay() === 6 ? 'sch-week-sat' : '';
 
     const eventCards = dayEvents.map(e => {
       const trials = getTrialsForEvent(e, appData);
@@ -645,7 +646,7 @@ function renderWeekView(events, appData) {
     }).join('');
 
     return `
-      <div class="sch-week-col ${isToday ? 'sch-week-today' : ''}">
+      <div class="sch-week-col ${isToday ? 'sch-week-today' : ''} ${dowClass}">
         <div class="sch-week-header">
           <span class="sch-week-dow">${dowLabel}</span>
           <span class="sch-week-date ${isToday ? 'sch-today-circle' : ''}">${dayLabel}</span>
@@ -694,17 +695,22 @@ function renderMonthView(events, appData) {
     const dateNum = cellDate.getDate();
     const dateStr = toISODate(cellDate);
 
+    const cellDow = cellDate.getDay();
+    const cellDowClass = cellDow === 0 ? ' sch-cell-sun' : cellDow === 6 ? ' sch-cell-sat' : '';
+
     cellsHtml += `
-      <div class="sch-month-cell ${isCurrentMonth ? '' : 'sch-month-other'} ${isToday ? 'sch-month-today' : ''}"
+      <div class="sch-month-cell ${isCurrentMonth ? '' : 'sch-month-other'} ${isToday ? 'sch-month-today' : ''}${cellDowClass}"
            onclick="window.memberApp.navigateScheduleToDate('${dateStr}','week')">
         <div class="sch-month-date">${dateNum}</div>
         ${chips}${more}
       </div>`;
   }
 
-  const headerHtml = ['月', '火', '水', '木', '金', '土', '日'].map(d =>
-    `<div class="sch-month-header-cell">${d}</div>`
-  ).join('');
+  const dowNames = ['月', '火', '水', '木', '金', '土', '日'];
+  const headerHtml = dowNames.map((d, i) => {
+    const cls = i === 5 ? ' sch-header-sat' : i === 6 ? ' sch-header-sun' : '';
+    return `<div class="sch-month-header-cell${cls}">${d}</div>`;
+  }).join('');
 
   return `
     <div class="sch-month-grid">
@@ -733,16 +739,20 @@ function renderYearView(events) {
       const intensity = count === 0 ? '' : count <= 2 ? 'sch-year-low' : count <= 5 ? 'sch-year-mid' : 'sch-year-high';
       const isToday = isSameDay(date, new Date());
       const dateStr = toISODate(date);
+      const dayDow = date.getDay();
+      const dowCls = dayDow === 0 ? ' sch-year-sun' : dayDow === 6 ? ' sch-year-sat' : '';
 
-      return `<div class="sch-year-day ${intensity} ${isToday ? 'sch-year-today' : ''}"
+      return `<div class="sch-year-day ${intensity} ${isToday ? 'sch-year-today' : ''}${dowCls}"
         title="${m + 1}/${d + 1}: ${count}件"
         onclick="window.memberApp.navigateScheduleToDate('${dateStr}','week')">${d + 1}</div>`;
     }).join('');
 
     // Weekday header
-    const dowHeader = ['月', '火', '水', '木', '金', '土', '日'].map(d =>
-      `<div class="sch-year-dow-header">${d}</div>`
-    ).join('');
+    const yearDowNames = ['月', '火', '水', '木', '金', '土', '日'];
+    const dowHeader = yearDowNames.map((d, i) => {
+      const cls = i === 5 ? ' sch-header-sat' : i === 6 ? ' sch-header-sun' : '';
+      return `<div class="sch-year-dow-header${cls}">${d}</div>`;
+    }).join('');
 
     return `
       <div class="sch-year-month" onclick="window.memberApp.navigateScheduleToDate('${year}-${String(m + 1).padStart(2, '0')}-01','month')">
