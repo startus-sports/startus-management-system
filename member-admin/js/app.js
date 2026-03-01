@@ -359,6 +359,7 @@ window.memberApp = {
   changeScheduleView,
   showScheduleEventDetail,
   navigateScheduleToDate,
+  toggleAppSummary,
   toggleChat,
   openRefFromChat,
   openDmWithStaff,
