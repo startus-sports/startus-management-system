@@ -1,6 +1,6 @@
 // --- 開催スケジュールカレンダー ---
 
-import { SCHEDULE_API_URL, CALENDAR_START_HOUR, CALENDAR_END_HOUR } from './config.js';
+import { getScheduleApiUrl, getCalendarStartHour, getCalendarEndHour } from './app-settings.js';
 import { supabase } from './supabase.js';
 import { escapeHtml } from './utils.js';
 import { showToast, openModal, closeModal, setModalWide } from './app.js';
@@ -33,7 +33,7 @@ const SS_TTL = 10 * 60 * 1000; // 10分
 
 const DAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
 const HOUR_HEIGHT = 60;
-const TOTAL_HOURS = CALENDAR_END_HOUR - CALENDAR_START_HOUR;
+// TOTAL_HOURS は動的に取得（getCalendarEndHour() - getCalendarStartHour()）
 const VIEW_LABELS = { week: '週', month: '月', year: '年' };
 
 // --- Description Parser ---
@@ -227,7 +227,7 @@ async function fetchScheduleEvents(startDate, endDate) {
     return getEventsFromCache(startDate, endDate);
   }
 
-  const url = `${SCHEDULE_API_URL}?start_date=${startStr}&end_date=${endStr}`;
+  const url = `${getScheduleApiUrl()}?start_date=${startStr}&end_date=${endStr}`;
 
   try {
     const resp = await fetch(url);

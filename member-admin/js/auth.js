@@ -6,9 +6,31 @@ export async function checkSession() {
   return session;
 }
 
-export function isAllowedEmail(email) {
-  if (!ALLOWED_EMAILS || ALLOWED_EMAILS.length === 0) return true;
-  return ALLOWED_EMAILS.includes(email);
+/**
+ * staff テーブルで email が在籍スタッフとして登録されているか確認する。
+ * staff テーブルから取得できない場合は config.js の ALLOWED_EMAILS にフォールバック。
+ */
+export async function isAllowedEmail(email) {
+  if (!email) return false;
+
+  // staff テーブルで在籍スタッフか確認
+  const { data, error } = await supabase
+    .from('staff')
+    .select('id')
+    .eq('email', email)
+    .eq('status', '在籍')
+    .limit(1);
+
+  if (!error && data && data.length > 0) {
+    return true;
+  }
+
+  // staff テーブルから取得できなかった場合は ALLOWED_EMAILS にフォールバック
+  if (ALLOWED_EMAILS && ALLOWED_EMAILS.length > 0) {
+    return ALLOWED_EMAILS.includes(email);
+  }
+
+  return false;
 }
 
 export async function signInWithGoogle() {
