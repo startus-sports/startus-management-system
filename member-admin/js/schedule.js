@@ -23,6 +23,12 @@ let appDataRange = null;       // { start: "YYYY-MM-DD", end: "YYYY-MM-DD" }
 // 教室インデックスキャッシュ
 let classroomIndex = null;     // { calendarTag: classroom }
 
+// sessionStorageキー
+const SS_EVENTS_KEY = 'sch_events';
+const SS_DATES_KEY = 'sch_dates';
+const SS_TS_KEY = 'sch_timestamp';
+const SS_TTL = 10 * 60 * 1000; // 10分
+
 // --- Constants ---
 
 const DAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
