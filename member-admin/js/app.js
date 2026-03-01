@@ -1,4 +1,4 @@
-import { checkSession, isAllowedEmail, signInWithGoogle, signOut, onAuthStateChange } from './auth.js';
+import { checkSession, isAllowedEmail, isAdmin, signInWithGoogle, signOut, onAuthStateChange } from './auth.js';
 import { loadAppSettings, loadStaffCalendars, getAppName, renderAppSettings } from './app-settings.js';
 import {
   loadMembers, showDetail, openAddForm, openEditForm,
@@ -208,6 +208,9 @@ async function showApp(email) {
   const userEmail = document.getElementById('user-email');
   if (userEmail) userEmail.textContent = email;
 
+  // admin権限に応じてUI制御
+  applyAdminVisibility();
+
   // イベント初期化
   initSortSelect();
   initSearchInput();
@@ -261,6 +264,23 @@ async function showApp(email) {
     await initChat(chatStaff);
   } else {
     console.warn('chat init: スタッフが見つかりません。staffテーブルにメールが登録されているか確認してください');
+  }
+}
+
+/**
+ * admin権限に応じて admin-only 要素の表示/非表示を切り替える
+ */
+function applyAdminVisibility() {
+  const adminOnly = document.querySelectorAll('.admin-only');
+  const display = isAdmin();
+  adminOnly.forEach(el => {
+    el.style.display = display ? '' : 'none';
+  });
+
+  // admin バッジ表示
+  const badge = document.getElementById('admin-badge');
+  if (badge) {
+    badge.style.display = display ? '' : 'none';
   }
 }
 
@@ -375,6 +395,7 @@ window.memberApp = {
   chatBackToList,
   chatSendMessage,
   toggleSearchBar,
+  isAdmin,
 };
 
 // --- キーボードショートカット ---

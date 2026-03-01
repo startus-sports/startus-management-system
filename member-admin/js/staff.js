@@ -1,6 +1,7 @@
 import { supabase } from './supabase.js';
 import { escapeHtml, formatDate } from './utils.js';
 import { showToast, openModal, closeModal } from './app.js';
+import { isAdmin } from './auth.js';
 import { getActiveClassrooms } from './classroom.js';
 
 let allStaff = [];
@@ -146,7 +147,8 @@ const STAFF_GRID_HEADER = `
 
 function buildStaffGridRow(s) {
   const roleClass = getRoleClass(s.role);
-  const roleBadge = `<span class="badge badge-type badge-type-${roleClass}">${escapeHtml(s.role)}</span>`;
+  const adminBadge = s.is_admin ? '<span class="badge badge-admin">管理者</span>' : '';
+  const roleBadge = `<span class="badge badge-type badge-type-${roleClass}">${escapeHtml(s.role)}</span>${adminBadge}`;
   const statusBadge = s.status !== '在籍'
     ? `<span class="badge badge-status badge-status-withdrawn">${escapeHtml(s.status)}</span>`
     : `<span class="badge badge-status badge-status-active">${escapeHtml(s.status)}</span>`;
@@ -257,6 +259,7 @@ export function showStaffDetail(id) {
       <div class="detail-row"><span class="detail-label">氏名</span><span class="detail-value">${escapeHtml(s.name)}</span></div>
       <div class="detail-row"><span class="detail-label">フリガナ</span><span class="detail-value">${escapeHtml(s.furigana) || '-'}</span></div>
       <div class="detail-row"><span class="detail-label">役職</span><span class="detail-value">${escapeHtml(s.role)}</span></div>
+      <div class="detail-row"><span class="detail-label">管理者権限</span><span class="detail-value">${s.is_admin ? '<span class="badge badge-admin">管理者</span>' : 'なし'}</span></div>
       <div class="detail-row"><span class="detail-label">ステータス</span><span class="detail-value">${escapeHtml(s.status)}</span></div>
       <div class="detail-row"><span class="detail-label">電話番号</span><span class="detail-value">${escapeHtml(s.phone) || '-'}${phoneCopy}</span></div>
       <div class="detail-row"><span class="detail-label">メール</span><span class="detail-value">${escapeHtml(s.email) || '-'}${emailCopy}</span></div>
@@ -264,14 +267,14 @@ export function showStaffDetail(id) {
       <div class="detail-row"><span class="detail-label">登録日</span><span class="detail-value">${formatDate(s.joined_date) || '-'}</span></div>
       <div class="detail-row"><span class="detail-label">メモ</span><span class="detail-value">${escapeHtml(s.note) || '-'}</span></div>
     </div>
-    <div class="modal-detail-actions">
+    ${isAdmin() ? `<div class="modal-detail-actions">
       <button class="btn btn-primary" onclick="window.memberApp.openStaffEditForm('${s.id}')">
         <span class="material-icons">edit</span>編集
       </button>
       <button class="btn btn-danger" onclick="window.memberApp.confirmDeleteStaff('${s.id}', '${escapeHtml(s.name)}')">
         <span class="material-icons">delete</span>削除
       </button>
-    </div>`;
+    </div>` : ''}`;
 
   openModal('スタッフ詳細', content);
 }
@@ -326,6 +329,14 @@ function openStaffForm(staff) {
           </select>
         </div>
       </div>
+      ${isAdmin() ? `
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" name="is_admin" ${s.is_admin ? 'checked' : ''}>
+          管理者権限を付与する
+        </label>
+        <p class="form-hint">管理者はスタッフ管理・マスタ設定・会員削除などの操作ができます</p>
+      </div>` : ''}
       <div class="form-group">
         <label>電話番号</label>
         <input type="tel" name="phone" value="${escapeHtml(s.phone || '')}">
@@ -392,6 +403,11 @@ async function saveStaff(form, id) {
     note: fd.get('note') || '',
     calendar_color: fd.get('calendar_color') || '',
   };
+
+  // admin権限がある場合のみ is_admin を更新
+  if (isAdmin()) {
+    data.is_admin = !!fd.get('is_admin');
+  }
 
   let error;
   if (id) {

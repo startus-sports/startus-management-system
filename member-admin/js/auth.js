@@ -1,6 +1,9 @@
 import { supabase } from './supabase.js';
 import { ALLOWED_EMAILS } from './config.js';
 
+// 現在のログインユーザーが管理者かどうか
+let currentUserIsAdmin = false;
+
 export async function checkSession() {
   const { data: { session } } = await supabase.auth.getSession();
   return session;
@@ -13,24 +16,33 @@ export async function checkSession() {
 export async function isAllowedEmail(email) {
   if (!email) return false;
 
-  // staff テーブルで在籍スタッフか確認
+  // staff テーブルで在籍スタッフか確認（is_admin も取得）
   const { data, error } = await supabase
     .from('staff')
-    .select('id')
+    .select('id, is_admin')
     .eq('email', email)
     .eq('status', '在籍')
     .limit(1);
 
   if (!error && data && data.length > 0) {
+    currentUserIsAdmin = !!data[0].is_admin;
     return true;
   }
 
   // staff テーブルから取得できなかった場合は ALLOWED_EMAILS にフォールバック
   if (ALLOWED_EMAILS && ALLOWED_EMAILS.length > 0) {
+    currentUserIsAdmin = false;
     return ALLOWED_EMAILS.includes(email);
   }
 
   return false;
+}
+
+/**
+ * 現在のログインユーザーが管理者かどうか返す
+ */
+export function isAdmin() {
+  return currentUserIsAdmin;
 }
 
 export async function signInWithGoogle() {

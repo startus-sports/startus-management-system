@@ -39,6 +39,7 @@
         <h1 id="app-title">会員管理</h1>
       </div>
       <div class="app-header-right">
+        <span class="badge badge-admin" id="admin-badge" style="display:none">管理者</span>
         <span class="user-email" id="user-email"></span>
         <button class="btn-logout" onclick="window.memberApp.signOut()" title="ログアウト">
           <span class="material-icons">logout</span>
@@ -72,7 +73,7 @@
       <button class="tab-btn" data-tab="schedule" onclick="window.memberApp.switchTab('schedule')">
         <span class="material-icons">event_note</span>スケジュール
       </button>
-      <button class="tab-btn" data-tab="master" onclick="window.memberApp.switchTab('master')">
+      <button class="tab-btn admin-only" data-tab="master" onclick="window.memberApp.switchTab('master')">
         <span class="material-icons">tune</span>マスタ
       </button>
     </nav>
@@ -86,13 +87,13 @@
           <button class="btn btn-primary" onclick="window.memberApp.openAddForm()">
             <span class="material-icons">add</span><span class="btn-text-mobile-hide">追加</span>
           </button>
-          <button class="btn btn-secondary" onclick="window.memberApp.openImportModal()">
+          <button class="btn btn-secondary admin-only" onclick="window.memberApp.openImportModal()">
             <span class="material-icons">upload_file</span><span class="btn-text-mobile-hide">インポート</span>
           </button>
           <button class="btn btn-secondary" onclick="window.memberApp.exportCSV()">
             <span class="material-icons">download</span><span class="btn-text-mobile-hide">CSV出力</span>
           </button>
-          <button class="btn btn-secondary" onclick="window.memberApp.openGradeUpdateModal()">
+          <button class="btn btn-secondary admin-only" onclick="window.memberApp.openGradeUpdateModal()">
             <span class="material-icons">school</span><span class="btn-text-mobile-hide">学年更新</span>
           </button>
           <button class="btn btn-secondary" onclick="window.memberApp.openEmailListModal()">
@@ -367,7 +368,7 @@
       <div class="section-header">
         <h2>スタッフ・コーチ</h2>
         <div class="section-actions">
-          <button class="btn btn-primary" onclick="window.memberApp.openStaffAddForm()">
+          <button class="btn btn-primary admin-only" onclick="window.memberApp.openStaffAddForm()">
             <span class="material-icons">add</span><span class="btn-text-mobile-hide">追加</span>
           </button>
         </div>
