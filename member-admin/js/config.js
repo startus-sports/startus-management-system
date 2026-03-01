@@ -23,6 +23,14 @@ export const ALLOWED_EMAILS = [
   'hisasimatu3117@gmail.com'
 ];
 
+// 管理者メール（フォールバック）
+// ここに記載されたメールアドレスは常に管理者権限を持つ。
+// DBの is_admin に加えて、初期セットアップやロックアウト時の復旧用。
+export const ADMIN_EMAILS = [
+  'hisashimatsui@startus-kanazawa.org',
+  'hisasimatu3117@gmail.com'
+];
+
 // アプリ名（フォールバック）→ 本来は app_config テーブルで管理
 export const APP_NAME = 'STARTUS 会員管理';
 
