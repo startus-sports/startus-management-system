@@ -109,6 +109,48 @@ function getWeekStart(date) {
   return d;
 }
 
+// --- sessionStorage 永続化 ---
+
+function saveToSessionStorage() {
+  try {
+    sessionStorage.setItem(SS_EVENTS_KEY, JSON.stringify(eventsByDate));
+    sessionStorage.setItem(SS_DATES_KEY, JSON.stringify([...fetchedDateSet]));
+    sessionStorage.setItem(SS_TS_KEY, String(Date.now()));
+  } catch { /* quota exceeded - ignore */ }
+}
+
+function loadFromSessionStorage() {
+  try {
+    const ts = sessionStorage.getItem(SS_TS_KEY);
+    if (!ts || Date.now() - Number(ts) > SS_TTL) {
+      // 期限切れ
+      sessionStorage.removeItem(SS_EVENTS_KEY);
+      sessionStorage.removeItem(SS_DATES_KEY);
+      sessionStorage.removeItem(SS_TS_KEY);
+      return false;
+    }
+    const eventsJson = sessionStorage.getItem(SS_EVENTS_KEY);
+    const datesJson = sessionStorage.getItem(SS_DATES_KEY);
+    if (!eventsJson || !datesJson) return false;
+
+    eventsByDate = JSON.parse(eventsJson);
+    const dates = JSON.parse(datesJson);
+    fetchedDateSet = new Set(dates);
+
+    // allFetchedEvents を復元
+    allFetchedEvents = [];
+    for (const dateEvents of Object.values(eventsByDate)) {
+      allFetchedEvents.push(...dateEvents);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// 起動時にsessionStorageから復元
+loadFromSessionStorage();
+
 /** 指定範囲内の全日付文字列を生成 */
 function getDatesBetween(start, end) {
   const dates = [];
