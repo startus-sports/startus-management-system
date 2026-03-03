@@ -62,12 +62,23 @@ function initGIS() {
   return true;
 }
 
-function requestCalendarAccess(selectAccount = false) {
+function getAppUserEmail() {
+  const el = document.getElementById('user-email');
+  return el ? el.textContent.trim() : '';
+}
+
+function requestCalendarAccess(forceConsent = false) {
   if (!tokenClient) return;
   pendingRender = true;
-  tokenClient.requestAccessToken({
-    prompt: selectAccount ? 'select_account' : '',
-  });
+  const config = {};
+  if (forceConsent) {
+    config.prompt = 'consent';
+  }
+  const hint = getAppUserEmail();
+  if (hint) {
+    config.login_hint = hint;
+  }
+  tokenClient.requestAccessToken(config);
 }
 
 // --- Public API ---
