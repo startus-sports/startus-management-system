@@ -2319,73 +2319,42 @@ body {
   text-overflow: ellipsis;
 }
 
-/* Loading indicator */
-.cal-column-loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--gray-300);
-}
-
-.cal-spinner {
-  animation: calSpin 1s linear infinite;
-}
-
-@keyframes calSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.cal-column-error {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+/* Calendar Embed */
+.cal-embed-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  color: var(--gray-300);
-  font-size: 12px;
-}
-.cal-column-error .material-icons {
-  font-size: 24px;
-  color: var(--warning);
+  height: calc(100vh - 160px);
+  min-height: 500px;
 }
 
-.cal-account-info {
+.cal-embed-iframe {
+  flex: 1;
+  width: 100%;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  background: white;
+}
+
+.cal-embed-hint {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  padding: 8px 12px;
   font-size: 12px;
   color: var(--gray-400);
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+.cal-embed-hint .material-icons {
+  font-size: 16px;
 }
 
-/* Current time indicator */
-.cal-now-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--danger-color);
-  z-index: 2;
-  pointer-events: none;
+.cal-mode-toggle {
+  display: flex;
+  gap: 4px;
 }
-
-.cal-column-body .cal-now-line::before {
-  content: '';
-  position: absolute;
-  left: -4px;
-  top: -3px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--danger-color);
+.cal-mode-toggle .btn {
+  padding: 4px 12px;
+  min-width: auto;
+  font-size: 13px;
 }
 
 /* ===== Schedule Tab (スケジュール) ===== */
