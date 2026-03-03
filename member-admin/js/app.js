@@ -382,6 +382,7 @@ window.memberApp = {
   openGoogleCalendar,
   showCalendarEvent,
   changeCalendarMode,
+  openModal,
   renderSchedule,
   navigateSchedule,
   goToScheduleToday,
