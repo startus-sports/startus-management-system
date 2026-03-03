@@ -113,6 +113,15 @@ export async function renderCalendar() {
   const gridHeight = (getCalendarEndHour() - getCalendarStartHour()) * HOUR_HEIGHT;
 
   // Toolbar
+  const accountInfo = calendarAccountEmail
+    ? `<span class="cal-account-info" title="${escapeHtml(calendarAccountEmail)}">
+        <span class="material-icons" style="font-size:16px">account_circle</span>${escapeHtml(calendarAccountEmail)}
+      </span>
+      <button class="btn-icon" onclick="window.memberApp.switchCalendarAccount()" title="アカウント切替">
+        <span class="material-icons">swap_horiz</span>
+      </button>`
+    : '';
+
   const toolbar = `
     <div class="cal-toolbar">
       <button class="btn btn-secondary" onclick="window.memberApp.goToToday()">
@@ -125,9 +134,12 @@ export async function renderCalendar() {
         <span class="material-icons">chevron_right</span>
       </button>
       <span class="cal-date-label">${escapeHtml(dateStr)}</span>
-      <button class="btn-icon" onclick="window.memberApp.refreshCalendar()" title="更新" style="margin-left:auto">
-        <span class="material-icons">refresh</span>
-      </button>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:4px">
+        ${accountInfo}
+        <button class="btn-icon" onclick="window.memberApp.refreshCalendar()" title="更新">
+          <span class="material-icons">refresh</span>
+        </button>
+      </div>
     </div>`;
 
   // Time labels
