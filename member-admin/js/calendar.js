@@ -23,7 +23,7 @@ let calendarAccountEmail = null;
 const API_BASE = 'https://www.googleapis.com/calendar/v3/calendars';
 const HOUR_HEIGHT = 60; // px per hour
 const DAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
-const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
+const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly email';
 
 // --- OAuth (Google Identity Services) ---
 
