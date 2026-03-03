@@ -359,7 +359,11 @@ function openClassroomForm(classroom) {
           </div>
           <div class="form-group">
             <label>時間帯</label>
-            <input type="text" name="time_slot" value="${escapeHtml(c.time_slot || '')}" placeholder="例: 18:00〜19:00">
+            <div style="display:flex;align-items:center;gap:4px">
+              <input type="time" name="time_start" value="${c.time_start || ''}" style="flex:1">
+              <span>〜</span>
+              <input type="time" name="time_end" value="${c.time_end || ''}" style="flex:1">
+            </div>
           </div>
           <div class="form-group" style="grid-column:1/-1">
             <label>会場</label>
