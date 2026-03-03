@@ -1000,7 +1000,6 @@ export function refreshSchedule() {
   fetchedDateSet.clear();
   allFetchedEvents = [];
   cachedAppData = null;
-  appDataRange = null;
   classroomIndex = null;
   // sessionStorageもクリア
   sessionStorage.removeItem(SS_EVENTS_KEY);
