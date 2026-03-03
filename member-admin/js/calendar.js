@@ -369,8 +369,8 @@ export function openGoogleCalendar() {
 export function showCalendarEvent(el) {
   try {
     const data = JSON.parse(el.dataset.event);
-    const { showModal } = window.memberApp;
-    if (!showModal) return;
+    const { openModal } = window.memberApp;
+    if (!openModal) return;
 
     const content = `
       <div style="padding:8px 0">
@@ -386,7 +386,7 @@ export function showCalendarEvent(el) {
         ${data.description ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-200);color:var(--gray-600);font-size:0.9rem;white-space:pre-wrap">${escapeHtml(data.description)}</div>` : ''}
       </div>`;
 
-    showModal('予定の詳細', content);
+    openModal('予定の詳細', content);
   } catch (e) {
     console.error('Event detail error:', e);
   }
