@@ -29,11 +29,11 @@
  */
 function setupSubscriptions() {
   var emails = [
-    'imoto@startus-kanazawa.org',
-    'matsui@startus-kanazawa.org',
-    'matsukura@startus-kanazawa.org',
-    'takei@startus-kanazawa.org',
-    'sakurai@startus-kanazawa.org'
+    'hiroshiinomoto@startus-kanazawa.org',
+    'hisashimatsui@startus-kanazawa.org',
+    'junkomatsukura@startus-kanazawa.org',
+    'sayokotakei@startus-kanazawa.org',
+    'asuka.sakurai@startus-kanazawa.org'
   ];
 
   for (var i = 0; i < emails.length; i++) {
