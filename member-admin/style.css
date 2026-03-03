@@ -2356,6 +2356,14 @@ body {
   min-width: auto;
   font-size: 13px;
 }
+.cal-open-gcal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px !important;
+  font-size: 13px !important;
+  font-weight: 600;
+}
 
 /* ===== Schedule Tab (スケジュール) ===== */
 
