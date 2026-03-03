@@ -16,9 +16,8 @@ let eventsByDate = {};         // { "2026-03-01": [event, ...], ... }
 let fetchedDateSet = new Set(); // 取得済み日付のセット
 let allFetchedEvents = [];     // flat array of all fetched events (for detail modal)
 
-// アプリデータキャッシュ（範囲管理付き）
+// アプリデータキャッシュ（承認済みデータ全体）
 let cachedAppData = null;      // { trials, joins, withdrawals, suspensions, reinstatements }
-let appDataRange = null;       // { start: "YYYY-MM-DD", end: "YYYY-MM-DD" }
 
 // 教室インデックスキャッシュ
 let classroomIndex = null;     // { calendarTag: classroom }
