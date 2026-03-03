@@ -80,7 +80,7 @@ export async function renderCalendar(resetMode = true) {
 
 export function changeCalendarMode(mode) {
   currentMode = mode;
-  renderCalendar();
+  renderCalendar(false);
 }
 
 export function refreshCalendar() {
