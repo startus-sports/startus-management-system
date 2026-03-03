@@ -16,6 +16,7 @@ let accessToken = null;
 let tokenClient = null;
 let gisReady = false;
 let pendingRender = false;
+let calendarAccountEmail = null;
 
 // --- Constants ---
 
