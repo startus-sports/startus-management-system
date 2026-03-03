@@ -365,6 +365,22 @@ function enrichEvent(event) {
   };
 }
 
+function matchesClassroom(classroomName, classList) {
+  if (!classroomName || !classList.length) return false;
+  return classList.some(c =>
+    c === classroomName || c.includes(classroomName) || classroomName.includes(c)
+  );
+}
+
+function toClassList(fd, ...keys) {
+  for (const key of keys) {
+    const val = fd[key];
+    if (val) return Array.isArray(val) ? val : [val].filter(Boolean);
+  }
+  return [];
+}
+
+/** 体験: desired_date（体験希望日）でマッチ */
 function getTrialsForEvent(enrichedEvent, appData) {
   if (!appData || !enrichedEvent.classroom) return [];
   const eventDate = toISODate(new Date(enrichedEvent.start));
@@ -372,77 +388,65 @@ function getTrialsForEvent(enrichedEvent, appData) {
 
   return appData.trials.filter(t => {
     const fd = t.form_data || {};
-    const desiredDate = fd.desired_date || '';
-    const desiredClasses = Array.isArray(fd.desired_classes)
-      ? fd.desired_classes
-      : [fd.desired_classes].filter(Boolean);
-
-    const dateMatch = desiredDate === eventDate ||
-      desiredDate.replace(/\//g, '-') === eventDate;
-    const classMatch = classroomName && desiredClasses.some(c =>
-      c === classroomName || c.includes(classroomName) || classroomName.includes(c)
-    );
-
+    const dateMatch = normalizeDate(fd.desired_date) === eventDate;
+    const classMatch = matchesClassroom(classroomName, toClassList(fd, 'desired_classes'));
     return dateMatch && classMatch;
   });
 }
 
-function getJoinsForClass(enrichedEvent, appData) {
+/** 入会: first_date（初回参加予定日）でマッチ */
+function getJoinsForEvent(enrichedEvent, appData) {
   if (!appData || !enrichedEvent.classroom) return [];
+  const eventDate = toISODate(new Date(enrichedEvent.start));
   const classroomName = enrichedEvent.classroomName;
 
   return appData.joins.filter(j => {
     const fd = j.form_data || {};
-    const desiredClasses = Array.isArray(fd.desired_classes)
-      ? fd.desired_classes
-      : [fd.desired_classes].filter(Boolean);
-    return classroomName && desiredClasses.some(c =>
-      c === classroomName || c.includes(classroomName) || classroomName.includes(c)
-    );
+    const dateMatch = normalizeDate(fd.first_date) === eventDate;
+    const classMatch = matchesClassroom(classroomName, toClassList(fd, 'desired_classes'));
+    return dateMatch && classMatch;
   });
 }
 
-function getWithdrawalsForClass(enrichedEvent, appData) {
+/** 退会: last_date（最終参加予定日）でマッチ */
+function getWithdrawalsForEvent(enrichedEvent, appData) {
   if (!appData || !enrichedEvent.classroom) return [];
+  const eventDate = toISODate(new Date(enrichedEvent.start));
   const classroomName = enrichedEvent.classroomName;
 
   return appData.withdrawals.filter(w => {
     const fd = w.form_data || {};
-    const classes = fd.classes || fd.desired_classes || [];
-    const classList = Array.isArray(classes) ? classes : [classes].filter(Boolean);
-    return classroomName && classList.some(c =>
-      c === classroomName || c.includes(classroomName) || classroomName.includes(c)
-    );
+    const dateMatch = normalizeDate(fd.last_date) === eventDate;
+    const classMatch = matchesClassroom(classroomName, toClassList(fd, 'classes', 'desired_classes'));
+    return dateMatch && classMatch;
   });
 }
 
-function getSuspensionsForClass(enrichedEvent, appData) {
+/** 休会: start_date（休会開始予定日）でマッチ */
+function getSuspensionsForEvent(enrichedEvent, appData) {
   if (!appData || !appData.suspensions || !enrichedEvent.classroom) return [];
+  const eventDate = toISODate(new Date(enrichedEvent.start));
   const classroomName = enrichedEvent.classroomName;
 
   return appData.suspensions.filter(s => {
     const fd = s.form_data || {};
-    const desiredClasses = Array.isArray(fd.desired_classes)
-      ? fd.desired_classes
-      : [fd.desired_classes].filter(Boolean);
-    return classroomName && desiredClasses.some(c =>
-      c === classroomName || c.includes(classroomName) || classroomName.includes(c)
-    );
+    const dateMatch = normalizeDate(fd.start_date) === eventDate;
+    const classMatch = matchesClassroom(classroomName, toClassList(fd, 'desired_classes'));
+    return dateMatch && classMatch;
   });
 }
 
-function getReinstatementsForClass(enrichedEvent, appData) {
+/** 復会: return_date（復会予定日）でマッチ */
+function getReinstatementsForEvent(enrichedEvent, appData) {
   if (!appData || !appData.reinstatements || !enrichedEvent.classroom) return [];
+  const eventDate = toISODate(new Date(enrichedEvent.start));
   const classroomName = enrichedEvent.classroomName;
 
   return appData.reinstatements.filter(r => {
     const fd = r.form_data || {};
-    const desiredClasses = Array.isArray(fd.desired_classes)
-      ? fd.desired_classes
-      : [fd.desired_classes].filter(Boolean);
-    return classroomName && desiredClasses.some(c =>
-      c === classroomName || c.includes(classroomName) || classroomName.includes(c)
-    );
+    const dateMatch = normalizeDate(fd.return_date) === eventDate;
+    const classMatch = matchesClassroom(classroomName, toClassList(fd, 'desired_classes'));
+    return dateMatch && classMatch;
   });
 }
 
