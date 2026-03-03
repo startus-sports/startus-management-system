@@ -229,6 +229,7 @@ async function saveAppSettingsForm(form) {
       end: parseInt(fd.get('cal_end'), 10) || 24,
     });
     await saveSetting('schedule_api_url', fd.get('schedule_api_url') || '');
+    await saveSetting('calendar_api_url', fd.get('calendar_api_url') || '');
 
     // タイトル即時反映
     const newAppName = fd.get('app_name') || '';
