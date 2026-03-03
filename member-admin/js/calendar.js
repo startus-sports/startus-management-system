@@ -36,12 +36,12 @@ function buildEmbedUrl() {
 
 // --- Public API ---
 
-export async function renderCalendar() {
+export async function renderCalendar(resetMode = true) {
   const container = document.getElementById('calendar-content');
   if (!container) return;
 
   // タブ切り替え時は常に日表示をデフォルトにする
-  currentMode = 'DAY';
+  if (resetMode) currentMode = 'DAY';
 
   const toolbar = `
     <div class="cal-toolbar">
