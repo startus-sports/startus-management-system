@@ -392,8 +392,12 @@ function openClassroomForm(classroom) {
             <input type="number" name="capacity" value="${c.capacity ?? ''}" min="0" placeholder="例: 30">
           </div>
           <div class="form-group">
-            <label>月謝（円）</label>
-            <input type="number" name="fee" value="${c.fee ?? ''}" min="0" step="100" placeholder="例: 6600">
+            <label>月謝1（円）</label>
+            <input type="number" name="fee" value="${c.fee ?? ''}" min="0" step="1" placeholder="例: 6600">
+          </div>
+          <div class="form-group">
+            <label>月謝2（円）</label>
+            <input type="number" name="fee2" value="${c.fee2 ?? ''}" min="0" step="1" placeholder="例: 3300">
           </div>
         </div>
       </fieldset>
