@@ -269,7 +269,7 @@ async function fetchAndRenderEvents() {
         if (!resp.ok) {
           const errText = await resp.text().catch(() => '');
           console.error(`Calendar API error for ${staff.name} (${resp.status}):`, errText);
-          return { calendarId: staff.id, events: [], error: true };
+          return { calendarId: staff.id, events: [], error: true, statusCode: resp.status };
         }
         const data = await resp.json();
         return { calendarId: staff.id, events: data.items || [] };
