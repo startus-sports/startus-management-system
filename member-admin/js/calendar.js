@@ -3,8 +3,8 @@
 import { getStaffCalendars } from './app-settings.js';
 
 // --- State ---
-
-let currentMode = 'DAY'; // DAY or WEEK
+// Google Calendar embed は WEEK / MONTH / AGENDA のみ対応（DAY モードなし）
+let currentMode = 'WEEK';
 
 // --- Embed URL Builder ---
 
@@ -40,21 +40,22 @@ export async function renderCalendar(resetMode = true) {
   const container = document.getElementById('calendar-content');
   if (!container) return;
 
-  // タブ切り替え時は常に日表示をデフォルトにする
-  if (resetMode) currentMode = 'DAY';
+  // タブ切り替え時は週表示をデフォルトにする
+  if (resetMode) currentMode = 'WEEK';
 
   const toolbar = `
     <div class="cal-toolbar">
       <div class="cal-mode-toggle">
-        <button class="btn ${currentMode === 'DAY' ? 'btn-primary' : 'btn-secondary'}" onclick="window.memberApp.changeCalendarMode('DAY')">日</button>
-        <button class="btn ${currentMode === 'WEEK' ? 'btn-primary' : 'btn-secondary'}" onclick="window.memberApp.changeCalendarMode('WEEK')">週</button>
+        <button class="btn btn-primary cal-open-gcal-btn" onclick="window.memberApp.openGoogleCalendar()">
+          <span class="material-icons" style="font-size:18px">open_in_new</span>
+          日表示で開く（Googleカレンダー）
+        </button>
       </div>
       <div style="margin-left:auto;display:flex;align-items:center;gap:4px">
+        <button class="btn ${currentMode === 'WEEK' ? 'btn-primary' : 'btn-secondary'}" onclick="window.memberApp.changeCalendarMode('WEEK')">週</button>
+        <button class="btn ${currentMode === 'MONTH' ? 'btn-primary' : 'btn-secondary'}" onclick="window.memberApp.changeCalendarMode('MONTH')">月</button>
         <button class="btn-icon" onclick="window.memberApp.refreshCalendar()" title="再読込">
           <span class="material-icons">refresh</span>
-        </button>
-        <button class="btn-icon" onclick="window.memberApp.openGoogleCalendar()" title="Googleカレンダーで開く">
-          <span class="material-icons">open_in_new</span>
         </button>
       </div>
     </div>`;
@@ -73,7 +74,7 @@ export async function renderCalendar(resetMode = true) {
       ></iframe>
       <div class="cal-embed-hint">
         <span class="material-icons">info</span>
-        予定が表示されない場合は、ブラウザで組織のGoogleアカウント（@startus-kanazawa.org）にログインしてください
+        スタッフ別の日表示は「日表示で開く」ボタンからGoogleカレンダーでご利用ください
       </div>
     </div>`;
 }
@@ -91,7 +92,8 @@ export function refreshCalendar() {
 }
 
 export function openGoogleCalendar() {
-  window.open('https://calendar.google.com/calendar/u/0/r', '_blank');
+  // ネイティブ Google Calendar を日表示で直接開く
+  window.open('https://calendar.google.com/calendar/u/0/r/day', '_blank');
 }
 
 // Keep these exports for backward compatibility (no-ops)
