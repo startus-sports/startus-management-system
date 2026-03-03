@@ -287,18 +287,36 @@ async function fetchAndRenderEvents() {
     }
 
     const eventsByCalendar = {};
-    let hasError = false;
+    const errorCalendars = [];
     results.forEach((result) => {
       if (result.status === 'fulfilled') {
         eventsByCalendar[result.value.calendarId] = result.value.events;
-        if (result.value.error) hasError = true;
+        if (result.value.error) {
+          errorCalendars.push({ id: result.value.calendarId, status: result.value.statusCode });
+        }
       } else {
-        hasError = true;
+        errorCalendars.push({ id: 'unknown', status: 0 });
       }
     });
 
-    if (hasError) {
-      showToast('一部のカレンダーの読み込みに失敗しました', 'warning');
+    if (errorCalendars.length > 0) {
+      const has404 = errorCalendars.some(e => e.status === 404);
+      const msg = has404
+        ? 'カレンダーが見つかりません。正しいアカウントでログインしているか確認してください。'
+        : '一部のカレンダーの読み込みに失敗しました';
+      showToast(msg, 'warning');
+      // Show error indicator on failed columns
+      errorCalendars.forEach(({ id }) => {
+        const col = document.querySelector(
+          `.cal-column[data-calendar-id="${CSS.escape(id)}"] .cal-column-body`
+        );
+        if (col && !col.querySelector('.cal-column-error')) {
+          const errEl = document.createElement('div');
+          errEl.className = 'cal-column-error';
+          errEl.innerHTML = '<span class="material-icons">error_outline</span><span>読み込み失敗</span>';
+          col.appendChild(errEl);
+        }
+      });
     }
 
     cachedEvents[isoDate] = eventsByCalendar;
