@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Update staff names in Supabase and verify results."""
+"""Verify staff names in Supabase."""
 import json
 import subprocess
 import os
@@ -13,7 +13,6 @@ if not TOKEN:
     print("Error: SUPABASE_ACCESS_TOKEN not set")
     sys.exit(1)
 
-# First, let's just SELECT to check current state without updating
 sql_check = "SELECT name, email FROM staff ORDER BY email;"
 payload_check = json.dumps({"query": sql_check})
 
@@ -35,33 +34,47 @@ try:
         ],
     )
 
-    # Read raw bytes
     with open(outfile, "rb") as f:
         raw = f.read()
 
-    print(f"Raw bytes length: {len(raw)}")
-    print(f"First 200 bytes hex: {raw[:200].hex()}")
-    print()
+    text = raw.decode("utf-8")
+    data = json.loads(text)
 
-    # Try decoding as UTF-8
-    try:
-        text_utf8 = raw.decode("utf-8")
-        print("UTF-8 decode: OK")
-        data = json.loads(text_utf8)
+    # Write results to a UTF-8 file for proper display
+    result_file = os.path.join(os.path.dirname(tmpfile), "staff_result.txt")
+    with open(result_file, "w", encoding="utf-8") as rf:
         for row in data:
-            print(f"  {row['name']} | {row['email']}")
-    except UnicodeDecodeError as e:
-        print(f"UTF-8 decode FAILED: {e}")
+            line = f"{row['name']} | {row['email']}"
+            rf.write(line + "\n")
 
-        # Try as Shift_JIS
-        try:
-            text_sjis = raw.decode("shift_jis")
-            print("Shift_JIS decode:")
-            data = json.loads(text_sjis)
-            for row in data:
-                print(f"  {row['name']} | {row['email']}")
-        except Exception as e2:
-            print(f"Shift_JIS also failed: {e2}")
+    # Print result file path
+    print(f"RESULT_FILE={result_file}")
+
+    # Also check expected names
+    expected = {
+        "asuka.sakurai@startus-kanazawa.org": "櫻井 明日花",
+        "hiroshiinomoto@startus-kanazawa.org": "井元 浩",
+        "hisashimatsui@startus-kanazawa.org": "松井 久",
+        "junkomatsukura@startus-kanazawa.org": "松倉 純子",
+        "sayokotakei@startus-kanazawa.org": "竹井 早葉子",
+        "startus@startus-kanazawa.org": "管理者",
+    }
+
+    all_ok = True
+    for row in data:
+        email = row["email"]
+        name = row["name"]
+        exp = expected.get(email, "???")
+        match = "OK" if name == exp else "MISMATCH"
+        if match != "OK":
+            all_ok = False
+        # Use repr for safe printing
+        print(f"  {match}: email={email} name={name!r} expected={exp!r}")
+
+    if all_ok:
+        print("\nALL NAMES CORRECT!")
+    else:
+        print("\nSOME NAMES DO NOT MATCH")
 
 finally:
     for f in [tmpfile, outfile]:
