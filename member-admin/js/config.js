@@ -41,3 +41,7 @@ export const CALENDAR_END_HOUR = 23;
 
 // 教室スケジュールAPI（フォールバック）→ 本来は app_config テーブルで管理
 export const SCHEDULE_API_URL = 'https://script.google.com/macros/s/AKfycbzSckwINV7p82DXUaUeQNEAyRy2MoWXJfbzeYWffwnKoQZ_inJ_6lAOPZim6N-oBxqF9g/exec';
+
+// スタッフカレンダーAPI（フォールバック）→ 本来は app_config テーブルで管理
+// GAS デプロイ後に URL を設定すること
+export const CALENDAR_API_URL = '';
