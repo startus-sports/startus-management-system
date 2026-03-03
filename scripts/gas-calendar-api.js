@@ -137,7 +137,7 @@ function testDoGet() {
   var result = doGet({
     parameter: {
       date: Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd'),
-      emails: 'imoto@startus-kanazawa.org,matsui@startus-kanazawa.org'
+      emails: 'hiroshiinomoto@startus-kanazawa.org,hisashimatsui@startus-kanazawa.org'
     }
   });
   Logger.log(result.getContent());
