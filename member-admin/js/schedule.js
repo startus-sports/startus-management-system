@@ -286,50 +286,41 @@ function fetchViaJsonp(url) {
 // --- Data Fetching: Application Counts ---
 
 async function fetchApplicationCounts(startDate, endDate) {
-  const startStr = toISODate(startDate);
-  const endStr = toISODate(endDate);
-
-  // 既にカバーされている範囲ならキャッシュを返す
-  if (cachedAppData && appDataRange &&
-      appDataRange.start <= startStr && appDataRange.end >= endStr) {
+  // キャッシュ済みならそのまま返す（ステータスフィルタ済みの全データ）
+  if (cachedAppData) {
     return cachedAppData;
   }
 
-  // 範囲を拡大（既存キャッシュとマージ）
-  const fetchStart = appDataRange ? (startStr < appDataRange.start ? startStr : appDataRange.start) : startStr;
-  const fetchEnd = appDataRange ? (endStr > appDataRange.end ? endStr : appDataRange.end) : endStr;
-
+  // 受付済み（承認済み）の申請のみ取得
+  // - 体験: reviewed（受付済み）以降のステータス
+  // - その他: approved（承認）のみ
+  // 日付フィルタは使わず、クライアント側でアクション日によりフィルタする
   const [trialsRes, joinsRes, withdrawalsRes, suspensionsRes, reinstatementsRes] = await Promise.all([
     supabase
       .from('applications')
       .select('id, type, status, form_data, created_at')
       .eq('type', 'trial')
-      .gte('created_at', `${fetchStart}T00:00:00`)
-      .lte('created_at', `${fetchEnd}T23:59:59`),
+      .in('status', ['reviewed', 'approved', 'enrolled']),
     supabase
       .from('applications')
       .select('id, type, status, form_data, created_at')
       .eq('type', 'join')
-      .gte('created_at', `${fetchStart}T00:00:00`)
-      .lte('created_at', `${fetchEnd}T23:59:59`),
+      .eq('status', 'approved'),
     supabase
       .from('applications')
       .select('id, type, status, form_data, created_at')
       .eq('type', 'withdrawal')
-      .gte('created_at', `${fetchStart}T00:00:00`)
-      .lte('created_at', `${fetchEnd}T23:59:59`),
+      .eq('status', 'approved'),
     supabase
       .from('applications')
       .select('id, type, status, form_data, created_at')
       .eq('type', 'suspension')
-      .gte('created_at', `${fetchStart}T00:00:00`)
-      .lte('created_at', `${fetchEnd}T23:59:59`),
+      .eq('status', 'approved'),
     supabase
       .from('applications')
       .select('id, type, status, form_data, created_at')
       .eq('type', 'reinstatement')
-      .gte('created_at', `${fetchStart}T00:00:00`)
-      .lte('created_at', `${fetchEnd}T23:59:59`),
+      .eq('status', 'approved'),
   ]);
 
   cachedAppData = {
@@ -339,7 +330,6 @@ async function fetchApplicationCounts(startDate, endDate) {
     suspensions: suspensionsRes.data || [],
     reinstatements: reinstatementsRes.data || [],
   };
-  appDataRange = { start: fetchStart, end: fetchEnd };
 
   return cachedAppData;
 }
