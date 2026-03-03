@@ -33,13 +33,23 @@ function initGIS() {
   tokenClient = window.google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_OAUTH_CLIENT_ID,
     scope: CALENDAR_SCOPE,
-    callback: (tokenResponse) => {
+    callback: async (tokenResponse) => {
       if (tokenResponse.error) {
         console.error('OAuth error:', tokenResponse);
         showToast('カレンダーの認証に失敗しました', 'error');
         return;
       }
       accessToken = tokenResponse.access_token;
+      // Fetch authenticated account email
+      try {
+        const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        if (res.ok) {
+          const info = await res.json();
+          calendarAccountEmail = info.email || null;
+        }
+      } catch (_) { /* ignore */ }
       // Token received, now fetch events
       if (pendingRender) {
         pendingRender = false;
