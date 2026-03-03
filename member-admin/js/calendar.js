@@ -207,11 +207,14 @@ export function switchCalendarAccount() {
   accessToken = null;
   calendarAccountEmail = null;
   cachedEvents = {};
-  // Revoke current token to force account picker
-  if (oldToken && window.google?.accounts?.oauth2) {
-    window.google.accounts.oauth2.revoke(oldToken, () => {});
+  // Revoke current token to force fresh account selection
+  if (oldToken) {
+    try { window.google.accounts.oauth2.revoke(oldToken, () => {}); } catch (_) {}
   }
-  requestCalendarAccess(true);
+  // Force consent without login_hint so user can pick any account
+  if (!tokenClient) return;
+  pendingRender = true;
+  tokenClient.requestAccessToken({ prompt: 'consent' });
 }
 
 export function navigateCalendarDay(offset) {
