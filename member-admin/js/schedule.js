@@ -620,10 +620,10 @@ function renderWeekView(events, appData) {
 
     const eventCards = dayEvents.map(e => {
       const trials = getTrialsForEvent(e, appData);
-      const joins = getJoinsForClass(e, appData);
-      const withdrawals = getWithdrawalsForClass(e, appData);
-      const suspensions = getSuspensionsForClass(e, appData);
-      const reinstatements = getReinstatementsForClass(e, appData);
+      const joins = getJoinsForEvent(e, appData);
+      const withdrawals = getWithdrawalsForEvent(e, appData);
+      const suspensions = getSuspensionsForEvent(e, appData);
+      const reinstatements = getReinstatementsForEvent(e, appData);
 
       return `
         <div class="sch-week-card" onclick="window.memberApp.showScheduleEventDetail('${escapeHtml(e.id)}')">
