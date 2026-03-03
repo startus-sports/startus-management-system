@@ -5,24 +5,55 @@
  * startus@startus-kanazawa.org アカウントでデプロイすること。
  *
  * ★ 事前準備:
- *   GASエディタ左側「サービス」→「Google Calendar API」を追加すること
+ *   1. GASエディタ左側「サービス」→「Google Calendar API」を追加
+ *   2. setupSubscriptions() を一度だけ実行（スタッフカレンダーを購読）
+ *   3. testDoGet() を実行して動作確認
  *
  * デプロイ手順:
  * 1. https://script.google.com で新規プロジェクト作成
  * 2. このコードを貼り付け
  * 3. 左側「サービス」→「Google Calendar API」を追加
- * 4. testDoGet を実行して権限を承認
- * 5. デプロイ → 新しいデプロイ → ウェブアプリ
+ * 4. setupSubscriptions を実行（初回のみ）
+ * 5. testDoGet を実行して動作確認
+ * 6. デプロイ → 新しいデプロイ → ウェブアプリ
  *    - 実行: 自分 (startus@startus-kanazawa.org)
  *    - アクセス: 全員
- * 6. 生成された URL をアプリ設定の「カレンダーAPI URL」に登録
- *
- * リクエスト例:
- *   ?date=2026-03-03&emails=imoto@startus-kanazawa.org,matsui@startus-kanazawa.org
- *
- * JSONP:
- *   ?date=2026-03-03&emails=...&callback=myFunc
+ * 7. 生成された URL をアプリ設定の「カレンダーAPI URL」に登録
  */
+
+/**
+ * ★ 初回セットアップ: スタッフカレンダーを購読リストに追加
+ * この関数を一度だけ実行すること。
+ * Calendar API でイベントを取得するには、カレンダーが購読リストに
+ * 追加されている必要がある。
+ */
+function setupSubscriptions() {
+  var emails = [
+    'imoto@startus-kanazawa.org',
+    'matsui@startus-kanazawa.org',
+    'matsukura@startus-kanazawa.org',
+    'takei@startus-kanazawa.org',
+    'sakurai@startus-kanazawa.org'
+  ];
+
+  for (var i = 0; i < emails.length; i++) {
+    var email = emails[i];
+    try {
+      Calendar.CalendarList.insert({ id: email });
+      Logger.log('OK: ' + email + ' を購読リストに追加しました');
+    } catch (e) {
+      if (e.message.indexOf('Already Exists') >= 0) {
+        Logger.log('SKIP: ' + email + ' は既に購読済みです');
+      } else {
+        Logger.log('ERROR: ' + email + ' - ' + e.message);
+      }
+    }
+  }
+
+  Logger.log('セットアップ完了。testDoGet を実行して確認してください。');
+}
+
+// --- メイン API ---
 
 function doGet(e) {
   var params = e.parameter;
@@ -47,8 +78,6 @@ function doGet(e) {
   for (var i = 0; i < emails.length; i++) {
     var email = emails[i];
     try {
-      // Calendar Advanced Service (Calendar API v3) を使用
-      // 共有されていれば購読不要でアクセス可能
       var response = Calendar.Events.list(email, {
         timeMin: timeMin,
         timeMax: timeMax,
@@ -62,7 +91,7 @@ function doGet(e) {
 
       for (var j = 0; j < items.length; j++) {
         var ev = items[j];
-        var isAllDay = !!ev.start.date; // 終日イベントは date、時間指定は dateTime
+        var isAllDay = !!ev.start.date;
 
         eventList.push({
           title: ev.summary || '(タイトルなし)',
@@ -81,12 +110,7 @@ function doGet(e) {
     }
   }
 
-  var responseData = {
-    date: dateStr,
-    results: results
-  };
-
-  return respond_(responseData, params.callback);
+  return respond_({ date: dateStr, results: results }, params.callback);
 }
 
 /**
@@ -96,7 +120,6 @@ function respond_(data, callback) {
   var json = JSON.stringify(data);
 
   if (callback) {
-    // JSONP
     return ContentService
       .createTextOutput(callback + '(' + json + ')')
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
@@ -109,7 +132,6 @@ function respond_(data, callback) {
 
 /**
  * テスト用: ログにサンプルレスポンスを出力
- * ★ 初回実行時に権限承認ダイアログが出るので承認すること
  */
 function testDoGet() {
   var result = doGet({
