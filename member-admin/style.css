@@ -3690,8 +3690,18 @@ body {
     padding: 6px 10px;
   }
 
-  .cal-grid-wrapper {
-    max-height: calc(100vh - 160px);
+  .cal-staff-header {
+    min-width: 80px;
+    font-size: 0.8rem;
+    padding: 8px 4px;
+  }
+
+  .cal-staff-col {
+    min-width: 80px;
+  }
+
+  .cal-day-body {
+    max-height: calc(100vh - 180px);
   }
 
   /* Schedule mobile */
