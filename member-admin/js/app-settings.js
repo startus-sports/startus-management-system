@@ -191,6 +191,11 @@ export function renderAppSettings() {
           <label>スケジュールAPI URL（GAS）</label>
           <input type="url" name="schedule_api_url" value="${escapeHtml(scheduleUrl)}" placeholder="https://script.google.com/macros/s/...">
         </div>
+        <div class="form-group">
+          <label>カレンダーAPI URL（GAS）</label>
+          <input type="url" name="calendar_api_url" value="${escapeHtml(calendarApiUrl)}" placeholder="https://script.google.com/macros/s/...">
+          <small style="color:var(--gray-400)">スタッフカレンダー日表示用。未設定時はカレンダータブに設定案内が表示されます。</small>
+        </div>
       </div>
       <div class="form-actions">
         <button type="submit" class="btn btn-primary" id="settings-save-btn">
