@@ -165,7 +165,7 @@ export function renderAppSettings() {
       <div class="settings-card">
         <div class="form-group">
           <label>アプリケーション名</label>
-          <input type="text" name="app_name" value="${escapeHtml(appName)}" placeholder="例: STARTUS 会員管理">
+          <input type="text" name="app_name" value="${escapeHtml(appName)}" placeholder="例: STARTUS Management System">
         </div>
         <div class="form-group">
           <label>団体名</label>
