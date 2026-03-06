@@ -1608,7 +1608,7 @@ body {
 
 /* ===== App Body Layout ===== */
 .app-body {
-  position: relative;
+  display: flex;
   min-height: calc(100vh - 56px);
 }
 
@@ -1617,26 +1617,27 @@ body {
   min-width: 0;
 }
 
-/* ===== Sidebar (Gemini style: overlay toggle) ===== */
+/* ===== Sidebar (persistent toggle) ===== */
 .sidebar {
   width: 260px;
+  min-width: 260px;
   background: white;
   border-right: 1px solid var(--gray-200);
   height: calc(100vh - 56px);
-  position: fixed;
+  position: sticky;
   top: 56px;
-  left: 0;
   display: flex;
   flex-direction: column;
-  z-index: 200;
-  transform: translateX(-100%);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: none;
+  z-index: 99;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
-.sidebar.open {
-  transform: translateX(0);
-  box-shadow: var(--shadow-xl);
+.sidebar.hidden {
+  width: 0;
+  min-width: 0;
+  border-right: none;
 }
 
 .sidebar-nav {
@@ -1744,7 +1745,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Sidebar Footer - hidden in Gemini style */
+/* Sidebar Footer - hidden */
 .sidebar-footer {
   display: none;
 }
@@ -1769,14 +1770,13 @@ body {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Sidebar Overlay - always used */
+/* Sidebar Overlay (mobile only) */
 .sidebar-overlay {
   display: none;
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.3);
   z-index: 199;
-  transition: opacity 0.25s ease;
 }
 
 .sidebar-overlay.active {
@@ -3839,10 +3839,27 @@ body {
     gap: 8px;
   }
 
-  /* Mobile: sidebar top adjustment */
+  /* Mobile: sidebar becomes overlay */
   .sidebar {
+    position: fixed;
     top: 0;
+    left: 0;
     height: 100vh;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar.hidden {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    width: 260px;
+    min-width: 260px;
+    transform: translateX(0);
+    box-shadow: var(--shadow-xl);
+    border-right: 1px solid var(--gray-200);
   }
 
   .dashboard-grid {
