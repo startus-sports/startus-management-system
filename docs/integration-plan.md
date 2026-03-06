@@ -29,7 +29,7 @@
 
 STARTUS スポーツアカデミーの業務システムは、以下の複数サービスに分散している：
 - SharePoint（教室マスタ管理）
-- Google Calendar + Squramu（スケジュール入力・表示）
+- Google Calendar + Sgrum（スケジュール入力・表示）
 - Google Apps Script（フォーム処理・HP カレンダー表示）
 - Microsoft Forms（フォームタグ取得）
 - Supabase + Vercel（会員管理アプリ）
@@ -52,7 +52,7 @@ STARTUS スポーツアカデミーの業務システムは、以下の複数サ
 | GAS フォーム | 体験・入会等の申請受付 | 継続利用（データソースのみ Supabase に変更） |
 | GAS カレンダー Widget | HP 上のスケジュール表示 | 継続利用（データソースのみ変更） |
 | SharePoint ClassList | 教室マスタ管理 | Supabase に移行、廃止 |
-| Squramu | Google Calendar への入力 | member-manager に移行、廃止 |
+| Sgrum | Google Calendar への入力 | member-manager に移行、廃止 |
 
 ---
 
@@ -62,7 +62,7 @@ STARTUS スポーツアカデミーの業務システムは、以下の複数サ
 
 ```
 ┌──────────┐    手動入力    ┌───────────────┐
-│ Squramu  │──────────────→│Google Calendar │
+│ Sgrum  │──────────────→│Google Calendar │
 └──────────┘               └───────┬───────┘
                                    │
                     ┌──────────────┼──────────────┐
@@ -195,7 +195,7 @@ Supabase classrooms:           calendar_tag = "kidsdance"
 | サービス | 廃止時期 | 代替 |
 |----------|---------|------|
 | SharePoint ClassList | Phase 2 完了後 | Supabase classrooms |
-| Squramu | Phase 1 完了後 | member-admin スケジュール管理タブ |
+| Sgrum | Phase 1 完了後 | member-admin スケジュール管理タブ |
 | Supabase (calendar-manager 別インスタンス) | Phase 0 完了後 | 統一 Supabase に統合 |
 | Microsoft Forms タグ取得 | Phase 2 完了後 | Supabase classrooms |
 
@@ -361,7 +361,7 @@ Phase 1 完了後、既存「スケジュール」タブのデータソースを
 
 ## 5. Phase 1: スケジュール入力の統合
 
-**目的:** スケジュールの入力方法を Squramu → member-admin に移行。
+**目的:** スケジュールの入力方法を Sgrum → member-admin に移行。
 **職員への影響:** あり（入力方法が変わる）
 
 ### 5.1 移行手順
@@ -372,14 +372,14 @@ Phase 1 完了後、既存「スケジュール」タブのデータソースを
 | 5.1.2 | Google Calendar 同期の有効化 | `is_published = true` のスケジュールを GCal に同期 |
 | 5.1.3 | 動作検証 | テスト環境で一括生成→GCal同期→HPカレンダー表示の一連フローを確認 |
 | 5.1.4 | 職員研修 | スケジュール管理タブの使い方を説明 |
-| 5.1.5 | 切り替え | Squramu での入力を停止、member-admin での入力に移行 |
+| 5.1.5 | 切り替え | Sgrum での入力を停止、member-admin での入力に移行 |
 
 ### 5.2 並行運用期間
 
 切り替え直後の2週間は並行運用を推奨：
 - member-admin で入力 → GCal に同期
 - HP カレンダーが正しく表示されることを毎日確認
-- 問題があれば Squramu に戻す（ロールバック可能）
+- 問題があれば Sgrum に戻す（ロールバック可能）
 
 ### 5.3 GAS Schedule API の扱い
 
@@ -396,7 +396,7 @@ Phase 1 完了後、既存「スケジュール」タブのデータソースを
 - [ ] HP のカレンダー Widget にスケジュールが正しく表示される
 - [ ] 体験フォームの日程表示に影響がないこと（GCal経由で表示されるため）
 - [ ] 「スケジュール」タブ（閲覧用）のデータソースを Supabase に切り替え済み
-- [ ] Squramu での入力を停止
+- [ ] Sgrum での入力を停止
 
 ---
 
@@ -785,7 +785,7 @@ CREATE INDEX idx_attendance_date ON attendance(
 | Phase | ロールバック方法 | 所要時間 |
 |-------|----------------|---------|
 | Phase 0 | config.js の接続先を旧 Supabase に戻す | 数分 |
-| Phase 1 | Squramu での入力を再開。GAS API を復活 | 即座 |
+| Phase 1 | Sgrum での入力を再開。GAS API を復活 | 即座 |
 | Phase 2 | GAS フォームの教室取得先を SharePoint に戻す | GAS デプロイ（数分） |
 | Phase 3 | GAS フォームの日程取得を Google Calendar に戻す | GAS デプロイ（数分） |
 | Phase 4 | Widget のデータソースを Google Calendar に戻す | GAS デプロイ（数分） |
