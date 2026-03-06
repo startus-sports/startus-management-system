@@ -2440,7 +2440,8 @@ body {
   border-radius: var(--radius-lg);
   border: 1px solid var(--gray-200);
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 /* Loading & Error */
@@ -2484,6 +2485,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 5;
+  min-width: fit-content;
 }
 
 .cal-time-gutter-header {
@@ -2536,7 +2538,8 @@ body {
   max-height: calc(100vh - 200px);
   min-height: 400px;
   overflow-y: auto;
-  overflow-x: auto;
+  overflow-x: hidden;
+  min-width: fit-content;
 }
 
 /* Time Gutter */
