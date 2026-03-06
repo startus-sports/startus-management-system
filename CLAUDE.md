@@ -1,8 +1,8 @@
-# CLAUDE.md - member-manager プロジェクト設定
+# CLAUDE.md - STARTUS Management System プロジェクト設定
 
 ## プロジェクト概要
 
-STARTUS Sports Academy 会員管理システム。Vanilla JavaScript + Supabase のWebアプリ。
+STARTUS Sports Academy 管理システム（STARTUS Management System）。Vanilla JavaScript + Supabase のWebアプリ。
 Vercel にデプロイ: https://member-manager-nu.vercel.app
 
 ## 重要ルール
