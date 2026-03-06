@@ -4540,22 +4540,25 @@ body {
 
 /* --- サブタブバー --- */
 
+.sm-main-content {
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
 .sm-subtab-bar {
   display: flex;
   gap: 0;
   background: white;
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 0 24px;
+  margin-bottom: 0;
 }
 
 .sm-tab-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border: none;
   background: none;
   color: var(--gray-500);
@@ -4565,8 +4568,6 @@ body {
   border-bottom: 3px solid transparent;
   transition: all 0.2s;
   font-family: inherit;
-  flex: 1;
-  justify-content: center;
 }
 
 .sm-tab-btn:hover {
@@ -4787,6 +4788,12 @@ body {
 }
 
 /* --- スケジュールリスト --- */
+
+#sm-list-screen,
+#sm-stats-screen,
+#sm-calendar-screen {
+  padding: 16px 24px;
+}
 
 .list-container {
   background: white;
