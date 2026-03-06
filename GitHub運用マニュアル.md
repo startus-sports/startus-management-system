@@ -1,6 +1,6 @@
 # GitHub 運用マニュアル
 
-> **対象**: member-manager プロジェクト（STARTUS Sports Academy 会員管理システム）
+> **対象**: STARTUS Management System プロジェクト（STARTUS Sports Academy 管理システム）
 > **最終更新**: 2026年3月
 
 ---
