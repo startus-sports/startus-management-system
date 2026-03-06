@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://esm.sh; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://script.google.com https://www.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://*.supabase.co data:; frame-src https://accounts.google.com"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.sheetjs.com https://esm.sh https://script.google.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://script.google.com https://script.googleusercontent.com https://www.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://*.supabase.co data:; frame-src https://accounts.google.com"
         },
         {
           "key": "X-Content-Type-Options",
