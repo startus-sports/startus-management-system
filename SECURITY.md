@@ -1,7 +1,7 @@
-# STARTUS Sports Academy 会員管理システム セキュリティ対策レポート
+# STARTUS Management System セキュリティ対策レポート
 
 **作成日:** 2026年3月5日
-**対象システム:** 会員管理システム（member-manager）
+**対象システム:** STARTUS Management System
 **URL:** https://member-manager-nu.vercel.app
 
 ---
