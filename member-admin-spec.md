@@ -1,4 +1,4 @@
-# 会員管理アプリ（Member Admin）仕様書
+# STARTUS Management System（STARTUS Admin）仕様書
 
 ## 1. プロジェクト概要
 
