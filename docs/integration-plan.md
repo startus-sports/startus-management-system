@@ -197,7 +197,7 @@ Supabase classrooms:           calendar_tag = "kidsdance"
 | SharePoint ClassList | Phase 2 完了後 | Supabase classrooms |
 | Sgrum | Phase 1 完了後 | member-admin スケジュール管理タブ |
 | Supabase (calendar-manager 別インスタンス) | Phase 0 完了後 | 統一 Supabase に統合 |
-| Microsoft Forms タグ取得 | Phase 2 完了後 | Supabase classrooms |
+| SharePoint Lists タグ取得 | Phase 2 完了後 | Supabase classrooms |
 
 ---
 
