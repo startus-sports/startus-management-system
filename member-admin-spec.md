@@ -217,7 +217,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 ```
 ┌──────────────────────────────────────────┐
-│ [icon] 会員管理    user@email.com [logout]│  ← ヘッダー（グラデーション）
+│ [icon] STARTUS Management System user@email.com [logout]│  ← ヘッダー（グラデーション）
 ├──────────────────────────────────────────┤
 │ 会員一覧                                  │
 │ [+ 追加] [インポート] [CSV出力]           │  ← セクションヘッダー
