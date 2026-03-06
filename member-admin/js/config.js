@@ -24,7 +24,7 @@ export const ALLOWED_EMAILS = [
 ];
 
 // アプリ名（フォールバック）→ 本来は app_config テーブルで管理
-export const APP_NAME = 'STARTUS 会員管理';
+export const APP_NAME = 'STARTUS Management System';
 
 // スタッフカレンダー設定（フォールバック）→ 本来は staff テーブルの email + calendar_color で管理
 export const STAFF_CALENDARS = [
