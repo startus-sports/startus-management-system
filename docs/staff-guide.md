@@ -29,7 +29,7 @@
 │     → 体験申込・入会・退会・振替・変更フォーム         │
 │     → SharePoint Lists からタグ情報を取得            │
 │                                                   │
-│  💻 会員管理アプリ（member-manager）                 │
+│  💻 STARTUS Management System                        │
 │     → 会員一覧・申請管理・体験管理・月謝管理          │
 │                                                   │
 │  💻 スケジュール管理アプリ（calendar-manager）        │
