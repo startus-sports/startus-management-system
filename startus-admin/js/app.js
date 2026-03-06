@@ -8,7 +8,8 @@ import {
 import { openImportModal, removeImportRow, executeImport } from './import.js';
 import { exportCSV, exportApplicationsCSV, exportTrialsCSV } from './export.js';
 import { openFeeEditForm, onFiscalYearChange, cancelFeeEdit } from './fees.js';
-import { initTabs, switchTab, getCurrentTab } from './views.js';
+import { initTabs, switchTab, getCurrentTab, toggleSidebar, toggleSidebarCollapse } from './views.js';
+import { renderDashboard } from './dashboard.js';
 import { renderFeeOverview, onFeeOverviewYearChange } from './fee-overview.js';
 import { openGradeUpdateModal, executeGradeUpdate } from './grade-update.js';
 import { renderStats, changeStatsFY } from './stats.js';
@@ -224,6 +225,7 @@ async function showApp(email) {
 
   // タブ初期化
   initTabs((tabName) => {
+    if (tabName === 'dashboard') renderDashboard();
     if (tabName === 'fee-overview') renderFeeOverview();
     if (tabName === 'applications') renderApplicationList();
     if (tabName === 'trials') renderTrialList();
@@ -234,6 +236,9 @@ async function showApp(email) {
     if (tabName === 'sm') initScheduleManager();
     if (tabName === 'master') { renderClassroomScreen(); renderAppSettings(); }
   });
+
+  // ダッシュボードを初回表示
+  renderDashboard();
 
   // 申請フィルタ・ソート初期化
   initAppFilters();
@@ -405,6 +410,8 @@ window.memberApp = {
   chatSendMessage,
   toggleSearchBar,
   isAdmin,
+  toggleSidebar,
+  toggleSidebarCollapse,
 };
 
 // --- キーボードショートカット ---
