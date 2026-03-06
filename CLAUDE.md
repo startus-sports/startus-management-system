@@ -23,7 +23,7 @@ Vercel にデプロイ: https://member-manager-nu.vercel.app
 ## ファイル構成
 
 ```
-member-admin/          メインアプリ
+startus-admin/         メインアプリ
 ├── index.html         画面構造
 ├── style.css          スタイル
 └── js/                JavaScript モジュール
