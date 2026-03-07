@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STARTUS Sports Academy ショップ</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://js.stripe.com/v3/" async></script>
+</head>
+<body>
+  <!-- Preview banner -->
+  <div class="preview-banner" id="preview-banner" style="display:none">
+    <span class="material-icons">visibility</span>
+    管理者プレビューモード — 非公開商品も表示されています
+    <a href="/shop/">プレビューを終了</a>
+  </div>
+
+  <!-- Header -->
+  <header class="shop-header">
+    <div class="shop-header-inner">
+      <a href="/shop/" class="shop-logo">
+        <span class="shop-logo-icon">&#9917;</span>
+        STARTUS Shop
+      </a>
+      <button class="shop-cart-btn" id="cart-btn" onclick="window.shopApp.toggleCart()">
+        <span class="material-icons">shopping_cart</span>
+        <span class="shop-cart-badge" id="cart-badge" style="display:none">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="shop-main" id="shop-main"></main>
+
+  <!-- Cart drawer -->
+  <div class="cart-overlay" id="cart-overlay" onclick="window.shopApp.toggleCart()"></div>
+  <aside class="cart-drawer" id="cart-drawer">
+    <div class="cart-drawer-header">
+      <h3>カート</h3>
+      <button class="cart-drawer-close" onclick="window.shopApp.toggleCart()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="cart-drawer-body" id="cart-drawer-body"></div>
+    <div class="cart-drawer-footer" id="cart-drawer-footer"></div>
+  </aside>
+
+  <!-- Toast -->
+  <div class="shop-toast-container" id="shop-toast-container"></div>
+
+  <!-- Footer -->
+  <footer class="shop-footer">
+    <p>&copy; 2025 STARTUS Sports Academy かなざわ</p>
+  </footer>
+
+  <script type="module" src="js/shop-app.js"></script>
+</body>
+</html>

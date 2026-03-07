@@ -448,6 +448,7 @@ window.memberApp = {
   toggleSidebar,
   toggleSidebarCollapse,
   // Shop
+  openShopPreview: () => window.open('/shop/?preview=admin', '_blank'),
   loadShopOrders,
   showOrderDetail,
   confirmOrderPayment,
