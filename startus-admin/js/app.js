@@ -28,7 +28,8 @@ import {
   toggleChecklistItem, approveWithChecklistWarning,
   openApplicationEditForm, saveApplicationEdit, openApplicationHistory,
   assignApplication, toggleAppWorkloadFilter,
-  initAppSort, resetAppFilters
+  initAppSort, resetAppFilters,
+  completeReception, executeChecklistAction
 } from './applications.js';
 import {
   renderTrialList, showTrialDetail, updateTrialStatus,
@@ -378,6 +379,8 @@ window.memberApp = {
   assignApplication,
   assignTrial,
   toggleAppWorkloadFilter,
+  completeReception,
+  executeChecklistAction,
   toggleTrialWorkloadFilter,
   showStaffDetail,
   openStaffAddForm,

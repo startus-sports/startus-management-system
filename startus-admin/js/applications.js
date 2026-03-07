@@ -6,7 +6,7 @@ import { showToast, openModal, closeModal, setModalWide } from './app.js';
 import { getClassrooms, getActiveClassrooms } from './classroom.js';
 import { updateTabBadges } from './notifications.js';
 import { logActivity, openApplicationHistory as openAppHistory } from './history.js';
-import { getJimukyokuStaff, getStaffById } from './staff.js';
+import { getJimukyokuStaff, getStaffById, getAllActiveStaff } from './staff.js';
 import { sendTaskMessage } from './chat.js';
 
 // --- 定数 ---
@@ -100,48 +100,84 @@ const APP_FIELDS = {
   ],
 };
 
-// 申請タイプ別の事務局チェック項目
+// 申請タイプ別チェック項目（2段階: reception=受付, approval=承認）
 const APP_CHECKLIST_ITEMS = {
-  join: [
-    { key: 'receipt',          label: '届出受付' },
-    { key: 'staff_contact',    label: '担当者連絡' },
-    { key: 'attendance',       label: '出席簿登録' },
-    { key: 'member_info',      label: '会員情報登録' },
-    { key: 'sugram',           label: 'スグラム登録' },
-    { key: 'sports_insurance', label: 'スポ安登録' },
-  ],
-  withdrawal: [
-    { key: 'receipt',          label: '届出受付' },
-    { key: 'staff_contact',    label: '担当者連絡' },
-    { key: 'attendance',       label: '出席簿登録/解除' },
-    { key: 'member_info',      label: '会員情報登録/解除' },
-    { key: 'sugram',           label: 'スグラム登録/解除' },
-    { key: 'sports_insurance', label: 'スポ安登録/解除' },
-  ],
-  suspension: [
-    { key: 'receipt',          label: '届出受付' },
-    { key: 'staff_contact',    label: '担当者連絡' },
-    { key: 'attendance',       label: '出席簿登録/解除' },
-    { key: 'member_info',      label: '会員情報登録/解除' },
-    { key: 'sugram',           label: 'スグラム登録/解除' },
-    { key: 'sports_insurance', label: 'スポ安登録/解除' },
-  ],
-  reinstatement: [
-    { key: 'receipt',          label: '届出受付' },
-    { key: 'staff_contact',    label: '担当者連絡' },
-    { key: 'attendance',       label: '出席簿登録/解除' },
-    { key: 'member_info',      label: '会員情報登録/解除' },
-    { key: 'sugram',           label: 'スグラム登録/解除' },
-    { key: 'sports_insurance', label: 'スポ安登録/解除' },
-  ],
-  change: [
-    { key: 'receipt',          label: '届出受付' },
-    { key: 'staff_contact',    label: '担当者連絡' },
-    { key: 'attendance',       label: '出席簿登録' },
-    { key: 'member_info',      label: '会員情報登録' },
-    { key: 'sugram',           label: 'スグラム登録' },
-    { key: 'sports_insurance', label: 'スポ安登録' },
-  ],
+  join: {
+    reception: [
+      { key: 'info_confirm',    label: '申請情報確認' },
+      { key: 'contact_confirm', label: '連絡先確認' },
+      { key: 'receipt',         label: '届出受付' },
+      { key: 'trial_confirm',   label: '体験参加確認' },
+    ],
+    approval: [
+      { key: 'member_register',  label: '会員情報登録', action: 'register_member' },
+      { key: 'class_add',        label: '教室追加',     action: 'add_to_class' },
+      { key: 'staff_contact',    label: '担当者連絡' },
+      { key: 'attendance',       label: '出席簿登録' },
+      { key: 'sugram',           label: 'スグラム登録' },
+      { key: 'sports_insurance', label: 'スポ安登録' },
+    ],
+  },
+  withdrawal: {
+    reception: [
+      { key: 'info_confirm',    label: '申請情報確認' },
+      { key: 'contact_confirm', label: '連絡先確認' },
+      { key: 'receipt',         label: '届出受付' },
+      { key: 'reason_confirm',  label: '退会理由確認' },
+    ],
+    approval: [
+      { key: 'member_status_update', label: '会員ステータス変更', action: 'update_member_status' },
+      { key: 'class_remove',         label: '教室解除',           action: 'remove_from_class' },
+      { key: 'staff_contact',        label: '担当者連絡' },
+      { key: 'attendance',           label: '出席簿登録/解除' },
+      { key: 'sugram',               label: 'スグラム登録/解除' },
+      { key: 'sports_insurance',     label: 'スポ安登録/解除' },
+    ],
+  },
+  suspension: {
+    reception: [
+      { key: 'info_confirm',    label: '申請情報確認' },
+      { key: 'contact_confirm', label: '連絡先確認' },
+      { key: 'receipt',         label: '届出受付' },
+      { key: 'reason_confirm',  label: '休会理由確認' },
+    ],
+    approval: [
+      { key: 'member_status_update', label: '会員ステータス変更', action: 'update_member_status' },
+      { key: 'staff_contact',        label: '担当者連絡' },
+      { key: 'attendance',           label: '出席簿登録/解除' },
+      { key: 'sugram',               label: 'スグラム登録/解除' },
+      { key: 'sports_insurance',     label: 'スポ安登録/解除' },
+    ],
+  },
+  reinstatement: {
+    reception: [
+      { key: 'info_confirm',    label: '申請情報確認' },
+      { key: 'contact_confirm', label: '連絡先確認' },
+      { key: 'receipt',         label: '届出受付' },
+    ],
+    approval: [
+      { key: 'member_status_update', label: '会員ステータス変更', action: 'update_member_status' },
+      { key: 'class_add',            label: '教室追加',           action: 'add_to_class' },
+      { key: 'staff_contact',        label: '担当者連絡' },
+      { key: 'attendance',           label: '出席簿登録/解除' },
+      { key: 'sugram',               label: 'スグラム登録/解除' },
+      { key: 'sports_insurance',     label: 'スポ安登録/解除' },
+    ],
+  },
+  change: {
+    reception: [
+      { key: 'info_confirm',    label: '申請情報確認' },
+      { key: 'contact_confirm', label: '連絡先確認' },
+      { key: 'receipt',         label: '届出受付' },
+    ],
+    approval: [
+      { key: 'member_info_update',   label: '会員情報更新',       action: 'update_member_info' },
+      { key: 'staff_contact',        label: '担当者連絡' },
+      { key: 'attendance',           label: '出席簿登録' },
+      { key: 'sugram',               label: 'スグラム登録' },
+      { key: 'sports_insurance',     label: 'スポ安登録' },
+    ],
+  },
 };
 
 // フィールドごとの入力タイプ定義（GASフォーム送信内容に合わせた定義）
@@ -160,12 +196,31 @@ const TARGET_TYPES = ['join', 'withdrawal', 'suspension', 'reinstatement', 'chan
 
 // --- チェックリスト ヘルパー ---
 
+// 全フェーズの定義を1つの配列に展開
+function getAllChecklistDefs(type) {
+  const phases = APP_CHECKLIST_ITEMS[type];
+  if (!phases) return [];
+  const defs = [];
+  for (const [phase, items] of Object.entries(phases)) {
+    for (const item of items) {
+      defs.push({ ...item, phase });
+    }
+  }
+  return defs;
+}
+
+// 特定フェーズの定義を取得
+function getPhaseChecklistDefs(type, phase) {
+  return APP_CHECKLIST_ITEMS[type]?.[phase] || [];
+}
+
 function initializeChecklist(type) {
-  const items = APP_CHECKLIST_ITEMS[type];
-  if (!items) return null;
+  const defs = getAllChecklistDefs(type);
+  if (defs.length === 0) return null;
   return {
-    items: items.map(item => ({
-      key: item.key,
+    items: defs.map(def => ({
+      key: def.key,
+      phase: def.phase,
       checked: false,
       checked_at: null,
       checked_by: null,
@@ -173,12 +228,19 @@ function initializeChecklist(type) {
   };
 }
 
-function getChecklistProgress(checklist, type) {
-  const definitions = APP_CHECKLIST_ITEMS[type];
-  if (!definitions || !checklist || !checklist.items) return null;
-  const total = definitions.length;
-  const checked = checklist.items.filter(i => i.checked).length;
+// フェーズ指定なし: 全体の進捗
+function getChecklistProgress(checklist, type, phase) {
+  const defs = phase ? getPhaseChecklistDefs(type, phase) : getAllChecklistDefs(type);
+  if (defs.length === 0 || !checklist || !checklist.items) return null;
+  const total = defs.length;
+  const defKeys = new Set(defs.map(d => d.key));
+  const checked = checklist.items.filter(i => defKeys.has(i.key) && i.checked).length;
   return { checked, total };
+}
+
+// フェーズを取得（互換性: phaseがないアイテムは'approval'扱い）
+function getItemPhase(item) {
+  return item.phase || 'approval';
 }
 
 function formatShortDateTime(isoStr) {
@@ -198,11 +260,11 @@ function extractName(email) {
 }
 
 function buildChecklistProgressBadge(app) {
-  const checkDefs = APP_CHECKLIST_ITEMS[app.type];
+  const defs = getAllChecklistDefs(app.type);
   const cl = app.checklist;
-  if (!checkDefs || !cl || !cl.items) return '';
+  if (defs.length === 0 || !cl || !cl.items) return '';
   const checked = cl.items.filter(i => i.checked).length;
-  const total = checkDefs.length;
+  const total = defs.length;
   if (checked === 0) return '';
   if (checked < total) {
     return `<span class="badge badge-checklist-partial"><span class="material-icons" style="font-size:12px">checklist</span>${checked}/${total}</span>`;
@@ -391,12 +453,12 @@ function buildAppGridRow(a) {
 // --- ワークロード表示 ---
 
 function buildAppWorkloadSummary() {
-  const staff = getJimukyokuStaff();
+  const allStaff = getAllActiveStaff();
   const active = allApplications.filter(a => a.status !== 'approved' && a.status !== 'rejected');
 
   let unassigned = 0;
   const counts = {};
-  staff.forEach(s => { counts[s.id] = 0; });
+  allStaff.forEach(s => { counts[s.id] = 0; });
 
   active.forEach(a => {
     if (!a.assigned_to) {
@@ -414,10 +476,13 @@ function buildAppWorkloadSummary() {
     未割当 <span class="${countClass(unassigned)}">${unassigned}</span>
   </div>`;
 
-  staff.forEach(s => {
+  // ワークロードがあるスタッフのみ表示（ゼロ件の事務局は常時表示）
+  allStaff.forEach(s => {
     const c = counts[s.id] || 0;
+    if (c === 0 && s.role !== '事務局') return;
+    const roleIcon = s.role === '事務局' ? 'admin_panel_settings' : 'person';
     html += `<div class="workload-card${isActive(s.id)}" onclick="window.memberApp.toggleAppWorkloadFilter('${s.id}')">
-      <span class="material-icons" style="font-size:16px;color:var(--primary-color)">person</span>
+      <span class="material-icons" style="font-size:16px;color:var(--primary-color)">${roleIcon}</span>
       ${escapeHtml(s.name)} <span class="${countClass(c)}">${c}</span>
     </div>`;
   });
@@ -477,22 +542,29 @@ export async function renderApplicationList() {
 
 // --- ワークフローステッパー ---
 
-function buildWorkflowStepper(status) {
+function buildWorkflowStepper(app) {
+  const status = typeof app === 'string' ? app : app.status;
   const steps = [
-    { key: 'pending', label: '受付', icon: 'inbox' },
-    { key: 'reviewed', label: '確認', icon: 'visibility' },
-    { key: 'approved', label: '承認', icon: 'check_circle' },
+    { key: 'pending',    label: '申込',       icon: 'inbox' },
+    { key: 'reception',  label: '受付',       icon: 'fact_check' },
+    { key: 'processing', label: '事務局処理', icon: 'settings' },
+    { key: 'approved',   label: '承認',       icon: 'check_circle' },
   ];
 
-  const statusOrder = { pending: 0, reviewed: 1, approved: 2, rejected: -1 };
-  const currentIndex = statusOrder[status] ?? 0;
+  // ステータスからステップインデックスを決定
+  let currentIndex = 0;
   const isRejected = status === 'rejected';
+  if (!isRejected) {
+    if (status === 'pending') currentIndex = 1;       // 受付フェーズ
+    else if (status === 'reviewed') currentIndex = 2;  // 事務局処理フェーズ
+    else if (status === 'approved') currentIndex = 4;  // 全完了
+  }
 
   let html = '<div class="workflow-stepper">';
 
   steps.forEach((step, i) => {
     if (i > 0) {
-      const connDone = !isRejected && currentIndex > i - 1;
+      const connDone = !isRejected && currentIndex > i;
       html += `<div class="stepper-connector ${connDone ? 'done' : ''}"></div>`;
     }
 
@@ -566,8 +638,12 @@ export async function showApplicationDetail(id) {
         </div>`;
     }).join('');
 
+  // 受付担当者名
+  const receptionStaffId = app.reception_staff_id || (app.status === 'pending' ? app.assigned_to : null);
+  const receptionStaffName = receptionStaffId ? (getStaffById(receptionStaffId)?.name || '') : '';
+
   const content = `
-    ${buildWorkflowStepper(app.status)}
+    ${buildWorkflowStepper(app)}
 
     <div class="app-detail-header">
       <div class="detail-row">
@@ -578,22 +654,43 @@ export async function showApplicationDetail(id) {
         <span class="detail-label">受付日時</span>
         <span class="detail-value">${escapeHtml(formatDateTime(app.created_at))}</span>
       </div>
+      ${app.reviewed_at ? `
+      <div class="detail-row">
+        <span class="detail-label">受付完了日時</span>
+        <span class="detail-value">${escapeHtml(formatDateTime(app.reviewed_at))}${app.reviewed_by ? ` (${escapeHtml(extractName(app.reviewed_by))})` : ''}</span>
+      </div>` : ''}
       ${app.processed_at ? `
       <div class="detail-row">
-        <span class="detail-label">処理日時</span>
-        <span class="detail-value">${escapeHtml(formatDateTime(app.processed_at))}${app.processed_by ? ` (${escapeHtml(app.processed_by)})` : ''}</span>
+        <span class="detail-label">承認日時</span>
+        <span class="detail-value">${escapeHtml(formatDateTime(app.processed_at))}${app.processed_by ? ` (${escapeHtml(extractName(app.processed_by))})` : ''}</span>
       </div>` : ''}
       <div class="detail-row">
-        <span class="detail-label"><span class="material-icons" style="font-size:16px;vertical-align:middle">person_pin</span> 担当者</span>
+        <span class="detail-label"><span class="material-icons" style="font-size:16px;vertical-align:middle">person_pin</span> 受付担当</span>
         <span class="detail-value">
+          ${app.status === 'pending' ? `
+          <select class="assignee-select" onchange="window.memberApp.assignApplication('${app.id}', this.value)">
+            <option value="">-- 未割当 --</option>
+            ${getAllActiveStaff().map(s =>
+              `<option value="${s.id}" ${app.assigned_to === s.id ? 'selected' : ''}>${escapeHtml(s.name)}${s.role !== 'スタッフ' ? ` (${escapeHtml(s.role)})` : ''}</option>`
+            ).join('')}
+          </select>` : `
+          <span class="badge badge-assignee">${receptionStaffName ? escapeHtml(receptionStaffName) : '未割当'}</span>`}
+        </span>
+      </div>
+      ${app.status !== 'pending' ? `
+      <div class="detail-row">
+        <span class="detail-label"><span class="material-icons" style="font-size:16px;vertical-align:middle">admin_panel_settings</span> 承認担当</span>
+        <span class="detail-value">
+          ${app.status === 'reviewed' ? `
           <select class="assignee-select" onchange="window.memberApp.assignApplication('${app.id}', this.value)">
             <option value="">-- 未割当 --</option>
             ${getJimukyokuStaff().map(s =>
               `<option value="${s.id}" ${app.assigned_to === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`
             ).join('')}
-          </select>
+          </select>` : `
+          <span class="badge badge-assignee">${app.assigned_to ? escapeHtml(getStaffById(app.assigned_to)?.name || '') : '未割当'}</span>`}
         </span>
-      </div>
+      </div>` : ''}
     </div>
 
     <div class="app-detail-section" id="app-content-section">
@@ -614,7 +711,9 @@ export async function showApplicationDetail(id) {
       </div>
     </div>
 
-    ${buildChecklistSection(app)}
+    ${buildPhaseChecklistSection(app, 'reception', '受付チェック', 'fact_check')}
+    ${app.status === 'pending' ? buildReceptionCompleteButton(app) : ''}
+    ${app.status !== 'pending' ? buildPhaseChecklistSection(app, 'approval', '承認チェック（事務局）', 'admin_panel_settings') : ''}
 
     <div class="app-detail-section">
       <div class="app-detail-section-header">
@@ -641,34 +740,49 @@ export async function showApplicationDetail(id) {
 
 // --- チェックリスト UI ---
 
-function buildChecklistSection(app) {
-  const checklistDefs = APP_CHECKLIST_ITEMS[app.type];
-  if (!checklistDefs) return '';
+// アクションボタンのアイコンマッピング
+const ACTION_ICONS = {
+  register_member: 'person_add',
+  add_to_class: 'school',
+  update_member_status: 'swap_horiz',
+  remove_from_class: 'remove_circle_outline',
+  update_member_info: 'open_in_new',
+};
+
+function buildPhaseChecklistSection(app, phase, title, icon) {
+  const defs = getPhaseChecklistDefs(app.type, phase);
+  if (defs.length === 0) return '';
 
   const cl = app.checklist || initializeChecklist(app.type);
-  const progress = getChecklistProgress(cl, app.type);
+  const progress = getChecklistProgress(cl, app.type, phase);
   const progressPct = progress ? Math.round((progress.checked / progress.total) * 100) : 0;
   const allDone = progress && progress.checked === progress.total;
 
-  const checkItems = checklistDefs.map(def => {
+  const checkItems = defs.map(def => {
     const item = cl.items?.find(i => i.key === def.key) || { checked: false };
     const checkedClass = item.checked ? 'checklist-item-done' : '';
     const checkedIcon = item.checked ? 'check_box' : 'check_box_outline_blank';
     const checkedInfo = item.checked && item.checked_at
       ? `<span class="checklist-item-info">${formatShortDateTime(item.checked_at)} ${escapeHtml(extractName(item.checked_by))}</span>`
       : '';
+    const actionBtn = def.action && !item.checked
+      ? `<button class="btn btn-action-auto" onclick="event.stopPropagation();window.memberApp.executeChecklistAction('${app.id}','${def.action}','${def.key}')">
+          <span class="material-icons" style="font-size:14px">${ACTION_ICONS[def.action] || 'play_arrow'}</span>実行
+        </button>`
+      : '';
     return `
       <div class="checklist-item ${checkedClass}" onclick="window.memberApp.toggleChecklistItem('${app.id}', '${def.key}')">
         <span class="material-icons checklist-checkbox">${checkedIcon}</span>
         <span class="checklist-item-label">${escapeHtml(def.label)}</span>
         ${checkedInfo}
+        ${actionBtn}
       </div>`;
   }).join('');
 
   return `
     <div class="app-detail-section">
       <div class="app-detail-section-header">
-        <span class="material-icons" style="font-size:18px">checklist</span> 事務局チェック
+        <span class="material-icons" style="font-size:18px">${icon}</span> ${title}
         <span class="checklist-progress-badge ${allDone ? 'checklist-complete' : ''}">${progress ? progress.checked : 0}/${progress ? progress.total : 0}</span>
       </div>
       <div class="checklist-progress-bar">
@@ -680,10 +794,28 @@ function buildChecklistSection(app) {
     </div>`;
 }
 
-function buildActionButtons(app) {
-  const checklistDefs = APP_CHECKLIST_ITEMS[app.type];
+function buildReceptionCompleteButton(app) {
+  if (app.status !== 'pending') return '';
+
   const cl = app.checklist || initializeChecklist(app.type);
-  const progress = checklistDefs ? getChecklistProgress(cl, app.type) : null;
+  const progress = getChecklistProgress(cl, app.type, 'reception');
+  const allChecked = progress && progress.checked === progress.total;
+
+  return `
+    <div class="reception-complete-section">
+      <button class="btn btn-primary btn-reception-complete"
+              ${allChecked ? '' : 'disabled'}
+              onclick="window.memberApp.completeReception('${app.id}')">
+        <span class="material-icons">fact_check</span>
+        受付完了 → 事務局に引き継ぐ
+      </button>
+      ${!allChecked ? '<p class="hint-text">全ての受付チェック項目を完了してください</p>' : ''}
+    </div>`;
+}
+
+function buildActionButtons(app) {
+  const cl = app.checklist || initializeChecklist(app.type);
+  const progress = getChecklistProgress(cl, app.type, 'approval');
   const hasUnchecked = progress && progress.checked < progress.total;
 
   let buttons = '';
@@ -692,9 +824,6 @@ function buildActionButtons(app) {
     buttons = `
       <button class="btn btn-danger" onclick="window.memberApp.updateApplicationStatus('${app.id}', 'rejected')">
         <span class="material-icons">cancel</span>却下する
-      </button>
-      <button class="btn btn-secondary" onclick="window.memberApp.updateApplicationStatus('${app.id}', 'reviewed')">
-        <span class="material-icons">visibility</span>確認完了にする
       </button>`;
   } else if (app.status === 'reviewed') {
     buttons = `
@@ -771,7 +900,7 @@ export function approveWithChecklistWarning(appId, hasUnchecked) {
   if (hasUnchecked) {
     const content = `
       <div style="padding:8px 0">
-        <p><span class="material-icons" style="font-size:20px;vertical-align:middle;color:var(--warning-color)">warning</span> チェック未完了の項目があります。</p>
+        <p><span class="material-icons" style="font-size:20px;vertical-align:middle;color:var(--warning-color)">warning</span> 承認チェック未完了の項目があります。</p>
         <p style="font-size:0.85rem;color:var(--gray-500);margin-top:8px">すべてのチェック項目を完了せずに承認しますか？</p>
         <div class="form-actions" style="margin-top:24px">
           <button class="btn btn-secondary" onclick="window.memberApp.showApplicationDetail('${appId}')">戻る</button>
@@ -946,7 +1075,7 @@ function updateAppAssigneeFilter() {
   const container = document.getElementById('app-assignee-filter');
   if (!container) return;
 
-  const staff = getJimukyokuStaff();
+  const staff = getAllActiveStaff();
   let html = '<label class="filter-pill"><input type="checkbox" value="unassigned">未割当</label>';
   html += staff.map(s =>
     `<label class="filter-pill"><input type="checkbox" value="${s.id}">${escapeHtml(s.name)}</label>`
@@ -1222,6 +1351,266 @@ export async function assignApplication(id, staffId) {
     if (modalBody) modalBody.scrollTop = scrollPos;
   });
   renderAppListOnly();
+}
+
+// --- 受付完了フロー ---
+
+function autoAssignToJimukyoku() {
+  const jimukyoku = getJimukyokuStaff();
+  if (jimukyoku.length === 0) return null;
+
+  // reviewed状態の申請数が最も少ない事務局スタッフに割り当て
+  const counts = {};
+  jimukyoku.forEach(s => { counts[s.id] = 0; });
+
+  allApplications
+    .filter(a => a.status === 'reviewed')
+    .forEach(a => {
+      if (a.assigned_to && counts[a.assigned_to] !== undefined) {
+        counts[a.assigned_to]++;
+      }
+    });
+
+  let minId = jimukyoku[0].id;
+  let minCount = counts[minId] ?? 0;
+
+  for (const s of jimukyoku) {
+    const c = counts[s.id] ?? 0;
+    if (c < minCount) {
+      minId = s.id;
+      minCount = c;
+    }
+  }
+
+  return minId;
+}
+
+export async function completeReception(appId) {
+  const app = allApplications.find(a => a.id === appId);
+  if (!app || app.status !== 'pending') return;
+
+  // 受付チェック完了確認
+  const cl = app.checklist || initializeChecklist(app.type);
+  const progress = getChecklistProgress(cl, app.type, 'reception');
+  if (!progress || progress.checked < progress.total) {
+    showToast('受付チェック項目を全て完了してください', 'error');
+    return;
+  }
+
+  // 事務局スタッフ自動選定
+  const assigneeId = autoAssignToJimukyoku();
+  if (!assigneeId) {
+    showToast('事務局スタッフが見つかりません', 'error');
+    return;
+  }
+
+  const { data: { session } } = await supabase.auth.getSession();
+  const updateData = {
+    status: 'reviewed',
+    assigned_to: assigneeId,
+    reception_staff_id: app.assigned_to || null,
+    reviewed_at: new Date().toISOString(),
+    reviewed_by: session?.user?.email || '',
+  };
+
+  const { error } = await supabase
+    .from('applications')
+    .update(updateData)
+    .eq('id', appId);
+
+  if (error) {
+    console.error('受付完了エラー:', error);
+    showToast('受付完了処理に失敗しました', 'error');
+    return;
+  }
+
+  // ローカルデータ更新
+  const idx = allApplications.findIndex(a => a.id === appId);
+  if (idx >= 0) Object.assign(allApplications[idx], updateData);
+
+  // 履歴記録
+  logActivity(null, 'app_edit', 'status', '未対応', '確認済み（受付完了）', appId);
+
+  // 事務局担当者にチャット通知
+  const fd = app.form_data || {};
+  const typeLabel = APP_TYPE_LABELS[app.type] || app.type;
+  const refLabel = `${fd.name || '（名前なし）'} ${typeLabel}申請`;
+  sendTaskMessage(assigneeId, 'application', appId, refLabel,
+    `${refLabel}の受付が完了しました。承認処理をお願いします。`);
+
+  showToast('受付完了。事務局に引き継ぎました。', 'success');
+  closeModal();
+  await renderApplicationList();
+  updateTabBadges();
+}
+
+// --- 自動化ボタン ---
+
+export async function executeChecklistAction(appId, action, itemKey) {
+  const app = allApplications.find(a => a.id === appId);
+  if (!app) return;
+
+  try {
+    switch (action) {
+      case 'register_member':
+        await actionRegisterMember(app);
+        break;
+      case 'add_to_class':
+        await actionAddToClass(app);
+        break;
+      case 'update_member_status':
+        await actionUpdateMemberStatus(app);
+        break;
+      case 'remove_from_class':
+        await actionRemoveFromClass(app);
+        break;
+      case 'update_member_info':
+        actionOpenMemberInfo(app);
+        return; // チェック自動化しない（手動確認が必要）
+      default:
+        showToast('不明なアクションです', 'error');
+        return;
+    }
+
+    // 成功したらチェックリストを自動チェック
+    await toggleChecklistItem(appId, itemKey);
+  } catch (err) {
+    console.error('アクション実行エラー:', err);
+    showToast(`処理に失敗しました: ${err.message}`, 'error');
+  }
+}
+
+async function actionRegisterMember(app) {
+  const fd = app.form_data || {};
+
+  // 既に紐づいている場合はスキップ
+  if (app.member_id) {
+    showToast('既に会員が紐づいています', 'info');
+    return;
+  }
+
+  const memberData = {
+    name: fd.name || '',
+    furigana: fd.furigana || '',
+    member_type: '会員',
+    status: '在籍',
+    birthdate: fd.birthdate || null,
+    gender: fd.gender || '',
+    phone: fd.phone || '',
+    email: fd.email || '',
+    address: fd.address ? `${fd.zipcode ? fd.zipcode + ' ' : ''}${fd.address}` : '',
+    classes: Array.isArray(fd.desired_classes) ? fd.desired_classes : (fd.desired_classes ? [fd.desired_classes] : []),
+    grade: fd.grade || '',
+    school: fd.school || '',
+    guardian_name: fd.guardian_name || '',
+    disability_info: fd.disability_info || '',
+  };
+
+  const { data, error } = await supabase.from('members').insert(memberData).select();
+  if (error) throw new Error('会員登録に失敗: ' + error.message);
+
+  if (data?.[0]) {
+    await supabase.from('applications').update({ member_id: data[0].id }).eq('id', app.id);
+    const idx = allApplications.findIndex(a => a.id === app.id);
+    if (idx >= 0) allApplications[idx].member_id = data[0].id;
+  }
+
+  showToast('会員を登録しました', 'success');
+}
+
+async function actionAddToClass(app) {
+  const fd = app.form_data || {};
+  const targetClasses = Array.isArray(fd.desired_classes) ? fd.desired_classes : (fd.desired_classes ? [fd.desired_classes] : []);
+
+  if (targetClasses.length === 0) {
+    showToast('教室情報がありません', 'error');
+    return;
+  }
+
+  const memberId = app.member_id;
+  if (!memberId) {
+    showToast('会員が紐づいていません。先に会員情報登録を実行してください。', 'error');
+    return;
+  }
+
+  const { data: member, error: fetchErr } = await supabase.from('members').select('classes').eq('id', memberId).single();
+  if (fetchErr) throw new Error('会員情報の取得に失敗');
+
+  const currentClasses = member?.classes || [];
+  const newClasses = [...new Set([...currentClasses, ...targetClasses])];
+
+  const { error } = await supabase.from('members').update({ classes: newClasses }).eq('id', memberId);
+  if (error) throw new Error('教室追加に失敗: ' + error.message);
+
+  showToast('教室を追加しました', 'success');
+}
+
+async function actionUpdateMemberStatus(app) {
+  const statusMap = {
+    withdrawal: '退会',
+    suspension: '休会',
+    reinstatement: '在籍',
+  };
+  const newStatus = statusMap[app.type];
+  if (!newStatus) {
+    showToast('この申請種別ではステータス変更できません', 'error');
+    return;
+  }
+
+  const memberId = app.member_id;
+  if (!memberId) {
+    // member_idがない場合、form_dataの名前で検索を試みる
+    const fd = app.form_data || {};
+    const { data: members } = await supabase.from('members')
+      .select('id, name')
+      .eq('name', fd.name)
+      .limit(1);
+
+    if (!members || members.length === 0) {
+      showToast('対象の会員が見つかりません。会員を検索して手動で変更してください。', 'error');
+      return;
+    }
+
+    // 見つかった会員を紐づけ
+    await supabase.from('applications').update({ member_id: members[0].id }).eq('id', app.id);
+    const idx = allApplications.findIndex(a => a.id === app.id);
+    if (idx >= 0) allApplications[idx].member_id = members[0].id;
+
+    const { error } = await supabase.from('members').update({ status: newStatus }).eq('id', members[0].id);
+    if (error) throw new Error('ステータス変更に失敗: ' + error.message);
+  } else {
+    const { error } = await supabase.from('members').update({ status: newStatus }).eq('id', memberId);
+    if (error) throw new Error('ステータス変更に失敗: ' + error.message);
+  }
+
+  showToast(`会員ステータスを「${newStatus}」に変更しました`, 'success');
+}
+
+async function actionRemoveFromClass(app) {
+  const fd = app.form_data || {};
+  const targetClasses = Array.isArray(fd.desired_classes) ? fd.desired_classes : (fd.desired_classes ? [fd.desired_classes] : []);
+
+  const memberId = app.member_id;
+  if (!memberId) {
+    showToast('会員が紐づいていません', 'error');
+    return;
+  }
+
+  const { data: member, error: fetchErr } = await supabase.from('members').select('classes').eq('id', memberId).single();
+  if (fetchErr) throw new Error('会員情報の取得に失敗');
+
+  const currentClasses = member?.classes || [];
+  const newClasses = currentClasses.filter(c => !targetClasses.includes(c));
+
+  const { error } = await supabase.from('members').update({ classes: newClasses }).eq('id', memberId);
+  if (error) throw new Error('教室解除に失敗: ' + error.message);
+
+  showToast('教室を解除しました', 'success');
+}
+
+function actionOpenMemberInfo(app) {
+  // 変更申請の場合、会員画面に遷移するよう促す
+  showToast('会員管理画面で対象会員の情報を手動で更新してください', 'info');
 }
 
 export { openAppHistory as openApplicationHistory };

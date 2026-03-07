@@ -39,6 +39,10 @@ export function getJimukyokuStaff() {
   return allStaff.filter(s => s.role === '事務局' && s.status === '在籍');
 }
 
+export function getAllActiveStaff() {
+  return allStaff.filter(s => s.status === '在籍');
+}
+
 export function getStaffById(id) {
   return allStaff.find(s => s.id === id) || null;
 }
