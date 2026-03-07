@@ -112,6 +112,26 @@
           <span class="sidebar-label">統計</span>
         </a>
 
+        <!-- ショップ -->
+        <div class="sidebar-divider"><span class="sidebar-group-label">ショップ</span></div>
+        <a class="sidebar-item" data-tab="shop-orders" onclick="window.memberApp.switchTab('shop-orders')" title="注文管理">
+          <span class="material-icons">receipt_long</span>
+          <span class="sidebar-label">注文管理</span>
+          <span class="sidebar-badge" id="shop-orders-badge"></span>
+        </a>
+        <a class="sidebar-item" data-tab="shop-products" onclick="window.memberApp.switchTab('shop-products')" title="商品管理">
+          <span class="material-icons">inventory_2</span>
+          <span class="sidebar-label">商品管理</span>
+        </a>
+        <a class="sidebar-item" data-tab="shop-inventory" onclick="window.memberApp.switchTab('shop-inventory')" title="在庫管理">
+          <span class="material-icons">warehouse</span>
+          <span class="sidebar-label">在庫管理</span>
+        </a>
+        <a class="sidebar-item" data-tab="shop-customers" onclick="window.memberApp.switchTab('shop-customers')" title="ショップ顧客">
+          <span class="material-icons">storefront</span>
+          <span class="sidebar-label">ショップ顧客</span>
+        </a>
+
         <!-- 管理 -->
         <div class="sidebar-divider"><span class="sidebar-group-label">管理</span></div>
         <a class="sidebar-item admin-only" data-tab="master" onclick="window.memberApp.switchTab('master')" title="マスタ">
@@ -776,6 +796,95 @@
         <div id="sm-fullcalendar"></div>
       </div>
 
+    </main>
+
+    <!-- ===== 注文管理画面 ===== -->
+    <main class="main-content" id="shop-orders-screen" style="display:none">
+      <div class="section-header">
+        <h2>注文管理</h2>
+      </div>
+      <div class="shop-status-tabs" id="shop-order-tabs"></div>
+      <div class="search-bar" id="shop-order-search-bar">
+        <span class="material-icons search-icon">search</span>
+        <input type="text" id="shop-order-search-input" placeholder="氏名・メール・注文番号・クラスで検索...">
+      </div>
+      <div class="toolbar">
+        <button class="btn-search-toggle" onclick="window.memberApp.toggleSearchBar('shop-order')">
+          <span class="material-icons" style="font-size:18px">search</span>
+        </button>
+        <span class="member-count" id="shop-order-count">0件</span>
+      </div>
+      <div class="member-list" id="shop-order-list">
+        <div class="empty-state">
+          <span class="material-icons empty-icon">receipt_long</span>
+          <p>注文データがありません</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- ===== 商品管理画面 ===== -->
+    <main class="main-content" id="shop-products-screen" style="display:none">
+      <div class="section-header">
+        <h2>商品管理</h2>
+        <div class="section-actions">
+          <button class="btn btn-primary" onclick="window.memberApp.openProductAddForm()">
+            <span class="material-icons">add</span><span class="btn-text-mobile-hide">商品追加</span>
+          </button>
+        </div>
+      </div>
+      <div class="search-bar" id="shop-product-search-bar">
+        <span class="material-icons search-icon">search</span>
+        <input type="text" id="shop-product-search-input" placeholder="商品名・SKUで検索...">
+      </div>
+      <div class="toolbar">
+        <button class="btn-search-toggle" onclick="window.memberApp.toggleSearchBar('shop-product')">
+          <span class="material-icons" style="font-size:18px">search</span>
+        </button>
+        <span class="member-count" id="shop-product-count">0件</span>
+      </div>
+      <div class="member-list" id="shop-product-list">
+        <div class="empty-state">
+          <span class="material-icons empty-icon">inventory_2</span>
+          <p>商品データがありません</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- ===== 在庫管理画面 ===== -->
+    <main class="main-content" id="shop-inventory-screen" style="display:none">
+      <div class="section-header">
+        <h2>在庫管理</h2>
+      </div>
+      <div class="member-list" id="shop-inventory-list">
+        <div class="empty-state">
+          <span class="material-icons empty-icon">warehouse</span>
+          <p>在庫データがありません</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- ===== ショップ顧客画面 ===== -->
+    <main class="main-content" id="shop-customers-screen" style="display:none">
+      <div class="section-header">
+        <h2>ショップ顧客</h2>
+      </div>
+      <div class="shop-summary-cards" id="shop-customer-summary"></div>
+      <div class="search-bar" id="shop-customer-search-bar">
+        <span class="material-icons search-icon">search</span>
+        <input type="text" id="shop-customer-search-input" placeholder="氏名・メール・クラスで検索...">
+      </div>
+      <div class="toolbar">
+        <button class="btn-search-toggle" onclick="window.memberApp.toggleSearchBar('shop-customer')">
+          <span class="material-icons" style="font-size:18px">search</span>
+        </button>
+        <span class="member-count" id="shop-customer-count">0名</span>
+      </div>
+      <div class="member-list" id="shop-customer-list">
+        <div class="empty-state">
+          <span class="material-icons empty-icon">storefront</span>
+          <p>顧客データがありません</p>
+        </div>
+      </div>
     </main>
 
     <!-- ===== マスタ管理画面 ===== -->

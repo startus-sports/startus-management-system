@@ -7,7 +7,9 @@ const screens = [
   'dashboard-screen', 'members-screen', 'fee-overview-screen',
   'applications-screen', 'trials-screen', 'stats-screen',
   'staff-screen', 'calendar-screen', 'schedule-screen',
-  'sm-screen', 'master-screen'
+  'sm-screen', 'master-screen',
+  'shop-orders-screen', 'shop-products-screen',
+  'shop-inventory-screen', 'shop-customers-screen'
 ];
 
 export function initTabs(callback) {

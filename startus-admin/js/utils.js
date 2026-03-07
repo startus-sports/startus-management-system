@@ -17,3 +17,14 @@ export function formatDate(dateStr) {
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
 }
+
+export function formatDateTime(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('ja-JP') + ' ' + d.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+}
+
+export function formatCurrency(amount) {
+  return '\u00a5' + Number(amount || 0).toLocaleString();
+}

@@ -60,6 +60,19 @@ import {
   loadUnreadCounts, updateUnreadBadge
 } from './chat.js';
 import { initScheduleManager } from './sm-manager.js';
+import {
+  loadShopOrders, showOrderDetail, confirmOrderPayment,
+  cancelOrder, setOrderStatusFilter, initShopOrderSearch
+} from './shop-orders.js';
+import {
+  loadShopProducts, showProductDetail, openProductAddForm,
+  openProductEditForm, deleteProduct, addVariantRow, applyPreset,
+  saveProduct, initShopProductSearch
+} from './shop-products.js';
+import { loadShopInventory } from './shop-inventory.js';
+import {
+  loadShopCustomers, showCustomerDetail, initShopCustomerSearch
+} from './shop-customers.js';
 
 // --- Toast ---
 
@@ -146,6 +159,9 @@ const SEARCH_BAR_MAP = {
   trial: { barId: 'trial-search-bar', inputId: 'trial-search-input' },
   staff: { barId: 'staff-search-bar', inputId: 'staff-search-input' },
   classroom: { barId: 'classroom-search-bar', inputId: 'classroom-search-input' },
+  'shop-order': { barId: 'shop-order-search-bar', inputId: 'shop-order-search-input' },
+  'shop-product': { barId: 'shop-product-search-bar', inputId: 'shop-product-search-input' },
+  'shop-customer': { barId: 'shop-customer-search-bar', inputId: 'shop-customer-search-input' },
 };
 
 function toggleSearchBar(key) {
@@ -236,6 +252,10 @@ async function showApp(email) {
     if (tabName === 'schedule') renderSchedule();
     if (tabName === 'sm') initScheduleManager();
     if (tabName === 'master') { renderClassroomScreen(); renderAppSettings(); }
+    if (tabName === 'shop-orders') loadShopOrders();
+    if (tabName === 'shop-products') loadShopProducts();
+    if (tabName === 'shop-inventory') loadShopInventory();
+    if (tabName === 'shop-customers') loadShopCustomers();
   });
 
   // ダッシュボードを初回表示
@@ -256,6 +276,11 @@ async function showApp(email) {
 
   // 教室マスタフィルタ初期化
   initClassroomFilters();
+
+  // ショップ検索初期化
+  initShopOrderSearch();
+  initShopProductSearch();
+  initShopCustomerSearch();
 
   // データ読み込み
   await loadClassrooms();
@@ -415,6 +440,23 @@ window.memberApp = {
   isAdmin,
   toggleSidebar,
   toggleSidebarCollapse,
+  // Shop
+  loadShopOrders,
+  showOrderDetail,
+  confirmOrderPayment,
+  cancelOrder,
+  setOrderStatusFilter,
+  loadShopProducts,
+  showProductDetail,
+  openProductAddForm,
+  openProductEditForm,
+  deleteProduct,
+  addVariantRow,
+  applyPreset,
+  saveProduct,
+  loadShopInventory,
+  loadShopCustomers,
+  showCustomerDetail,
 };
 
 // --- キーボードショートカット ---
@@ -425,6 +467,9 @@ const TAB_SEARCH_KEY_MAP = {
   trials: 'trial',
   staff: 'staff',
   master: 'classroom',
+  'shop-orders': 'shop-order',
+  'shop-products': 'shop-product',
+  'shop-customers': 'shop-customer',
 };
 
 document.addEventListener('keydown', (e) => {
