@@ -253,7 +253,8 @@ async function showApp(email) {
     if (tabName === 'calendar') renderCalendar();
     if (tabName === 'schedule') renderSchedule();
     if (tabName === 'sm') initScheduleManager();
-    if (tabName === 'master') { renderClassroomScreen(); renderAppSettings(); }
+    if (tabName === 'master') { renderClassroomScreen(); }
+    if (tabName === 'settings') { renderAppSettings(); }
     if (tabName === 'shop-orders') loadShopOrders();
     if (tabName === 'shop-products') loadShopProducts();
     if (tabName === 'shop-inventory') loadShopInventory();

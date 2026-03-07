@@ -138,6 +138,10 @@
           <span class="material-icons">tune</span>
           <span class="sidebar-label">マスタ</span>
         </a>
+        <a class="sidebar-item admin-only" data-tab="settings" onclick="window.memberApp.switchTab('settings')" title="設定">
+          <span class="material-icons">settings</span>
+          <span class="sidebar-label">設定</span>
+        </a>
       </nav>
 
       <!-- 折りたたみトグル -->
@@ -962,8 +966,11 @@
         </div>
       </div>
 
-      <!-- アプリ設定セクション -->
-      <div class="section-header" style="margin-top:32px">
+    </main>
+
+    <!-- ===== アプリ設定画面 ===== -->
+    <main class="main-content" id="settings-screen" style="display:none">
+      <div class="section-header">
         <h2>アプリ設定</h2>
       </div>
       <div id="app-settings-content" class="app-settings-section">
