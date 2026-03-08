@@ -238,6 +238,10 @@ body {
   max-width: 1100px;
 }
 
+#attendance-stats-screen.main-content {
+  max-width: 1100px;
+}
+
 #shop-orders-screen.main-content,
 #shop-products-screen.main-content,
 #shop-inventory-screen.main-content,
@@ -1661,6 +1665,113 @@ body {
   height: 20px;
   cursor: pointer;
   accent-color: var(--primary-color);
+}
+
+/* ===== Attendance Section (Member Detail) ===== */
+.detail-section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--gray-700);
+  margin-top: 20px;
+  padding-top: 16px;
+  padding-bottom: 8px;
+  border-top: 1px solid var(--gray-200);
+}
+
+.detail-section-header .material-icons {
+  font-size: 20px;
+  color: var(--primary-color);
+}
+
+.member-attendance-content {
+  margin-bottom: 16px;
+}
+
+.attendance-summary-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--gray-50);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.att-stat strong {
+  font-size: 1.05rem;
+}
+
+.att-divider {
+  color: var(--gray-300);
+}
+
+.rate-high { color: #10b981; }
+.rate-mid { color: #f59e0b; }
+.rate-low { color: #ef4444; }
+
+.attendance-history-list {
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+}
+
+.attendance-history-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 0.85rem;
+}
+
+.attendance-history-item:last-child {
+  border-bottom: none;
+}
+
+.att-date {
+  font-weight: 600;
+  min-width: 70px;
+  color: var(--gray-700);
+}
+
+.att-classroom {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+}
+
+.att-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.att-present {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.att-absent {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.attendance-empty,
+.attendance-loading,
+.attendance-error {
+  font-size: 0.85rem;
+  color: var(--gray-400);
+  padding: 12px 0;
+}
+
+.attendance-error {
+  color: var(--danger-color);
 }
 
 /* ===== App Body Layout ===== */
@@ -5855,5 +5966,185 @@ body {
   .shop-inv-grid-header,
   .shop-inv-row {
     grid-template-columns: 1fr 50px 50px 40px 40px;
+  }
+}
+
+/* ===== Attendance Stats ===== */
+
+.att-stats-filters {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--gray-50);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.att-stats-filters label {
+  font-size: 13px;
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+.att-stats-filters select {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  background: #fff;
+  color: var(--gray-800);
+  min-width: 140px;
+}
+
+#att-stats-summary {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.att-stats-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #fff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  flex: 1;
+  min-width: 160px;
+}
+
+.att-stats-card .material-icons {
+  font-size: 28px;
+  color: var(--primary-color);
+}
+
+.att-stats-card-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gray-800);
+  line-height: 1.2;
+}
+
+.att-stats-card-label {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-top: 2px;
+}
+
+/* Rate colors */
+.rate-high { color: var(--success-color); }
+.rate-mid { color: var(--warning-color); }
+.rate-low { color: var(--danger-color); }
+
+/* Stats table */
+.att-stats-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: #fff;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.att-stats-tbl thead th {
+  background: var(--gray-50);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--gray-700);
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.att-stats-tbl tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-700);
+}
+
+.att-stats-tbl tbody tr:hover {
+  background: var(--gray-50);
+}
+
+.att-tbl-name {
+  font-weight: 500;
+  color: var(--gray-800);
+}
+
+/* Rate bar */
+.att-rate-bar {
+  display: inline-block;
+  width: 80px;
+  height: 6px;
+  background: var(--gray-200);
+  border-radius: 3px;
+  overflow: hidden;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.att-rate-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.att-rate-fill.rate-high { background: var(--success-color); }
+.att-rate-fill.rate-mid { background: var(--warning-color); }
+.att-rate-fill.rate-low { background: var(--danger-color); }
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.badge-staff {
+  background: var(--accent-light);
+  color: var(--accent-color);
+}
+
+.badge-class {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+@media (max-width: 768px) {
+  .att-stats-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .att-stats-filters select {
+    width: 100%;
+  }
+  #att-stats-summary {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .att-stats-card {
+    min-width: unset;
+  }
+  .att-stats-tbl {
+    font-size: 12px;
+  }
+  .att-stats-tbl thead th,
+  .att-stats-tbl tbody td {
+    padding: 8px 10px;
+  }
+  .att-rate-bar {
+    width: 50px;
   }
 }
