@@ -6377,7 +6377,7 @@ body {
 .shop-preview-container.device-mode {
   background: #d1d5db;
   padding: 24px;
-  align-items: center;
+  overflow: auto;
 }
 
 .shop-preview-frame {
