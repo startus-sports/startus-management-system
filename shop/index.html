@@ -13,14 +13,32 @@
   <!-- Preview banner -->
   <div class="preview-banner" id="preview-banner" style="display:none">
     <span class="material-icons">visibility</span>
-    管理者プレビューモード — 非公開商品も表示されています
-    <a href="/shop/">プレビューを終了</a>
+    管理者プレビュー
+    <div class="preview-device-toggle">
+      <button class="preview-device-btn active" data-device="desktop" onclick="window.shopPreview.setDevice('desktop')">
+        <span class="material-icons">desktop_windows</span>Desktop
+      </button>
+      <button class="preview-device-btn" data-device="tablet" onclick="window.shopPreview.setDevice('tablet')">
+        <span class="material-icons">tablet_mac</span>Tablet
+      </button>
+      <button class="preview-device-btn" data-device="mobile" onclick="window.shopPreview.setDevice('mobile')">
+        <span class="material-icons">phone_iphone</span>Mobile
+      </button>
+    </div>
+    <a href="/">プレビューを終了</a>
+  </div>
+
+  <!-- Device preview frame (iframe container for tablet/mobile) -->
+  <div class="preview-device-frame" id="preview-device-frame" style="display:none">
+    <div class="preview-device-shell" id="preview-device-shell">
+      <iframe id="preview-iframe" src="" frameborder="0"></iframe>
+    </div>
   </div>
 
   <!-- Header -->
   <header class="shop-header">
     <div class="shop-header-inner">
-      <a href="/shop/" class="shop-logo">
+      <a href="/" class="shop-logo">
         <span class="shop-logo-icon">&#9917;</span>
         STARTUS Shop
       </a>

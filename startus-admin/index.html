@@ -111,6 +111,10 @@
           <span class="material-icons">bar_chart</span>
           <span class="sidebar-label">統計</span>
         </a>
+        <a class="sidebar-item" data-tab="attendance-stats" onclick="window.memberApp.switchTab('attendance-stats')" title="出欠統計">
+          <span class="material-icons">how_to_reg</span>
+          <span class="sidebar-label">出欠統計</span>
+        </a>
 
         <!-- ショップ -->
         <div class="sidebar-divider"><span class="sidebar-group-label">ショップ</span></div>
@@ -503,6 +507,19 @@
         <h2>統計ダッシュボード</h2>
       </div>
       <div id="stats-content"></div>
+    </main>
+
+    <!-- ===== 出欠統計画面 ===== -->
+    <main class="main-content" id="attendance-stats-screen" style="display:none">
+      <div class="section-header">
+        <h2>出欠統計</h2>
+      </div>
+      <div class="att-stats-filters">
+        <select id="att-stats-period" class="att-stats-select"></select>
+        <select id="att-stats-classroom" class="att-stats-select"></select>
+      </div>
+      <div id="att-stats-summary" class="att-stats-summary"></div>
+      <div id="att-stats-table" class="att-stats-table-container"></div>
     </main>
 
     <!-- ===== スタッフ管理画面 ===== -->

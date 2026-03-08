@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/shop/:path*",
+      "destination": "https://startus-shop.vercel.app/:path*",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

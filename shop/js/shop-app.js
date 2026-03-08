@@ -9,6 +9,44 @@ import { renderConfirmation } from './shop-confirmation.js';
 
 export const shopSupabase = createClient(SHOP_SUPABASE_URL, SHOP_SUPABASE_ANON_KEY);
 export const isPreview = new URLSearchParams(window.location.search).get('preview') === 'admin';
+const isEmbed = new URLSearchParams(window.location.search).get('embed') === '1';
+
+// --- Device Preview ---
+const DEVICE_SIZES = {
+  desktop: null,
+  tablet: { width: 768, height: 1024 },
+  mobile: { width: 375, height: 667 },
+};
+
+function setDevice(device) {
+  const contentEls = document.querySelectorAll('.shop-header, .shop-main, .cart-overlay, .cart-drawer, .shop-toast-container, .shop-footer');
+  const frameContainer = document.getElementById('preview-device-frame');
+  const shell = document.getElementById('preview-device-shell');
+  const iframe = document.getElementById('preview-iframe');
+
+  // Update active button
+  document.querySelectorAll('.preview-device-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.device === device);
+  });
+
+  if (device === 'desktop' || !DEVICE_SIZES[device]) {
+    // Desktop: show content, hide iframe
+    contentEls.forEach(el => el.style.display = '');
+    if (frameContainer) frameContainer.style.display = 'none';
+    if (iframe) iframe.src = '';
+  } else {
+    // Tablet/Mobile: hide content, show iframe at specified size
+    const size = DEVICE_SIZES[device];
+    contentEls.forEach(el => el.style.display = 'none');
+    if (frameContainer) frameContainer.style.display = 'flex';
+    if (shell) {
+      shell.style.width = size.width + 'px';
+      shell.style.height = size.height + 'px';
+    }
+    const currentHash = window.location.hash || '#/';
+    if (iframe) iframe.src = '/?preview=admin&embed=1' + currentHash;
+  }
+}
 
 // --- Router ---
 function route() {
@@ -62,7 +100,7 @@ export function formatCurrency(amount) {
 
 // --- Init ---
 async function init() {
-  if (isPreview) {
+  if (isPreview && !isEmbed) {
     const banner = document.getElementById('preview-banner');
     if (banner) banner.style.display = 'flex';
   }
@@ -77,4 +115,7 @@ async function init() {
 
 // --- Global ---
 window.shopApp = { toggleCart };
+if (isPreview && !isEmbed) {
+  window.shopPreview = { setDevice };
+}
 document.addEventListener('DOMContentLoaded', init);

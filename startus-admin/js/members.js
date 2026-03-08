@@ -4,6 +4,7 @@ import { showToast, openModal, closeModal } from './app.js';
 import { getActiveClassrooms, getClassrooms } from './classroom.js';
 import { renderFeeSection, initFeeSection, loadAllFees, getCurrentFiscalYear } from './fees.js';
 import { logActivity } from './history.js';
+import { loadMemberAttendance } from './attendance-view.js';
 
 let allMembers = [];
 let filteredMembers = [];
@@ -298,6 +299,10 @@ export function showDetail(id) {
       <div class="detail-row"><span class="detail-label">メモ</span><span class="detail-value">${escapeHtml(m.note) || '-'}</span></div>
     </div>
     ${renderFeeSection(m)}
+    <div class="detail-section-header"><span class="material-icons">how_to_reg</span>出欠記録</div>
+    <div id="member-attendance-content" class="member-attendance-content">
+      <p class="attendance-loading">読み込み中...</p>
+    </div>
     <div class="modal-detail-actions">
       <button class="btn btn-primary" onclick="window.memberApp.openEditForm('${m.id}')">
         <span class="material-icons">edit</span>編集
@@ -312,6 +317,12 @@ export function showDetail(id) {
 
   openModal('会員詳細', content);
   setTimeout(() => initFeeSection(m.id), 100);
+
+  // 出欠履歴を非同期で読み込み
+  loadMemberAttendance(m.id).then(html => {
+    const el = document.getElementById('member-attendance-content');
+    if (el) el.innerHTML = html;
+  });
 }
 
 // --- 追加/編集フォーム ---

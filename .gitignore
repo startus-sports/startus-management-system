@@ -6,3 +6,4 @@ nul
 *.tmp
 .DS_Store
 Thumbs.db
+.env*.local

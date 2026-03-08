@@ -75,6 +75,7 @@ import { loadShopInventory } from './shop-inventory.js';
 import {
   loadShopCustomers, showCustomerDetail, initShopCustomerSearch
 } from './shop-customers.js';
+import { initAttendanceStats } from './attendance-stats.js';
 
 // --- Toast ---
 
@@ -255,6 +256,7 @@ async function showApp(email) {
     if (tabName === 'sm') initScheduleManager();
     if (tabName === 'master') { renderClassroomScreen(); }
     if (tabName === 'settings') { renderAppSettings(); }
+    if (tabName === 'attendance-stats') initAttendanceStats();
     if (tabName === 'shop-orders') loadShopOrders();
     if (tabName === 'shop-products') loadShopProducts();
     if (tabName === 'shop-inventory') loadShopInventory();
@@ -448,7 +450,7 @@ window.memberApp = {
   toggleSidebar,
   toggleSidebarCollapse,
   // Shop
-  openShopPreview: () => window.open('/shop/?preview=admin', '_blank'),
+  openShopPreview: () => window.open('https://startus-shop.vercel.app/?preview=admin', '_blank'),
   loadShopOrders,
   showOrderDetail,
   confirmOrderPayment,
