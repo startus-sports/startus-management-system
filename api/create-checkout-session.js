@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
       quantity: item.quantity,
     }));
 
-    const origin = req.headers.origin || req.headers.referer?.replace(/\/+$/, '') || 'https://startus-management-system.vercel.app';
+    const origin = req.headers.origin || req.headers.referer?.replace(/\/+$/, '') || 'https://member-manager-nu.vercel.app';
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
