@@ -5936,26 +5936,11 @@ body {
   border: none;
 }
 
-/* アイコンフォント修正（fcicons非表示→Unicode矢印表示） */
-#sm-fullcalendar .fc .fc-icon {
-  font-family: sans-serif !important;
-  font-size: 1.4em;
-  line-height: 1;
-  speak: none;
-}
-
-#sm-fullcalendar .fc .fc-icon-chevron-left::before {
-  content: '\2039' !important;
-  font-family: sans-serif !important;
-  font-size: 1.5em;
-  font-weight: 300;
-}
-
-#sm-fullcalendar .fc .fc-icon-chevron-right::before {
-  content: '\203A' !important;
-  font-family: sans-serif !important;
-  font-size: 1.5em;
-  font-weight: 300;
+/* prev/nextボタン内のMaterial Icons */
+#sm-fullcalendar .fc .fc-prev-button .material-icons,
+#sm-fullcalendar .fc .fc-next-button .material-icons {
+  font-size: 20px;
+  color: var(--gray-600);
 }
 
 /* ビュー切替（segmented control） */

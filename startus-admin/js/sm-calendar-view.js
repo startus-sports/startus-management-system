@@ -88,6 +88,17 @@ export function initSmCalendar() {
   });
 
   calendar.render();
+
+  // FullCalendarのfciconsフォントが読み込めない場合の対策:
+  // prev/nextボタンのアイコンをMaterial Iconsに差し替え
+  fixCalendarNavIcons(calendarEl);
+}
+
+function fixCalendarNavIcons(el) {
+  const prevBtn = el.querySelector('.fc-prev-button');
+  const nextBtn = el.querySelector('.fc-next-button');
+  if (prevBtn) prevBtn.innerHTML = '<span class="material-icons" style="font-size:20px">chevron_left</span>';
+  if (nextBtn) nextBtn.innerHTML = '<span class="material-icons" style="font-size:20px">chevron_right</span>';
 }
 
 // --- 日付フォーマット ---
