@@ -1,27 +1,26 @@
 -- Migration: members.classes / staff.classes from classroom names to calendar_tag
 -- Run once only after deploying the new JS code
 
--- Step 1: Fix duplicate calendar_tags
+-- Step 1: Fix duplicate calendar_tags (using UUIDs to avoid encoding issues)
+-- kakekojyuku approach
 UPDATE classrooms SET calendar_tag = 'kakekojyuku-approach'
-  WHERE calendar_tag = 'kakekojyuku-rikujo'
-    AND name LIKE '%\u30A2\u30D7\u30ED\u30FC\u30C1%';
+  WHERE id = '5e2cd3b7-9daf-43e8-b21b-6a387ab30180';
 
+-- kakekojyuku hop-step-jump
 UPDATE classrooms SET calendar_tag = 'kakekojyuku-hsj'
-  WHERE calendar_tag = 'kakekojyuku-rikujo'
-    AND name LIKE '%\u30DB\u30C3\u30D7%';
+  WHERE id = '4de26c1b-c368-4518-a7d1-4a07f0b360fa';
 
+-- badminton takaodai junior
 UPDATE classrooms SET calendar_tag = 'badminton-takaodai-jr'
-  WHERE calendar_tag = 'badminton-takaodai'
-    AND name LIKE '%\u30B8\u30E5\u30CB\u30A2%';
+  WHERE id = '2cf51990-820d-4f1a-9869-1b91205cfe42';
 
+-- badminton takaodai beginner
 UPDATE classrooms SET calendar_tag = 'badminton-takaodai-bg'
-  WHERE calendar_tag = 'badminton-takaodai'
-    AND name LIKE '%\u30D3\u30AE\u30CA\u30FC%';
+  WHERE id = '69ea6398-b945-4c58-9da1-4b7d83668a30';
 
 -- Step 2: Fill empty calendar_tag (ice skating)
 UPDATE classrooms SET calendar_tag = 'ice-skating'
-  WHERE name LIKE '%\u30A2\u30A4\u30B9\u30B9\u30B1\u30FC\u30C8%'
-    AND (calendar_tag IS NULL OR calendar_tag = '');
+  WHERE id = '3c341923-be7b-4ef3-bf87-0ef7bc405b3f';
 
 -- Step 3: Fill any remaining empty calendar_tags with a generated value
 UPDATE classrooms SET calendar_tag = 'class-' || SUBSTRING(id::text, 1, 8)
