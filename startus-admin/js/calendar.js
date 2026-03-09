@@ -325,7 +325,7 @@ export async function renderCalendar() {
         ? `top:${topPx}px;height:${heightPx}px;left:${leftPercent}%;width:${widthPercent}%;right:auto`
         : `top:${topPx}px;height:${heightPx}px`;
 
-      return `<div class="cal-event" style="${posStyle};background:${s.color}20;border-left:3px solid ${s.color}" title="${escapeHtml(ev.title)}&#10;${formatTime(ev.start)}〜${formatTime(ev.end)}${ev.location ? '&#10;' + escapeHtml(ev.location) : ''}" onclick="window.memberApp.showCalendarEvent(this)" data-event='${JSON.stringify({ title: ev.title, start: ev.start, end: ev.end, location: ev.location, description: ev.description }).replace(/'/g, '&#39;')}'>
+      return `<div class="cal-event" style="${posStyle};background:${s.color}" title="${escapeHtml(ev.title)}&#10;${formatTime(ev.start)}〜${formatTime(ev.end)}${ev.location ? '&#10;' + escapeHtml(ev.location) : ''}" onclick="window.memberApp.showCalendarEvent(this)" data-event='${JSON.stringify({ title: ev.title, start: ev.start, end: ev.end, location: ev.location, description: ev.description }).replace(/'/g, '&#39;')}'>
         <div class="cal-event-title">${escapeHtml(ev.title)}</div>
         <div class="cal-event-time">${formatTime(ev.start)}〜${formatTime(ev.end)}</div>
         ${ev.location ? `<div class="cal-event-location">${escapeHtml(ev.location)}</div>` : ''}
