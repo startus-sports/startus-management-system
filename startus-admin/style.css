@@ -5883,6 +5883,8 @@ body {
 
 #sm-fullcalendar .fc .fc-toolbar {
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 #sm-fullcalendar .fc .fc-toolbar-title {
@@ -5891,30 +5893,95 @@ body {
   color: var(--gray-800);
 }
 
+/* 全ボタン共通 */
 #sm-fullcalendar .fc .fc-button {
   border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 13px;
   padding: 6px 14px;
-  border: 1.5px solid var(--gray-200);
+  border: 1px solid var(--gray-300);
   background: white;
   color: var(--gray-600);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  box-shadow: none;
   transition: all 0.15s ease;
 }
 
 #sm-fullcalendar .fc .fc-button:hover {
-  background: var(--primary-lighter);
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+  background: var(--gray-50);
+  border-color: var(--gray-400);
+  color: var(--gray-700);
 }
 
+#sm-fullcalendar .fc .fc-button:focus {
+  box-shadow: none;
+}
+
+/* prev/nextボタン（丸型） */
+#sm-fullcalendar .fc .fc-prev-button,
+#sm-fullcalendar .fc .fc-next-button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#sm-fullcalendar .fc .fc-prev-button:hover,
+#sm-fullcalendar .fc .fc-next-button:hover {
+  background: var(--gray-100);
+  border: none;
+}
+
+/* アイコンフォント修正（fcicons非表示→Unicode矢印表示） */
+#sm-fullcalendar .fc .fc-icon {
+  font-family: sans-serif !important;
+  font-size: 1.4em;
+  line-height: 1;
+  speak: none;
+}
+
+#sm-fullcalendar .fc .fc-icon-chevron-left::before {
+  content: '\2039' !important;
+  font-family: sans-serif !important;
+  font-size: 1.5em;
+  font-weight: 300;
+}
+
+#sm-fullcalendar .fc .fc-icon-chevron-right::before {
+  content: '\203A' !important;
+  font-family: sans-serif !important;
+  font-size: 1.5em;
+  font-weight: 300;
+}
+
+/* ビュー切替（segmented control） */
+#sm-fullcalendar .fc .fc-button-group {
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+#sm-fullcalendar .fc .fc-button-group .fc-button {
+  border: none;
+  border-right: 1px solid var(--gray-300);
+  border-radius: 0;
+}
+
+#sm-fullcalendar .fc .fc-button-group .fc-button:last-child {
+  border-right: none;
+}
+
+/* アクティブなビュー */
 #sm-fullcalendar .fc .fc-button-primary:not(:disabled).fc-button-active,
 #sm-fullcalendar .fc .fc-button-primary:not(:disabled):active {
   background: var(--primary-color);
-  border-color: var(--primary-color);
+  border-color: transparent;
   color: white;
-  box-shadow: 0 2px 6px rgb(59 130 246 / 0.3);
+  box-shadow: none;
 }
 
 #sm-fullcalendar .fc .fc-col-header-cell {
