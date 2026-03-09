@@ -711,12 +711,12 @@ export async function showApplicationDetail(id) {
     <div class="app-detail-section" id="app-content-section">
       <div class="app-detail-section-header" id="app-content-header">
         <span class="material-icons" style="font-size:18px">description</span> 申請内容
-        <span style="margin-left:auto;display:flex;gap:4px">
-          <button class="btn btn-secondary" style="padding:2px 8px;font-size:0.75rem" onclick="window.memberApp.openApplicationEditForm('${app.id}')">
-            <span class="material-icons" style="font-size:14px">edit</span>編集
+        <span style="margin-left:auto;display:flex;gap:6px">
+          <button class="btn btn-secondary btn-xs" onclick="window.memberApp.openApplicationEditForm('${app.id}')">
+            <span class="material-icons">edit</span>編集
           </button>
-          <button class="btn btn-secondary" style="padding:2px 8px;font-size:0.75rem" onclick="window.memberApp.openApplicationHistory('${app.id}', '${escapeHtml(fd.name || '')} ${escapeHtml(typeLabel)}申請')">
-            <span class="material-icons" style="font-size:14px">history</span>履歴
+          <button class="btn btn-secondary btn-xs" onclick="window.memberApp.openApplicationHistory('${app.id}', '${escapeHtml(fd.name || '')} ${escapeHtml(typeLabel)}申請')">
+            <span class="material-icons">history</span>履歴
           </button>
         </span>
       </div>
@@ -736,8 +736,8 @@ export async function showApplicationDetail(id) {
       </div>
       <textarea id="app-admin-note" rows="2" class="admin-note-textarea" placeholder="事務局メモ...">${escapeHtml(app.admin_note || '')}</textarea>
       <div style="text-align:right;margin-top:6px">
-        <button class="btn btn-secondary" style="padding:4px 12px;font-size:0.8rem" onclick="window.memberApp.saveApplicationAdminNote('${app.id}')">
-          <span class="material-icons" style="font-size:16px">save</span>メモ保存
+        <button class="btn btn-secondary btn-sm" onclick="window.memberApp.saveApplicationAdminNote('${app.id}')">
+          <span class="material-icons">save</span>メモ保存
         </button>
       </div>
     </div>
@@ -745,8 +745,8 @@ export async function showApplicationDetail(id) {
     ${buildActionButtons(app)}
 
     <div style="text-align:center;margin-top:12px">
-      <button class="btn" style="color:var(--gray-400);font-size:0.8rem" onclick="window.memberApp.deleteApplication('${app.id}')">
-        <span class="material-icons" style="font-size:16px">delete</span>この申請データを削除
+      <button class="btn btn-ghost-danger btn-sm" onclick="window.memberApp.deleteApplication('${app.id}')">
+        <span class="material-icons">delete</span>この申請データを削除
       </button>
     </div>`;
 
@@ -1239,16 +1239,19 @@ export function openApplicationEditForm(id) {
   const classrooms = getActiveClassrooms();
 
   // ヘッダーを編集モードに切り替え
+  const section = document.getElementById('app-content-section');
+  if (section) section.classList.add('editing');
+
   const header = document.getElementById('app-content-header');
   if (header) {
     header.innerHTML = `
-      <span class="material-icons" style="font-size:18px">edit</span> 申請内容を編集
-      <span style="margin-left:auto;display:flex;gap:4px">
-        <button class="btn btn-secondary" style="padding:2px 8px;font-size:0.75rem" onclick="window.memberApp.showApplicationDetail('${id}')">
-          キャンセル
+      <span class="material-icons" style="font-size:18px">edit</span> 申請内容を編集中
+      <span style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="window.memberApp.showApplicationDetail('${id}')">
+          <span class="material-icons">close</span>キャンセル
         </button>
-        <button class="btn btn-primary" style="padding:2px 8px;font-size:0.75rem" onclick="window.memberApp.saveApplicationEdit('${id}')">
-          <span class="material-icons" style="font-size:14px">save</span>保存
+        <button class="btn btn-primary btn-sm" onclick="window.memberApp.saveApplicationEdit('${id}')">
+          <span class="material-icons">save</span>保存
         </button>
       </span>`;
   }

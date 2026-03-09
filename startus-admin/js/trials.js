@@ -516,12 +516,12 @@ export async function showTrialDetail(id) {
     <div class="app-detail-section" id="trial-content-section">
       <div class="app-detail-section-header" id="trial-content-header">
         <span class="material-icons" style="font-size:18px">person</span> 体験申込内容
-        <span style="margin-left:auto;display:flex;gap:4px">
-          <button class="btn btn-secondary" style="padding:2px 8px;font-size:0.75rem" onclick="window.memberApp.openTrialEditForm('${trial.id}')">
-            <span class="material-icons" style="font-size:14px">edit</span>編集
+        <span style="margin-left:auto;display:flex;gap:6px">
+          <button class="btn btn-secondary btn-xs" onclick="window.memberApp.openTrialEditForm('${trial.id}')">
+            <span class="material-icons">edit</span>編集
           </button>
-          <button class="btn btn-secondary" style="padding:2px 8px;font-size:0.75rem" onclick="window.memberApp.openTrialHistory('${trial.id}', '${escapeHtml(fd.name || '')} 体験申込')">
-            <span class="material-icons" style="font-size:14px">history</span>履歴
+          <button class="btn btn-secondary btn-xs" onclick="window.memberApp.openTrialHistory('${trial.id}', '${escapeHtml(fd.name || '')} 体験申込')">
+            <span class="material-icons">history</span>履歴
           </button>
         </span>
       </div>
@@ -541,8 +541,8 @@ export async function showTrialDetail(id) {
       </div>
       <textarea id="trial-admin-note" rows="2" class="admin-note-textarea" placeholder="事務局メモ...">${escapeHtml(trial.admin_note || '')}</textarea>
       <div style="text-align:right;margin-top:6px">
-        <button class="btn btn-secondary" style="padding:4px 12px;font-size:0.8rem" onclick="window.memberApp.saveTrialAdminNote('${trial.id}')">
-          <span class="material-icons" style="font-size:16px">save</span>メモ保存
+        <button class="btn btn-secondary btn-sm" onclick="window.memberApp.saveTrialAdminNote('${trial.id}')">
+          <span class="material-icons">save</span>メモ保存
         </button>
       </div>
     </div>
@@ -550,8 +550,8 @@ export async function showTrialDetail(id) {
     ${buildTrialActionButtons(trial)}
 
     <div style="text-align:center;margin-top:12px">
-      <button class="btn" style="color:var(--gray-400);font-size:0.8rem" onclick="window.memberApp.deleteTrial('${trial.id}')">
-        <span class="material-icons" style="font-size:16px">delete</span>この体験データを削除
+      <button class="btn btn-ghost-danger btn-sm" onclick="window.memberApp.deleteTrial('${trial.id}')">
+        <span class="material-icons">delete</span>この体験データを削除
       </button>
     </div>`;
 
@@ -797,14 +797,13 @@ function buildFollowUpSection(trial) {
         ${isOverdue ? '<span class="badge badge-followup-overdue">期限超過</span>' : ''}
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <input type="date" id="trial-follow-up-date" value="${followUpDate}"
-               style="flex:1;padding:6px 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm)">
-        <button class="btn btn-secondary" style="padding:4px 12px;font-size:0.8rem"
+        <input type="date" id="trial-follow-up-date" value="${followUpDate}" class="form-control" style="flex:1">
+        <button class="btn btn-secondary btn-sm"
                 onclick="window.memberApp.saveTrialFollowUp('${trial.id}')">
-          <span class="material-icons" style="font-size:16px">save</span>保存
+          <span class="material-icons">save</span>保存
         </button>
       </div>
-      <p style="font-size:0.78rem;color:var(--gray-400);margin-top:4px">
+      <p class="form-hint">
         体験後の入会フォローアップ期限を設定できます
       </p>
     </div>`;
@@ -857,9 +856,9 @@ function buildJoinLinkingSection(trial) {
             <span class="detail-value"><span class="badge badge-app-${linked.status}">${escapeHtml(linked.status)}</span></span>
           </div>
         </div>
-        <button class="btn btn-secondary" style="margin-top:8px;font-size:0.8rem"
+        <button class="btn btn-secondary btn-sm" style="margin-top:8px"
                 onclick="window.memberApp.unlinkJoinApplication('${trial.id}')">
-          <span class="material-icons" style="font-size:16px">link_off</span>紐付け解除
+          <span class="material-icons">link_off</span>紐付け解除
         </button>
       </div>`;
   }
@@ -874,9 +873,9 @@ function buildJoinLinkingSection(trial) {
           <span style="font-size:0.8rem;color:var(--gray-400);margin-left:8px">${escapeHtml(c.form_data?.email || '')}</span>
           <span style="font-size:0.78rem;color:var(--gray-400);margin-left:8px">${formatShortDate(c.created_at)}</span>
         </div>
-        <button class="btn btn-secondary" style="padding:2px 8px;font-size:0.75rem"
+        <button class="btn btn-secondary btn-xs"
                 onclick="window.memberApp.linkJoinApplication('${trial.id}', '${c.id}')">
-          <span class="material-icons" style="font-size:14px">link</span>紐付け
+          <span class="material-icons">link</span>紐付け
         </button>
       </div>`).join('');
   } else {
@@ -1166,16 +1165,19 @@ export function openTrialEditForm(id) {
   const classrooms = getActiveClassrooms();
 
   // ヘッダーを編集モードに切り替え
+  const section = document.getElementById('trial-content-section');
+  if (section) section.classList.add('editing');
+
   const header = document.getElementById('trial-content-header');
   if (header) {
     header.innerHTML = `
-      <span class="material-icons" style="font-size:18px">edit</span> 体験申込内容を編集
-      <span style="margin-left:auto;display:flex;gap:4px">
-        <button class="btn btn-secondary" style="padding:2px 8px;font-size:0.75rem" onclick="window.memberApp.showTrialDetail('${id}')">
-          キャンセル
+      <span class="material-icons" style="font-size:18px">edit</span> 体験申込内容を編集中
+      <span style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="window.memberApp.showTrialDetail('${id}')">
+          <span class="material-icons">close</span>キャンセル
         </button>
-        <button class="btn btn-primary" style="padding:2px 8px;font-size:0.75rem" onclick="window.memberApp.saveTrialEdit('${id}')">
-          <span class="material-icons" style="font-size:14px">save</span>保存
+        <button class="btn btn-primary btn-sm" onclick="window.memberApp.saveTrialEdit('${id}')">
+          <span class="material-icons">save</span>保存
         </button>
       </span>`;
   }

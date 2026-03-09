@@ -759,24 +759,24 @@ function renderBulkBar() {
       <span>${selectedIds.size}件選択中</span>
     </div>
     <div class="bulk-bar-right">
-      <select id="bulk-status-select" class="btn-sm" style="background:transparent;color:white;border-color:rgba(255,255,255,0.3)">
+      <select id="bulk-status-select">
         <option value="">ステータス変更</option>
         <option value="在籍">→ 在籍</option>
         <option value="休会">→ 休会</option>
         <option value="退会">→ 退会</option>
       </select>
-      <button class="btn btn-sm" onclick="window.memberApp.executeBulkStatus()" style="background:var(--primary-color);color:white;border:none">
-        <span class="material-icons" style="font-size:16px">sync</span>適用
+      <button class="btn btn-sm btn-bulk-action" onclick="window.memberApp.executeBulkStatus()">
+        <span class="material-icons">sync</span>適用
       </button>
-      <select id="bulk-class-select" class="btn-sm" style="background:transparent;color:white;border-color:rgba(255,255,255,0.3);margin-left:8px">
+      <select id="bulk-class-select" style="margin-left:8px">
         <option value="">教室追加</option>
         ${classOptions}
       </select>
-      <button class="btn btn-sm" onclick="window.memberApp.executeBulkAddClass()" style="background:var(--primary-color);color:white;border:none">
-        <span class="material-icons" style="font-size:16px">add</span>追加
+      <button class="btn btn-sm btn-bulk-action" onclick="window.memberApp.executeBulkAddClass()">
+        <span class="material-icons">add</span>追加
       </button>
-      <button class="btn btn-sm" onclick="window.memberApp.confirmBulkDelete()" style="background:var(--danger-color);color:white;border:none;margin-left:8px">
-        <span class="material-icons" style="font-size:16px">delete</span>一括削除
+      <button class="btn btn-sm btn-bulk-danger" onclick="window.memberApp.confirmBulkDelete()" style="margin-left:8px">
+        <span class="material-icons">delete</span>一括削除
       </button>
     </div>`;
 }

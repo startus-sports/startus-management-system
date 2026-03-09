@@ -366,7 +366,7 @@ function openStaffForm(staff) {
         </div>
         <div class="form-group">
           <label>カレンダー色</label>
-          <input type="color" name="calendar_color" value="${s.calendar_color || '#3b82f6'}" style="height:40px;padding:4px">
+          <input type="color" name="calendar_color" value="${s.calendar_color || '#3b82f6'}">
         </div>
       </div>
       <div class="form-group">

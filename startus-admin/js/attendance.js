@@ -202,9 +202,9 @@ export function openCreateEventModal() {
       <label>メモ</label>
       <input type="text" id="new-event-note" class="form-control" placeholder="任意">
     </div>
-    <div class="modal-actions" style="display:flex;gap:8px;margin-top:16px">
+    <div class="modal-actions">
       <button class="btn btn-primary" onclick="window.memberApp.createEventAndOpen()">
-        <span class="material-icons" style="font-size:16px">check</span> 作成して出欠入力
+        <span class="material-icons">check</span> 作成して出欠入力
       </button>
       <button class="btn btn-secondary" onclick="window.memberApp.createEventOnly()">
         作成のみ
@@ -474,9 +474,9 @@ export async function editEvent(eventId) {
       <label>メモ</label>
       <input type="text" id="edit-event-note" value="${escapeHtml(ev.note || '')}" class="form-control">
     </div>
-    <div class="modal-actions" style="margin-top:16px">
+    <div class="modal-actions">
       <button class="btn btn-primary" onclick="window.memberApp.saveEventEdit('${eventId}')">
-        <span class="material-icons" style="font-size:16px">save</span> 保存
+        <span class="material-icons">save</span> 保存
       </button>
     </div>`;
 
