@@ -55,7 +55,8 @@ import {
   openTransferEditForm, saveTransferEdit, openTransferHistory,
   assignTransfer, toggleTransferWorkloadFilter,
   initTransferSort, resetTransferFilters,
-  showTransferContextMenu, contextAssignTransfer
+  showTransferContextMenu, contextAssignTransfer,
+  openTransferAddForm, saveNewTransfer
 } from './transfers.js';
 import { renderCalendar, navigateCalendarDay, goToCalendarToday, refreshCalendar, openGoogleCalendar, showCalendarEvent, changeCalendarMode } from './calendar.js';
 import {
@@ -500,6 +501,8 @@ window.memberApp = {
   toggleTransferWorkloadFilter,
   showTransferContextMenu,
   contextAssignTransfer,
+  openTransferAddForm,
+  saveNewTransfer,
   exportTransfersCSV,
   showStaffDetail,
   openStaffAddForm,

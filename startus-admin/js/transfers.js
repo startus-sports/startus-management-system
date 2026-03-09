@@ -985,6 +985,137 @@ export async function saveTransferEdit(id) {
   renderTransferListOnly();
 }
 
+// --- 新規作成 ---
+
+export function openTransferAddForm() {
+  setModalWide(true);
+  const classrooms = getActiveClassrooms();
+
+  const classOptions = classrooms.map(c =>
+    `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`
+  ).join('');
+
+  const content = `
+    <div class="app-detail-section">
+      <div class="app-detail-section-header">
+        <span class="material-icons" style="font-size:18px">info</span> 振替申請情報
+      </div>
+      <div class="detail-grid">
+        <div class="detail-row">
+          <span class="detail-label">会員名 <span style="color:var(--danger-color)">*</span></span>
+          <span class="detail-value"><input type="text" class="form-input" id="new-transfer-member_name" placeholder="例: 山田 太郎"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">フリガナ</span>
+          <span class="detail-value"><input type="text" class="form-input" id="new-transfer-member_furigana" placeholder="例: ヤマダ タロウ"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">保護者名</span>
+          <span class="detail-value"><input type="text" class="form-input" id="new-transfer-guardian_name"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">メール</span>
+          <span class="detail-value"><input type="email" class="form-input" id="new-transfer-email"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">電話番号</span>
+          <span class="detail-value"><input type="tel" class="form-input" id="new-transfer-phone"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">休んだ教室 <span style="color:var(--danger-color)">*</span></span>
+          <span class="detail-value">
+            <select class="form-input" id="new-transfer-absent_class">
+              <option value="">選択してください</option>
+              ${classOptions}
+            </select>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">休んだ日 <span style="color:var(--danger-color)">*</span></span>
+          <span class="detail-value"><input type="date" class="form-input" id="new-transfer-absent_date"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">振替先教室 <span style="color:var(--danger-color)">*</span></span>
+          <span class="detail-value">
+            <select class="form-input" id="new-transfer-transfer_class">
+              <option value="">選択してください</option>
+              ${classOptions}
+            </select>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">振替希望日 <span style="color:var(--danger-color)">*</span></span>
+          <span class="detail-value"><input type="date" class="form-input" id="new-transfer-transfer_date"></span>
+        </div>
+        <div class="detail-row detail-row-full">
+          <span class="detail-label">備考</span>
+          <span class="detail-value"><textarea class="form-input" id="new-transfer-note" rows="2" placeholder="任意"></textarea></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-detail-actions" style="margin-top:16px">
+      <button class="btn btn-secondary" onclick="window.memberApp.closeModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="window.memberApp.saveNewTransfer()">
+        <span class="material-icons">add</span>登録する
+      </button>
+    </div>
+  `;
+
+  openModal('<span class="material-icons" style="vertical-align:middle;margin-right:4px">swap_horiz</span> 振替申請を新規作成', content);
+}
+
+export async function saveNewTransfer() {
+  const getValue = (id) => document.getElementById(id)?.value?.trim() || '';
+
+  const memberName = getValue('new-transfer-member_name');
+  const absentClass = getValue('new-transfer-absent_class');
+  const absentDate = getValue('new-transfer-absent_date');
+  const transferClass = getValue('new-transfer-transfer_class');
+  const transferDate = getValue('new-transfer-transfer_date');
+
+  // バリデーション
+  if (!memberName || !absentClass || !absentDate || !transferClass || !transferDate) {
+    showToast('必須項目（*）を入力してください', 'error');
+    return;
+  }
+
+  const formData = {
+    member_name: memberName,
+    member_furigana: getValue('new-transfer-member_furigana'),
+    guardian_name: getValue('new-transfer-guardian_name'),
+    email: getValue('new-transfer-email'),
+    phone: getValue('new-transfer-phone'),
+    absent_class: absentClass,
+    absent_date: absentDate,
+    transfer_class: transferClass,
+    transfer_date: transferDate,
+    note: getValue('new-transfer-note'),
+  };
+
+  const record = {
+    type: 'transfer',
+    status: 'pending',
+    form_data: formData,
+    checklist: initializeTransferChecklist(),
+  };
+
+  const { error } = await supabase
+    .from('applications')
+    .insert(record);
+
+  if (error) {
+    showToast('登録に失敗しました', 'error');
+    console.error(error);
+    return;
+  }
+
+  showToast('振替申請を登録しました', 'success');
+  closeModal();
+  await renderTransferList();
+  updateTabBadges();
+}
+
 // --- 履歴 ---
 
 export function openTransferHistory(id, label) {
