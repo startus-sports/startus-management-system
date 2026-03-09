@@ -38,6 +38,7 @@ const FIELD_LABELS = {
   change_content: '変更内容',
   // 振替フィールド
   member_name: '会員名', member_furigana: 'フリガナ',
+  source_class: '所属教室',
   absent_class: '休んだ教室', absent_date: '休んだ日',
   transfer_class: '振替先教室', transfer_date: '振替希望日',
   // 担当者

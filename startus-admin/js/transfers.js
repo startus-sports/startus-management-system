@@ -33,6 +33,7 @@ const TRANSFER_FIELDS = [
   { key: 'guardian_name',   label: '保護者名' },
   { key: 'email',           label: 'メール' },
   { key: 'phone',           label: '電話番号' },
+  { key: 'source_class',    label: '所属教室' },
   { key: 'absent_class',    label: '休んだ教室' },
   { key: 'absent_date',     label: '休んだ日' },
   { key: 'transfer_class',  label: '振替先教室' },
@@ -117,6 +118,27 @@ function formatShortDate(isoStr) {
   return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
+// --- 日付パーサー ---
+// GASフォーム: "2026/03/09 (月) 14:00" 形式
+// 手動入力: "2026-03-09" 形式
+// どちらからもDateオブジェクトを返す
+function parseTransferDate(dateStr) {
+  if (!dateStr) return null;
+  // "YYYY/MM/DD" or "YYYY-MM-DD" を抽出
+  const match = dateStr.match(/(\d{4})[\/\-](\d{2})[\/\-](\d{2})/);
+  if (!match) return null;
+  return new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
+}
+
+// グリッド用の短い日付表示: "3/9(月)" 形式
+function formatTransferDateShort(dateStr) {
+  if (!dateStr) return '';
+  const d = parseTransferDate(dateStr);
+  if (!d) return dateStr;
+  const dayMap = ['日', '月', '火', '水', '木', '金', '土'];
+  return `${d.getMonth() + 1}/${d.getDate()}(${dayMap[d.getDay()]})`;
+}
+
 // --- バリデーション警告 ---
 
 function getTransferWarnings(fd) {
@@ -126,26 +148,30 @@ function getTransferWarnings(fd) {
 
   // 直前申請チェック: 振替希望日まで7日未満
   if (fd.transfer_date) {
-    const transferDate = new Date(fd.transfer_date);
-    transferDate.setHours(0, 0, 0, 0);
-    const daysUntil = Math.ceil((transferDate - today) / (1000 * 60 * 60 * 24));
-    if (daysUntil >= 0 && daysUntil < WARNING_DAYS_BEFORE) {
-      warnings.push({ type: 'warning', label: '直前申請', detail: `振替日まで${daysUntil}日` });
-    }
-    if (daysUntil < 0) {
-      warnings.push({ type: 'info', label: '振替日経過', detail: `振替日を過ぎています` });
+    const transferDate = parseTransferDate(fd.transfer_date);
+    if (transferDate) {
+      transferDate.setHours(0, 0, 0, 0);
+      const daysUntil = Math.ceil((transferDate - today) / (1000 * 60 * 60 * 24));
+      if (daysUntil >= 0 && daysUntil < WARNING_DAYS_BEFORE) {
+        warnings.push({ type: 'warning', label: '直前申請', detail: `振替日まで${daysUntil}日` });
+      }
+      if (daysUntil < 0) {
+        warnings.push({ type: 'info', label: '振替日経過', detail: `振替日を過ぎています` });
+      }
     }
   }
 
   // 期限チェック: 欠席日から振替日まで30日超
   if (fd.absent_date && fd.transfer_date) {
-    const absentDate = new Date(fd.absent_date);
-    const transferDate = new Date(fd.transfer_date);
-    absentDate.setHours(0, 0, 0, 0);
-    transferDate.setHours(0, 0, 0, 0);
-    const daysDiff = Math.ceil((transferDate - absentDate) / (1000 * 60 * 60 * 24));
-    if (daysDiff > TRANSFER_DEADLINE_DAYS) {
-      warnings.push({ type: 'danger', label: '期限超過', detail: `欠席日から${daysDiff}日経過（上限${TRANSFER_DEADLINE_DAYS}日）` });
+    const absentDate = parseTransferDate(fd.absent_date);
+    const transferDate = parseTransferDate(fd.transfer_date);
+    if (absentDate && transferDate) {
+      absentDate.setHours(0, 0, 0, 0);
+      transferDate.setHours(0, 0, 0, 0);
+      const daysDiff = Math.ceil((transferDate - absentDate) / (1000 * 60 * 60 * 24));
+      if (daysDiff > TRANSFER_DEADLINE_DAYS) {
+        warnings.push({ type: 'danger', label: '期限超過', detail: `欠席日から${daysDiff}日経過（上限${TRANSFER_DEADLINE_DAYS}日）` });
+      }
     }
   }
 
@@ -239,8 +265,16 @@ function applyTransferFilters() {
   result.sort((a, b) => {
     switch (transferSortKey) {
       case 'created_asc': return new Date(a.created_at) - new Date(b.created_at);
-      case 'transfer_date': return ((a.form_data?.transfer_date || '').localeCompare(b.form_data?.transfer_date || ''));
-      case 'absent_date': return ((a.form_data?.absent_date || '').localeCompare(b.form_data?.absent_date || ''));
+      case 'transfer_date': {
+        const da = parseTransferDate(a.form_data?.transfer_date);
+        const db = parseTransferDate(b.form_data?.transfer_date);
+        return (da?.getTime() || 0) - (db?.getTime() || 0);
+      }
+      case 'absent_date': {
+        const da = parseTransferDate(a.form_data?.absent_date);
+        const db = parseTransferDate(b.form_data?.absent_date);
+        return (da?.getTime() || 0) - (db?.getTime() || 0);
+      }
       case 'name': return ((a.form_data?.member_name || '').localeCompare((b.form_data?.member_name || ''), 'ja'));
       case 'status': return (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9);
       case 'created_desc':
@@ -304,7 +338,7 @@ function buildTransferGridRow(t) {
   const statusLabel = TRANSFER_STATUS_LABELS[t.status] || t.status;
   const badgeClass = TRANSFER_STATUS_BADGE[t.status] || '';
   const createdDate = formatShortDate(t.created_at);
-  const transferDate = fd.transfer_date || '';
+  const transferDate = formatTransferDateShort(fd.transfer_date);
   const assigneeName = t.assigned_to ? (getStaffById(t.assigned_to)?.name || '') : '';
   const needsAssignment = !t.assigned_to && t.status === 'pending';
   const warnings = getTransferWarnings(fd);
@@ -1022,6 +1056,15 @@ export function openTransferAddForm() {
           <span class="detail-value"><input type="tel" class="form-input" id="new-transfer-phone"></span>
         </div>
         <div class="detail-row">
+          <span class="detail-label">所属教室</span>
+          <span class="detail-value">
+            <select class="form-input" id="new-transfer-source_class">
+              <option value="">選択してください</option>
+              ${classOptions}
+            </select>
+          </span>
+        </div>
+        <div class="detail-row">
           <span class="detail-label">休んだ教室 <span style="color:var(--danger-color)">*</span></span>
           <span class="detail-value">
             <select class="form-input" id="new-transfer-absent_class">
@@ -1086,6 +1129,7 @@ export async function saveNewTransfer() {
     guardian_name: getValue('new-transfer-guardian_name'),
     email: getValue('new-transfer-email'),
     phone: getValue('new-transfer-phone'),
+    source_class: getValue('new-transfer-source_class'),
     absent_class: absentClass,
     absent_date: absentDate,
     transfer_class: transferClass,

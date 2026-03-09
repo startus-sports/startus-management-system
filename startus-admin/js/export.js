@@ -173,7 +173,7 @@ export function exportTransfersCSV() {
 
   const headers = [
     '受付日', '会員名', 'フリガナ', '保護者名',
-    '休んだ教室', '休んだ日', '振替先教室', '振替希望日',
+    '所属教室', '休んだ教室', '休んだ日', '振替先教室', '振替希望日',
     'ステータス', '担当者', '電話番号', 'メール', '管理メモ'
   ];
 
@@ -185,6 +185,7 @@ export function exportTransfersCSV() {
       fd.member_name || '',
       fd.member_furigana || '',
       fd.guardian_name || '',
+      fd.source_class || '',
       fd.absent_class || '',
       fd.absent_date || '',
       fd.transfer_class || '',
