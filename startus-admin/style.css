@@ -231,7 +231,7 @@ body {
 }
 
 #master-screen.main-content {
-  max-width: 1100px;
+  max-width: 1200px;
 }
 
 #dashboard-screen.main-content {
@@ -4401,7 +4401,8 @@ body {
 #transfers-screen,
 #fee-overview-screen,
 #stats-screen,
-#staff-screen {
+#staff-screen,
+#master-screen {
   max-width: 1200px;
 }
 
@@ -4826,7 +4827,8 @@ body {
   #transfers-screen,
   #fee-overview-screen,
   #stats-screen,
-  #staff-screen {
+  #staff-screen,
+  #master-screen {
     max-width: 100%;
   }
 
