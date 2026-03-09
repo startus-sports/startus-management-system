@@ -14,17 +14,21 @@ async function renderNotifications() {
   if (!el) return;
 
   try {
-    const [appRes, trialRes] = await Promise.all([
+    const [appRes, trialRes, transferRes] = await Promise.all([
       supabase.from('applications').select('id', { count: 'exact', head: true })
         .in('status', ['pending', 'reviewed']),
       supabase.from('trials').select('id', { count: 'exact', head: true })
-        .in('status', ['pending', 'reviewed'])
+        .in('status', ['pending', 'reviewed']),
+      supabase.from('applications').select('id', { count: 'exact', head: true })
+        .eq('type', 'transfer')
+        .eq('status', 'pending')
     ]);
 
     const appCount = appRes.count || 0;
     const trialCount = trialRes.count || 0;
+    const transferCount = transferRes.count || 0;
 
-    if (appCount === 0 && trialCount === 0) {
+    if (appCount === 0 && trialCount === 0 && transferCount === 0) {
       el.innerHTML = '<p style="color:var(--success-color)">未処理の通知はありません</p>';
       return;
     }
@@ -40,6 +44,12 @@ async function renderNotifications() {
       html += `<div class="dash-notif-item">
         <span class="material-icons" style="color:var(--accent-color)">person_search</span>
         <span>未処理の体験 <strong>${trialCount}件</strong></span>
+      </div>`;
+    }
+    if (transferCount > 0) {
+      html += `<div class="dash-notif-item">
+        <span class="material-icons" style="color:var(--primary-color)">swap_horiz</span>
+        <span>未処理の振替 <strong>${transferCount}件</strong></span>
       </div>`;
     }
     html += '</div>';

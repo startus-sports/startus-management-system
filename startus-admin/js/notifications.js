@@ -26,8 +26,16 @@ export async function updateTabBadges() {
       .eq('type', 'trial')
       .eq('status', 'pending');
 
+    // 振替の未対応件数
+    const { count: transferCount } = await supabase
+      .from('applications')
+      .select('*', { count: 'exact', head: true })
+      .eq('type', 'transfer')
+      .eq('status', 'pending');
+
     setBadge('app-tab-badge', appCount || 0);
     setBadge('trial-tab-badge', trialCount || 0);
+    setBadge('transfer-tab-badge', transferCount || 0);
 
     // ログインユーザーの担当件数
     const { data: { session } } = await supabase.auth.getSession();
@@ -48,11 +56,20 @@ export async function updateTabBadges() {
         .in('status', ['pending', 'reviewed', 'approved'])
         .eq('assigned_to', staff.id);
 
+      const { count: myTransferCount } = await supabase
+        .from('applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('type', 'transfer')
+        .eq('status', 'pending')
+        .eq('assigned_to', staff.id);
+
       setMyBadge('app-my-badge', myAppCount || 0);
       setMyBadge('trial-my-badge', myTrialCount || 0);
+      setMyBadge('transfer-my-badge', myTransferCount || 0);
     } else {
       setMyBadge('app-my-badge', 0);
       setMyBadge('trial-my-badge', 0);
+      setMyBadge('transfer-my-badge', 0);
     }
     // チャット未読バッジ更新
     await loadUnreadCounts();

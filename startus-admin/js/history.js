@@ -11,6 +11,7 @@ const ACTION_LABELS = {
   grade_update: { label: '学年更新', icon: 'school', color: 'var(--accent-color)' },
   app_edit: { label: '申請編集', icon: 'edit_note', color: 'var(--primary-color)' },
   trial_edit: { label: '体験編集', icon: 'edit_note', color: 'var(--primary-color)' },
+  transfer_edit: { label: '振替編集', icon: 'edit_note', color: 'var(--primary-color)' },
 };
 
 const FIELD_LABELS = {
@@ -35,6 +36,10 @@ const FIELD_LABELS = {
   return_date: '復会予定日',
   // 変更フォームフィールド
   change_content: '変更内容',
+  // 振替フィールド
+  member_name: '会員名', member_furigana: 'フリガナ',
+  absent_class: '休んだ教室', absent_date: '休んだ日',
+  transfer_class: '振替先教室', transfer_date: '振替希望日',
   // 担当者
   assigned_to: '担当者',
 };

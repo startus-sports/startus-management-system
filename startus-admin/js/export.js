@@ -2,6 +2,7 @@ import { showToast } from './app.js';
 import { getFilteredMembers } from './members.js';
 import { getFilteredApplications } from './applications.js';
 import { getFilteredTrials } from './trials.js';
+import { getFilteredTransfers } from './transfers.js';
 import { getStaffById } from './staff.js';
 import { formatDate } from './utils.js';
 import { getCurrentFiscalYear, loadAllFees } from './fees.js';
@@ -9,6 +10,7 @@ import { getCurrentFiscalYear, loadAllFees } from './fees.js';
 const APP_TYPE_LABELS = { join: '入会', withdrawal: '退会', suspension: '休会', reinstatement: '復会', change: '変更' };
 const APP_STATUS_LABELS = { pending: '未対応', reviewed: '確認済み', approved: '承認', rejected: '却下' };
 const TRIAL_STATUS_LABELS = { pending: '未対応', reviewed: '受付済み', approved: '体験済み', enrolled: '入会済み', rejected: 'キャンセル' };
+const TRANSFER_STATUS_LABELS = { pending: '申請中', approved: '確定', rejected: '却下' };
 
 export async function exportCSV() {
   const members = getFilteredMembers();
@@ -157,6 +159,44 @@ export function exportTrialsCSV() {
   });
 
   downloadCSV('体験一覧', headers, rows, trials.length);
+}
+
+// --- 振替CSV出力 ---
+
+export function exportTransfersCSV() {
+  const transfers = getFilteredTransfers();
+  if (transfers.length === 0) {
+    showToast('エクスポートするデータがありません', 'warning');
+    return;
+  }
+
+  const headers = [
+    '受付日', '会員名', 'フリガナ', '保護者名',
+    '休んだ教室', '休んだ日', '振替先教室', '振替希望日',
+    'ステータス', '担当者', '電話番号', 'メール', '管理メモ'
+  ];
+
+  const rows = transfers.map(t => {
+    const fd = t.form_data || {};
+    const staff = t.assigned_to ? getStaffById(t.assigned_to) : null;
+    return [
+      t.created_at ? formatDate(t.created_at) : '',
+      fd.member_name || '',
+      fd.member_furigana || '',
+      fd.guardian_name || '',
+      fd.absent_class || '',
+      fd.absent_date || '',
+      fd.transfer_class || '',
+      fd.transfer_date || '',
+      TRANSFER_STATUS_LABELS[t.status] || t.status || '',
+      staff ? staff.name : '',
+      fd.phone || '',
+      fd.email || '',
+      t.admin_note || '',
+    ];
+  });
+
+  downloadCSV('振替一覧', headers, rows, transfers.length);
 }
 
 // --- 共通ダウンロード ---

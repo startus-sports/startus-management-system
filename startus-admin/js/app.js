@@ -10,7 +10,7 @@ import {
   confirmBulkDelete, doBulkDelete
 } from './members.js';
 import { openImportModal, removeImportRow, executeImport } from './import.js';
-import { exportCSV, exportApplicationsCSV, exportTrialsCSV } from './export.js';
+import { exportCSV, exportApplicationsCSV, exportTrialsCSV, exportTransfersCSV } from './export.js';
 import { openFeeEditForm, onFiscalYearChange, cancelFeeEdit } from './fees.js';
 import { initTabs, switchTab, getCurrentTab, toggleSidebar, toggleSidebarCollapse } from './views.js';
 import { renderDashboard } from './dashboard.js';
@@ -47,6 +47,16 @@ import {
   initTrialSort, resetTrialFilters,
   showTrialContextMenu, contextAssignTrial
 } from './trials.js';
+import {
+  renderTransferList, showTransferDetail, updateTransferStatus,
+  saveTransferAdminNote, deleteTransfer,
+  executeDeleteTransfer, initTransferFilters, toggleTransferFilterPanel,
+  toggleTransferChecklistItem,
+  openTransferEditForm, saveTransferEdit, openTransferHistory,
+  assignTransfer, toggleTransferWorkloadFilter,
+  initTransferSort, resetTransferFilters,
+  showTransferContextMenu, contextAssignTransfer
+} from './transfers.js';
 import { renderCalendar, navigateCalendarDay, goToCalendarToday, refreshCalendar, openGoogleCalendar, showCalendarEvent, changeCalendarMode } from './calendar.js';
 import {
   renderSchedule, navigateSchedule, goToScheduleToday,
@@ -209,6 +219,7 @@ const SEARCH_BAR_MAP = {
   member: { barId: 'member-search-bar', inputId: 'search-input' },
   app: { barId: 'app-search-bar', inputId: 'app-search-input' },
   trial: { barId: 'trial-search-bar', inputId: 'trial-search-input' },
+  transfer: { barId: 'transfer-search-bar', inputId: 'transfer-search-input' },
   staff: { barId: 'staff-search-bar', inputId: 'staff-search-input' },
   classroom: { barId: 'classroom-search-bar', inputId: 'classroom-search-input' },
   'shop-order': { barId: 'shop-order-search-bar', inputId: 'shop-order-search-input' },
@@ -298,6 +309,7 @@ async function showApp(email) {
     if (tabName === 'fee-overview') renderFeeOverview();
     if (tabName === 'applications') renderApplicationList();
     if (tabName === 'trials') renderTrialList();
+    if (tabName === 'transfers') renderTransferList();
     if (tabName === 'stats') renderStats();
     if (tabName === 'staff') loadStaff();
     if (tabName === 'calendar') renderCalendar();
@@ -324,6 +336,10 @@ async function showApp(email) {
   // 体験フィルタ・ソート初期化
   initTrialFilters();
   initTrialSort();
+
+  // 振替フィルタ・ソート初期化
+  initTransferFilters();
+  initTransferSort();
 
   // スタッフフィルタ・ソート初期化
   initStaffSearch();
@@ -467,6 +483,24 @@ window.memberApp = {
   toggleTrialWorkloadFilter,
   showTrialContextMenu,
   contextAssignTrial,
+  // Transfers
+  renderTransferList,
+  showTransferDetail,
+  updateTransferStatus,
+  saveTransferAdminNote,
+  deleteTransfer,
+  executeDeleteTransfer,
+  toggleTransferFilterPanel,
+  resetTransferFilters,
+  toggleTransferChecklistItem,
+  openTransferEditForm,
+  saveTransferEdit,
+  openTransferHistory,
+  assignTransfer,
+  toggleTransferWorkloadFilter,
+  showTransferContextMenu,
+  contextAssignTransfer,
+  exportTransfersCSV,
   showStaffDetail,
   openStaffAddForm,
   openStaffEditForm,
@@ -549,6 +583,7 @@ const TAB_SEARCH_KEY_MAP = {
   members: 'member',
   applications: 'app',
   trials: 'trial',
+  transfers: 'transfer',
   staff: 'staff',
   master: 'classroom',
   'shop-orders': 'shop-order',

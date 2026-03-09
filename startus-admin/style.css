@@ -4565,6 +4565,61 @@ body {
   background: #fef3c7;
 }
 
+/* --- 振替一覧テーブルグリッド --- */
+#transfer-list .transfer-grid-header,
+#transfer-list .list-item {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.5fr) minmax(100px, 1fr) minmax(100px, 1fr) minmax(120px, 1fr) 80px 90px 70px 32px;
+  align-items: center;
+  gap: 0 8px;
+  padding: 10px 16px;
+}
+
+#transfer-list .transfer-grid-header {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  letter-spacing: 0.3px;
+}
+
+#transfer-list .transfer-grid-header span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#transfer-list .list-item {
+  border-radius: 0;
+  border-bottom: 1px solid var(--gray-100);
+  box-shadow: none;
+}
+
+#transfer-list .list-item:last-child {
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+#transfer-list .list-item:hover {
+  transform: none;
+  background: var(--primary-lighter);
+  box-shadow: none;
+}
+
+#transfer-list .list-item.needs-assignment {
+  border-left: 3px solid #f59e0b;
+  background: #fffbeb;
+}
+
+#transfer-list .list-item.needs-assignment:hover {
+  background: #fef3c7;
+}
+
 /* --- 詳細モーダル 2カラムレイアウト --- */
 .modal-wide .detail-grid {
   display: grid;
@@ -4700,6 +4755,7 @@ body {
   #members-screen,
   #applications-screen,
   #trials-screen,
+  #transfers-screen,
   #fee-overview-screen,
   #stats-screen,
   #staff-screen {
@@ -4708,6 +4764,7 @@ body {
 
   #app-list .app-grid-header,
   #trial-list .trial-grid-header,
+  #transfer-list .transfer-grid-header,
   #member-list .member-grid-header,
   #staff-list .staff-grid-header {
     display: none;
@@ -4715,6 +4772,7 @@ body {
 
   #app-list .list-item,
   #trial-list .list-item,
+  #transfer-list .list-item,
   #member-list .list-item,
   #staff-list .list-item {
     display: flex;
@@ -4738,6 +4796,7 @@ body {
 
   #app-list .list-item:hover,
   #trial-list .list-item:hover,
+  #transfer-list .list-item:hover,
   #member-list .list-item:hover,
   #staff-list .list-item:hover {
     box-shadow: var(--shadow-md);
@@ -4745,6 +4804,7 @@ body {
 
   #app-list .grid-cell,
   #trial-list .grid-cell,
+  #transfer-list .grid-cell,
   #member-list .grid-cell,
   #staff-list .grid-cell {
     white-space: normal;
@@ -4752,6 +4812,7 @@ body {
 
   #app-list .grid-cell-name,
   #trial-list .grid-cell-name,
+  #transfer-list .grid-cell-name,
   #member-list .grid-cell-name,
   #staff-list .grid-cell-name {
     width: 100%;
@@ -4759,6 +4820,7 @@ body {
 
   #app-list .grid-cell-arrow,
   #trial-list .grid-cell-arrow,
+  #transfer-list .grid-cell-arrow,
   #member-list .grid-cell-arrow,
   #staff-list .grid-cell-arrow {
     position: absolute;
@@ -4769,6 +4831,7 @@ body {
 
   #app-list .list-item,
   #trial-list .list-item,
+  #transfer-list .list-item,
   #member-list .list-item,
   #staff-list .list-item {
     position: relative;

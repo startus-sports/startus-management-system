@@ -85,6 +85,12 @@
           <span class="sidebar-badge" id="trial-tab-badge"></span>
           <span class="sidebar-badge sidebar-badge-my" id="trial-my-badge" title="自分の担当"></span>
         </a>
+        <a class="sidebar-item" data-tab="transfers" onclick="window.memberApp.switchTab('transfers')" title="振替管理">
+          <span class="material-icons">swap_horiz</span>
+          <span class="sidebar-label">振替管理</span>
+          <span class="sidebar-badge" id="transfer-tab-badge"></span>
+          <span class="sidebar-badge sidebar-badge-my" id="transfer-my-badge" title="自分の担当"></span>
+        </a>
 
         <!-- 予定グループ -->
         <div class="sidebar-divider"><span class="sidebar-group-label">予定</span></div>
@@ -500,6 +506,85 @@
         <div class="empty-state">
           <span class="material-icons empty-icon">person_search</span>
           <p>体験データがありません</p>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ===== 振替管理画面 ===== -->
+    <main class="main-content" id="transfers-screen" style="display:none">
+      <div class="section-header">
+        <h2>振替管理</h2>
+        <div class="section-actions">
+          <button class="btn btn-secondary" onclick="window.memberApp.exportTransfersCSV()">
+            <span class="material-icons">download</span><span class="btn-text-mobile-hide">CSV出力</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 検索バー -->
+      <div class="search-bar" id="transfer-search-bar">
+        <span class="material-icons search-icon">search</span>
+        <input type="text" id="transfer-search-input" placeholder="会員名・教室・メールで検索...">
+      </div>
+
+      <!-- ツールバー -->
+      <div class="toolbar">
+        <button class="btn-search-toggle" onclick="window.memberApp.toggleSearchBar('transfer')">
+          <span class="material-icons" style="font-size:18px">search</span>
+        </button>
+        <select id="transfer-sort-select" class="sort-select">
+          <option value="created_desc">受付日（新→古）</option>
+          <option value="created_asc">受付日（古→新）</option>
+          <option value="transfer_date">振替希望日順</option>
+          <option value="absent_date">欠席日順</option>
+          <option value="name">名前順</option>
+          <option value="status">ステータス順</option>
+        </select>
+        <button class="btn-filter-toggle" id="transfer-filter-toggle" onclick="window.memberApp.toggleTransferFilterPanel()">
+          <span class="material-icons" style="font-size:16px">filter_list</span>
+          絞込
+        </button>
+        <span class="member-count" id="transfer-count">0件</span>
+
+        <!-- フィルタパネル -->
+        <div class="toolbar-filter-panel" id="transfer-filter-panel">
+          <div class="filter-group">
+            <div class="filter-group-label">ステータス</div>
+            <div class="filter-checkboxes" id="transfer-status-filter">
+              <label class="filter-pill"><input type="checkbox" value="pending">申請中</label>
+              <label class="filter-pill"><input type="checkbox" value="approved">確定</label>
+              <label class="filter-pill"><input type="checkbox" value="rejected">却下</label>
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-group-label">教室</div>
+            <div class="filter-checkboxes" id="transfer-class-filter">
+              <!-- 動的生成 -->
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-group-label">担当者</div>
+            <div class="filter-checkboxes" id="transfer-assignee-filter">
+              <!-- 動的生成 -->
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn-filter-reset" onclick="window.memberApp.resetTransferFilters()">
+              <span class="material-icons" style="font-size:14px">refresh</span>リセット
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ワークロード -->
+      <div class="workload-summary" id="transfer-workload"></div>
+
+      <!-- 振替リスト -->
+      <div class="member-list" id="transfer-list">
+        <div class="empty-state">
+          <span class="material-icons empty-icon">swap_horiz</span>
+          <p>振替データがありません</p>
         </div>
       </div>
 
