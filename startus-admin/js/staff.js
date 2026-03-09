@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js';
 import { escapeHtml, formatDate } from './utils.js';
-import { showToast, openModal, closeModal } from './app.js';
+import { showToast, openModal, closeModal, setModalWide } from './app.js';
 import { isAdmin } from './auth.js';
 import { getActiveClassrooms } from './classroom.js';
 import { tagToName } from './class-utils.js';
@@ -281,6 +281,7 @@ export function showStaffDetail(id) {
       </button>
     </div>` : ''}`;
 
+  setModalWide(true);
   openModal('スタッフ詳細', content);
 }
 

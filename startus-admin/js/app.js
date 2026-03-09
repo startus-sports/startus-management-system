@@ -137,7 +137,7 @@ export function openModal(title, content) {
   const modalTitle = document.getElementById('modal-title');
   const modalBody = document.getElementById('modal-body');
 
-  modalTitle.textContent = title;
+  modalTitle.innerHTML = title;
   modalBody.innerHTML = content;
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';

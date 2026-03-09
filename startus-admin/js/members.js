@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js';
 import { escapeHtml, formatDate } from './utils.js';
-import { showToast, openModal, closeModal } from './app.js';
+import { showToast, openModal, closeModal, setModalWide } from './app.js';
 import { getActiveClassrooms, getClassrooms } from './classroom.js';
 import { tagToName, tagsToNames } from './class-utils.js';
 import { renderFeeSection, initFeeSection, loadAllFees, getCurrentFiscalYear } from './fees.js';
@@ -330,6 +330,7 @@ export function showDetail(id) {
       </button>
     </div>`;
 
+  setModalWide(true);
   openModal('会員詳細', content);
   setTimeout(() => initFeeSection(m.id), 100);
 

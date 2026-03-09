@@ -1146,8 +1146,8 @@ body {
   position: relative;
   background: white;
   border-radius: var(--radius-2xl);
-  max-width: 500px;
-  width: 95%;
+  max-width: 640px;
+  width: 92%;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: var(--shadow-2xl);
@@ -1173,11 +1173,20 @@ body {
   background: var(--gray-light);
   border-bottom: 1px solid var(--gray-200);
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .modal-header h3 {
   font-size: 1.1rem;
   color: var(--gray-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+  margin-right: 8px;
 }
 
 .modal-close {
@@ -1212,8 +1221,10 @@ body {
 
 .detail-row {
   display: flex;
+  align-items: baseline;
   padding: 10px 0;
   border-bottom: 1px solid var(--gray-100);
+  min-height: 38px;
 }
 
 .detail-row:last-child {
@@ -1221,18 +1232,22 @@ body {
 }
 
 .detail-label {
-  width: 100px;
+  width: 110px;
+  min-width: 110px;
   flex-shrink: 0;
   font-size: 0.85rem;
   color: var(--gray-500);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .detail-value {
   flex: 1;
   font-size: 0.95rem;
   color: var(--gray-800);
-  word-break: break-all;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
 }
 
 .modal-detail-actions {
@@ -2137,7 +2152,7 @@ body {
 
 /* ===== Wide Modal ===== */
 .modal-content.modal-wide {
-  max-width: 900px;
+  max-width: 960px;
 }
 
 /* ===== Fee Overview Table (F1) ===== */
@@ -2489,6 +2504,13 @@ body {
 
 .detail-photo-placeholder .material-icons {
   font-size: 40px;
+}
+
+.detail-photo-default {
+  font-size: 64px;
+  color: var(--gray-300);
+  display: block;
+  margin-bottom: 8px;
 }
 
 .photo-upload-area {
@@ -4269,6 +4291,25 @@ body {
   }
 }
 
+/* ===== Responsive: Tablet ===== */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .modal-content {
+    max-width: 600px;
+    width: 90%;
+  }
+
+  .modal-content.modal-wide {
+    max-width: 90%;
+  }
+}
+
+/* ===== Responsive: Large screens ===== */
+@media (min-width: 1025px) {
+  .modal-content.modal-wide {
+    max-width: 960px;
+  }
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 600px) {
   .app-header {
@@ -4302,17 +4343,67 @@ body {
   }
 
   .modal-content {
-    width: 95%;
-    margin: 10px;
+    width: 96%;
+    max-width: none;
+    margin: 8px;
+    max-height: 92vh;
+    border-radius: var(--radius-lg);
+  }
+
+  .modal-content.modal-wide {
+    max-width: none;
+  }
+
+  .modal-header {
+    padding: 14px 16px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .modal-header h3 {
+    font-size: 1rem;
   }
 
   .modal-body {
     padding: 16px;
   }
 
+  .detail-row {
+    padding: 8px 0;
+  }
+
   .detail-label {
-    width: 80px;
+    width: 85px;
+    min-width: 85px;
     font-size: 0.8rem;
+  }
+
+  .detail-value {
+    font-size: 0.9rem;
+  }
+
+  .modal-detail-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .modal-detail-actions .btn {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+
+  .form-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .form-actions .btn {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
   }
 
   .btn span.btn-text-mobile-hide {
@@ -4909,16 +5000,21 @@ body {
 .modal-wide .detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0 24px;
+  gap: 0 32px;
 }
 
 .modal-wide .detail-grid .detail-row {
   border-bottom: 1px solid var(--gray-100);
-  padding: 8px 0;
+  padding: 10px 0;
 }
 
 .modal-wide .detail-grid .detail-row-full {
   grid-column: 1 / -1;
+}
+
+.modal-wide .detail-label {
+  width: 120px;
+  min-width: 120px;
 }
 
 /* --- 会員一覧テーブルグリッド --- */
