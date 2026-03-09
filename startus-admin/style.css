@@ -4719,6 +4719,71 @@ body {
   flex-shrink: 0;
 }
 
+/* ---- Chat Notification Toast ---- */
+
+.toast-chat-notif {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  padding: 10px 16px !important;
+  border-left-color: var(--primary-color) !important;
+  white-space: normal !important;
+  max-width: 320px;
+  min-width: 200px;
+}
+
+.chat-notif-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.chat-notif-icon {
+  font-size: 16px;
+  color: var(--primary-color);
+}
+
+.chat-notif-channel {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-notif-badge {
+  min-width: 18px;
+  height: 18px;
+  background: var(--danger-color);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.chat-notif-body {
+  font-size: 0.82rem;
+  color: var(--gray-600);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.chat-notif-body strong {
+  color: var(--gray-800);
+}
+
 /* ---- Mobile responsive ---- */
 @media (max-width: 600px) {
   .chat-fab {

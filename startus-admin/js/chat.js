@@ -450,6 +450,7 @@ function handleNewMessage(payload) {
       if (channels.map(c => c.id).includes(msg.channel_id)) {
         unreadCounts[msg.channel_id] = (unreadCounts[msg.channel_id] || 0) + 1;
         updateUnreadBadge();
+        if (msg.sender_id !== currentStaff.id) showChatNotification(msg);
         if (currentView === 'channel-list' && isOpen) renderChannelList();
       }
     });
@@ -465,8 +466,84 @@ function handleNewMessage(payload) {
     if (msg.sender_id !== currentStaff.id) {
       unreadCounts[msg.channel_id] = (unreadCounts[msg.channel_id] || 0) + 1;
       updateUnreadBadge();
+      showChatNotification(msg);
     }
     if (currentView === 'channel-list' && isOpen) renderChannelList();
+  }
+}
+
+// ===== Chat Notification Toast =====
+
+let notifTimeout = null;
+let pendingNotifs = [];
+
+function showChatNotification(msg) {
+  // Batch notifications within 2s window
+  pendingNotifs.push(msg);
+  if (notifTimeout) clearTimeout(notifTimeout);
+  notifTimeout = setTimeout(() => flushChatNotifications(), 2000);
+}
+
+function flushChatNotifications() {
+  notifTimeout = null;
+  const batch = pendingNotifs.splice(0);
+  if (batch.length === 0) return;
+
+  // Group by channel
+  const byChannel = {};
+  for (const m of batch) {
+    if (!byChannel[m.channel_id]) byChannel[m.channel_id] = [];
+    byChannel[m.channel_id].push(m);
+  }
+
+  for (const [channelId, msgs] of Object.entries(byChannel)) {
+    const ch = channels.find(c => c.id === channelId);
+    const channelName = ch ? getChannelDisplayName(ch) : 'チャット';
+    const count = unreadCounts[channelId] || msgs.length;
+    const lastMsg = msgs[msgs.length - 1];
+
+    // Build preview text
+    const sender = getStaffById(lastMsg.sender_id);
+    const senderName = sender ? sender.name : '不明';
+    let preview = '';
+    if (lastMsg.message_type === 'file') preview = '📎 ファイルを送信';
+    else if (lastMsg.message_type === 'link') preview = '🔗 業務リンクを共有';
+    else if (lastMsg.message_type === 'task') preview = '📋 タスクを送信';
+    else preview = (lastMsg.body || '').substring(0, 40) + ((lastMsg.body || '').length > 40 ? '…' : '');
+
+    // Create notification toast
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-chat-notif';
+    toast.style.cursor = 'pointer';
+    toast.onclick = () => {
+      toast.remove();
+      if (!isOpen) {
+        const fab = document.getElementById('chat-fab');
+        if (fab) fab.click();
+      }
+      setTimeout(() => openChannel(channelId), 200);
+    };
+
+    toast.innerHTML = `
+      <div class="chat-notif-header">
+        <span class="material-icons chat-notif-icon">chat</span>
+        <span class="chat-notif-channel">${escapeHtml(channelName)}</span>
+        ${count > 1 ? `<span class="chat-notif-badge">${count}</span>` : ''}
+      </div>
+      <div class="chat-notif-body">
+        <strong>${escapeHtml(senderName)}</strong>: ${escapeHtml(preview)}
+      </div>
+    `;
+    container.appendChild(toast);
+
+    // Auto-dismiss after 5s
+    setTimeout(() => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => toast.remove(), 300);
+    }, 5000);
   }
 }
 
