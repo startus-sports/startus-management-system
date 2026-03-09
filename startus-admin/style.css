@@ -2859,25 +2859,71 @@ body {
   padding: 16px !important;
 }
 
-/* Toolbar */
+/* Toolbar (Google Calendar style) */
 .sch-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 16px;
   background: white;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--gray-100);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04);
-  padding: 10px 20px;
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-xs);
+  padding: 8px 16px;
 }
 
 .sch-toolbar-left,
 .sch-toolbar-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+}
+
+/* 今日ボタン */
+.sch-today-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 16px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--gray-700);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.sch-today-btn:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-400);
+}
+
+/* ナビゲーションボタン（矢印・更新） */
+.sch-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sch-nav-btn:hover {
+  background: var(--gray-100);
+}
+
+.sch-nav-btn .material-icons {
+  font-size: 22px;
 }
 
 .sch-date-label {
@@ -2886,34 +2932,41 @@ body {
   color: var(--gray-800);
   margin-left: 6px;
   letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
-/* View toggle */
+/* View toggle (segmented control) */
 .sch-view-toggle {
   display: inline-flex;
-  gap: 2px;
-  background: var(--gray-100);
+  border: 1px solid var(--gray-300);
   border-radius: var(--radius-md);
-  padding: 3px;
+  overflow: hidden;
 }
 
 .sch-view-btn {
   border: none;
-  background: transparent;
+  background: white;
   padding: 6px 16px;
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--gray-500);
   cursor: pointer;
-  border-radius: var(--radius-sm);
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  border-right: 1px solid var(--gray-300);
 }
 
-.sch-view-btn:hover { background: rgba(255, 255, 255, 0.6); color: var(--gray-700); }
+.sch-view-btn:last-child {
+  border-right: none;
+}
+
+.sch-view-btn:hover {
+  background: var(--gray-50);
+  color: var(--gray-700);
+}
+
 .sch-view-btn.active {
-  background: white;
-  color: var(--primary-dark);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+  background: var(--primary-color);
+  color: white;
 }
 
 /* Loading */
@@ -3089,31 +3142,34 @@ body {
   white-space: pre-wrap;
 }
 
-/* === Week View === */
+/* === Week View (Google Calendar style) === */
 .sch-week-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--gray-200);
+  background: white;
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+  box-shadow: var(--shadow-sm);
 }
 
 .sch-week-col {
   background: white;
   min-height: 200px;
+  border-right: 1px solid var(--gray-100);
+}
+
+.sch-week-col:last-child {
+  border-right: none;
 }
 
 .sch-week-today {
-  background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 100%);
+  background: #f8fbff;
 }
 
 .sch-week-header {
   text-align: center;
-  padding: 10px 4px;
-  background: var(--gray-50);
+  padding: 12px 4px 10px;
   border-bottom: 1px solid var(--gray-200);
   display: flex;
   flex-direction: column;
@@ -3123,9 +3179,8 @@ body {
 
 .sch-week-dow {
   font-size: 0.7rem;
-  color: var(--gray-400);
-  font-weight: 700;
-  text-transform: uppercase;
+  color: var(--gray-500);
+  font-weight: 600;
   letter-spacing: 0.05em;
 }
 
@@ -3136,50 +3191,53 @@ body {
 .sch-week-sat .sch-week-date { color: #2563eb; }
 
 .sch-week-date {
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 1.3rem;
+  font-weight: 500;
   color: var(--gray-700);
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+  border-radius: 50%;
 }
 
 .sch-today-circle {
   background: var(--primary-color);
-  color: white;
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
+  color: white !important;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
   border-radius: 50%;
   display: inline-block;
   text-align: center;
-  box-shadow: 0 2px 4px rgb(59 130 246 / 0.3);
 }
 
 .sch-week-body {
-  padding: 6px;
+  padding: 4px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 3px;
 }
 
 .sch-week-card {
-  background: white;
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius-md);
-  padding: 8px 10px;
+  background: #e8f0fe;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   border-left: 3px solid var(--primary-color);
   position: relative;
 }
 
 .sch-week-card:hover {
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
-  border-color: var(--primary-light);
-  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+  filter: brightness(0.95);
 }
 
 .sch-week-card-title {
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--gray-800);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3187,14 +3245,14 @@ body {
 }
 
 .sch-week-card-time {
-  font-size: 0.72rem;
-  color: var(--gray-500);
+  font-size: 0.7rem;
+  color: var(--gray-600);
   font-weight: 500;
 }
 
 .sch-week-card-venue {
-  font-size: 0.68rem;
-  color: var(--gray-400);
+  font-size: 0.66rem;
+  color: var(--gray-500);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3204,18 +3262,18 @@ body {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
 .sch-meta-coach {
-  font-size: 0.68rem;
-  color: var(--gray-500);
+  font-size: 0.66rem;
+  color: var(--gray-600);
   font-weight: 500;
 }
 
 .sch-week-card-memo {
-  font-size: 0.65rem;
-  color: var(--gray-400);
+  font-size: 0.63rem;
+  color: var(--gray-500);
   margin-top: 2px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3226,13 +3284,13 @@ body {
   min-height: 20px;
 }
 
-/* === Month View === */
+/* === Month View (Google Calendar style) === */
 .sch-month-grid {
   background: white;
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+  box-shadow: var(--shadow-sm);
 }
 
 .sch-month-cell.sch-cell-sun .sch-month-date { color: var(--danger-color); }
@@ -3241,18 +3299,16 @@ body {
 .sch-month-header-row {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  background: var(--gray-50);
   border-bottom: 1px solid var(--gray-200);
 }
 
 .sch-month-header-cell {
   text-align: center;
-  padding: 10px 8px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--gray-400);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  padding: 12px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  letter-spacing: 0.06em;
 }
 
 .sch-month-header-cell.sch-header-sun { color: var(--danger-color); }
@@ -3264,12 +3320,12 @@ body {
 }
 
 .sch-month-cell {
-  min-height: 100px;
-  padding: 6px;
+  min-height: 110px;
+  padding: 4px 6px;
   border-right: 1px solid var(--gray-100);
   border-bottom: 1px solid var(--gray-100);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.12s ease;
 }
 
 .sch-month-cell:nth-child(7n) {
@@ -3281,59 +3337,58 @@ body {
 }
 
 .sch-month-other {
-  opacity: 0.35;
+  opacity: 0.4;
   background: var(--gray-50);
 }
 
 .sch-month-today {
-  background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 100%);
+  background: #f0f7ff;
 }
 
 .sch-month-date {
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--gray-600);
   margin-bottom: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
 }
 
 .sch-month-today .sch-month-date {
   background: var(--primary-color);
   color: white;
-  box-shadow: 0 1px 3px rgb(59 130 246 / 0.3);
+  font-weight: 700;
 }
 
 .sch-month-chip {
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   font-weight: 500;
   padding: 2px 6px;
-  background: var(--primary-lighter);
-  color: var(--primary-dark);
-  border-radius: var(--radius-xs);
+  background: var(--primary-color);
+  color: white;
+  border-radius: 4px;
   margin-bottom: 2px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
-  transition: all 0.15s ease;
-  border-left: 2px solid var(--primary-color);
+  transition: opacity 0.12s ease;
 }
 
 .sch-month-chip:hover {
-  background: var(--primary-light);
-  transform: translateX(1px);
+  opacity: 0.85;
 }
 
 .sch-month-more {
-  font-size: 0.65rem;
-  color: var(--primary-color);
+  font-size: 0.68rem;
+  color: var(--gray-500);
   font-weight: 600;
   margin-top: 2px;
+  padding: 1px 4px;
 }
 
 /* === Year View === */
@@ -4192,6 +4247,16 @@ body {
     justify-content: center;
   }
 
+  .sch-today-btn {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+
+  .sch-nav-btn {
+    width: 32px;
+    height: 32px;
+  }
+
   .sch-date-label {
     font-size: 0.95rem;
   }
@@ -4203,7 +4268,6 @@ body {
 
   .sch-week-grid {
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 0;
   }
 
   .sch-week-col {
@@ -4220,14 +4284,17 @@ body {
   }
 
   .sch-week-date {
-    font-size: 0.68rem;
+    font-size: 0.8rem;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
   }
 
   .sch-today-circle {
-    width: 22px;
-    height: 22px;
-    line-height: 22px;
-    font-size: 0.65rem;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    font-size: 0.75rem;
   }
 
   .sch-week-body {
@@ -4331,6 +4398,7 @@ body {
 #members-screen,
 #applications-screen,
 #trials-screen,
+#transfers-screen,
 #fee-overview-screen,
 #stats-screen,
 #staff-screen {
@@ -5937,7 +6005,6 @@ body {
   #sm-cal-filter-class-chips { grid-template-columns: repeat(2, 1fr); }
 
   .sch-year-grid { grid-template-columns: repeat(2, 1fr); }
-  .sch-view-toggle { gap: 1px; }
   .sch-view-btn { padding: 5px 10px; font-size: 0.75rem; }
 
   .sm-toolbar { padding: 10px 14px; }
