@@ -133,6 +133,78 @@ async function fetchCalendarEvents(dateStr, staffCalendars, forceRefresh = false
   }
 }
 
+// --- Overlap Layout ---
+
+/**
+ * 重なるイベントを検出し、横並びレイアウト情報を付与する
+ * Google Calendar と同様のアルゴリズム
+ */
+function computeOverlapLayout(events) {
+  if (!events.length) return [];
+
+  // 開始時刻でソート
+  const sorted = events.map(ev => ({
+    ...ev,
+    startMin: timeToMinutes(ev.start),
+    endMin: timeToMinutes(ev.end)
+  })).sort((a, b) => a.startMin - b.startMin || a.endMin - b.endMin);
+
+  // 重なるグループを構築
+  const groups = [];
+  let currentGroup = [sorted[0]];
+  let groupEnd = sorted[0].endMin;
+
+  for (let i = 1; i < sorted.length; i++) {
+    const ev = sorted[i];
+    if (ev.startMin < groupEnd) {
+      // 重なっている → 同じグループ
+      currentGroup.push(ev);
+      groupEnd = Math.max(groupEnd, ev.endMin);
+    } else {
+      // 重なっていない → 新グループ
+      groups.push(currentGroup);
+      currentGroup = [ev];
+      groupEnd = ev.endMin;
+    }
+  }
+  groups.push(currentGroup);
+
+  // 各グループ内でカラム割り当て
+  const result = [];
+  for (const group of groups) {
+    const columns = []; // columns[col] = endMin of last event in that column
+    const assignments = [];
+
+    for (const ev of group) {
+      // 空いているカラムを探す
+      let placed = false;
+      for (let col = 0; col < columns.length; col++) {
+        if (ev.startMin >= columns[col]) {
+          columns[col] = ev.endMin;
+          assignments.push({ ev, col });
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        assignments.push({ ev, col: columns.length });
+        columns.push(ev.endMin);
+      }
+    }
+
+    const totalCols = columns.length;
+    for (const { ev, col } of assignments) {
+      result.push({
+        ...ev,
+        col,
+        totalCols
+      });
+    }
+  }
+
+  return result;
+}
+
 // --- Render ---
 
 export async function renderCalendar() {
@@ -238,14 +310,22 @@ export async function renderCalendar() {
     const allDayEvents = staffEvents.filter(e => e.isAllDay);
     const timedEvents = staffEvents.filter(e => !e.isAllDay);
 
-    // 時間イベントのブロック
-    const eventBlocks = timedEvents.map(ev => {
-      const startMin = timeToMinutes(ev.start);
-      const endMin = timeToMinutes(ev.end);
-      const topPx = ((startMin / 60) - startHour) * HOUR_HEIGHT;
-      const heightPx = Math.max(((endMin - startMin) / 60) * HOUR_HEIGHT, 20);
+    // 重なりレイアウトを計算
+    const layoutEvents = computeOverlapLayout(timedEvents);
 
-      return `<div class="cal-event" style="top:${topPx}px;height:${heightPx}px;background:${s.color}20;border-left:3px solid ${s.color}" title="${escapeHtml(ev.title)}&#10;${formatTime(ev.start)}〜${formatTime(ev.end)}${ev.location ? '&#10;' + escapeHtml(ev.location) : ''}" onclick="window.memberApp.showCalendarEvent(this)" data-event='${JSON.stringify({ title: ev.title, start: ev.start, end: ev.end, location: ev.location, description: ev.description }).replace(/'/g, '&#39;')}'>
+    // 時間イベントのブロック
+    const eventBlocks = layoutEvents.map(ev => {
+      const topPx = ((ev.startMin / 60) - startHour) * HOUR_HEIGHT;
+      const heightPx = Math.max(((ev.endMin - ev.startMin) / 60) * HOUR_HEIGHT, 20);
+
+      // 重なりがある場合は幅と位置を調整
+      const widthPercent = 100 / ev.totalCols;
+      const leftPercent = ev.col * widthPercent;
+      const posStyle = ev.totalCols > 1
+        ? `top:${topPx}px;height:${heightPx}px;left:${leftPercent}%;width:${widthPercent}%;right:auto`
+        : `top:${topPx}px;height:${heightPx}px`;
+
+      return `<div class="cal-event" style="${posStyle};background:${s.color}20;border-left:3px solid ${s.color}" title="${escapeHtml(ev.title)}&#10;${formatTime(ev.start)}〜${formatTime(ev.end)}${ev.location ? '&#10;' + escapeHtml(ev.location) : ''}" onclick="window.memberApp.showCalendarEvent(this)" data-event='${JSON.stringify({ title: ev.title, start: ev.start, end: ev.end, location: ev.location, description: ev.description }).replace(/'/g, '&#39;')}'>
         <div class="cal-event-title">${escapeHtml(ev.title)}</div>
         <div class="cal-event-time">${formatTime(ev.start)}〜${formatTime(ev.end)}</div>
         ${ev.location ? `<div class="cal-event-location">${escapeHtml(ev.location)}</div>` : ''}
