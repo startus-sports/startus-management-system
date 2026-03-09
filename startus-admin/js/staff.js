@@ -15,7 +15,7 @@ let filters = {
   status: ['在籍'],
   classes: []
 };
-let staffSortKey = 'name';
+let staffSortKey = 'role';
 
 // --- データ取得 ---
 
