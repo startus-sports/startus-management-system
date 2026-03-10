@@ -301,15 +301,30 @@ export async function sendTaskMessage(targetStaffId, refType, refId, refLabel, b
 
 // ===== Open Reference from Chat =====
 
-export function openRefFromChat(refType, refId) {
+export async function openRefFromChat(refType, refId) {
   // Close chat panel so the detail view is visible
   if (isOpen) toggleChat();
-  if (refType === 'member') window.memberApp.showDetail(refId);
-  else if (refType === 'application') window.memberApp.showApplicationDetail(refId);
-  else if (refType === 'trial') window.memberApp.showTrialDetail(refId);
-  else if (refType === 'transfer') window.memberApp.showTransferDetail(refId);
-  else if (refType === 'staff') window.memberApp.showStaffDetail(refId);
-  else if (refType === 'classroom') window.memberApp.switchTab('master');
+
+  const refConfig = {
+    member:      { tab: 'members',      loader: null,                                            detail: () => window.memberApp.showDetail(refId) },
+    application: { tab: 'applications', loader: () => window.memberApp.renderApplicationList(),  detail: () => window.memberApp.showApplicationDetail(refId) },
+    trial:       { tab: 'trials',       loader: () => window.memberApp.renderTrialList(),        detail: () => window.memberApp.showTrialDetail(refId) },
+    transfer:    { tab: 'transfers',    loader: () => window.memberApp.renderTransferList(),     detail: () => window.memberApp.showTransferDetail(refId) },
+    staff:       { tab: 'staff',        loader: null,                                            detail: () => window.memberApp.showStaffDetail(refId) },
+    classroom:   { tab: 'master',       loader: null,                                            detail: null },
+  };
+
+  const config = refConfig[refType];
+  if (!config) return;
+
+  // Switch to the correct tab
+  window.memberApp.switchTab(config.tab);
+
+  // Load data if needed (application/trial/transfer may not be loaded yet)
+  if (config.loader) await config.loader();
+
+  // Show detail
+  if (config.detail) config.detail();
 }
 
 // ===== Open DM with Staff =====
