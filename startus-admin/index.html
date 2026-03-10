@@ -614,8 +614,27 @@
         <h2>出欠統計</h2>
       </div>
       <div class="att-stats-filters">
-        <select id="att-stats-period" class="att-stats-select"></select>
-        <select id="att-stats-classroom" class="att-stats-select"></select>
+        <div class="att-stats-filter-row">
+          <select id="att-stats-period" class="att-stats-select"></select>
+          <select id="att-stats-classroom" class="att-stats-select"></select>
+        </div>
+        <div class="att-stats-filter-row">
+          <div class="att-stats-search-bar">
+            <span class="material-icons">search</span>
+            <input type="text" id="att-stats-search" placeholder="名前で検索...">
+          </div>
+          <select id="att-stats-rate-filter" class="att-stats-select">
+            <option value="">全出席率</option>
+            <option value="high">80%以上</option>
+            <option value="mid">50〜79%</option>
+            <option value="low">50%未満</option>
+          </select>
+          <select id="att-stats-type-filter" class="att-stats-select">
+            <option value="">全員</option>
+            <option value="member">メンバーのみ</option>
+            <option value="staff">スタッフのみ</option>
+          </select>
+        </div>
       </div>
       <div id="att-stats-summary" class="att-stats-summary"></div>
       <div id="att-stats-table" class="att-stats-table-container"></div>
