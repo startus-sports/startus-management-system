@@ -291,7 +291,6 @@ function applyClientFilters() {
   if (staffTab) staffTab.innerHTML = `<span class="material-icons">badge</span>指導者・スタッフ<span class="att-tab-count">${staffCount}</span>`;
 
   const sorted = sortRows(filtered);
-  renderTable(sorted);
   document.getElementById('att-stats-table').innerHTML = renderTableHtml(sorted);
 
   // ソートヘッダーのイベントリスナー
