@@ -639,23 +639,35 @@
       <div id="att-event-list" class="member-list"></div>
     </main>
 
-    <!-- ===== アプリ画面（外部アプリリンク集） ===== -->
+    <!-- ===== アプリ画面（出欠管理アプリ） ===== -->
     <main class="main-content" id="app-preview-screen" style="display:none">
-      <div class="section-header">
-        <h2>アプリ画面</h2>
+      <div class="app-preview-toolbar">
+        <h2 class="app-preview-title">
+          <span class="material-icons">fact_check</span>
+          出欠管理アプリ
+        </h2>
+        <div class="app-preview-devices">
+          <button class="app-preview-device-btn active" data-device="desktop" onclick="window.memberApp.setAppPreviewDevice('desktop')">
+            <span class="material-icons">desktop_windows</span>
+          </button>
+          <button class="app-preview-device-btn" data-device="tablet" onclick="window.memberApp.setAppPreviewDevice('tablet')">
+            <span class="material-icons">tablet_mac</span>
+          </button>
+          <button class="app-preview-device-btn" data-device="mobile" onclick="window.memberApp.setAppPreviewDevice('mobile')">
+            <span class="material-icons">phone_iphone</span>
+          </button>
+        </div>
+        <button class="app-preview-open" onclick="window.memberApp.openAttendanceApp()" title="新しいタブで開く">
+          <span class="material-icons">open_in_new</span>
+        </button>
       </div>
-      <p class="app-links-desc">会員・保護者向けの各種アプリを確認・操作できます。</p>
-      <div class="app-links-grid" id="app-links-grid">
-        <!-- 出欠管理アプリ -->
-        <div class="app-link-card" onclick="window.memberApp.openAttendanceApp()">
-          <div class="app-link-icon" style="background: #e3f2fd; color: #1976d2;">
-            <span class="material-icons">fact_check</span>
+      <div class="app-preview-container" id="app-preview-container">
+        <div class="app-preview-frame" id="app-preview-frame">
+          <div class="app-preview-loading" id="app-preview-loading">
+            <span class="material-icons rotating">refresh</span>
+            <p>読み込み中...</p>
           </div>
-          <div class="app-link-body">
-            <h3 class="app-link-title">出欠管理アプリ</h3>
-            <p class="app-link-desc">教室ごとの出欠記録・統計・レポート出力を行うアプリです。</p>
-          </div>
-          <span class="material-icons app-link-arrow">open_in_new</span>
+          <iframe id="app-preview-iframe" src="" frameborder="0" onload="document.getElementById('app-preview-loading').style.display='none'"></iframe>
         </div>
       </div>
     </main>
