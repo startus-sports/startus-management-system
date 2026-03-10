@@ -28,6 +28,9 @@ export async function initAttendance() {
 
   document.getElementById('att-mgmt-period').addEventListener('change', renderAttendanceList);
   document.getElementById('att-mgmt-classroom').addEventListener('change', renderAttendanceList);
+  document.getElementById('att-mgmt-sort').addEventListener('change', () => {
+    sortAndRenderEvents();
+  });
 
   await renderAttendanceList();
 }
@@ -128,45 +131,83 @@ export async function renderAttendanceList() {
       absent: countMap[e.id]?.absent || 0
     }));
 
-    document.getElementById('att-event-count-text').textContent = `${allEvents.length}件`;
-
-    let html = `
-      <div class="att-event-grid-header">
-        <span>日付</span>
-        <span>教室</span>
-        <span>出欠</span>
-        <span>メモ</span>
-        <span>操作</span>
-      </div>`;
-
-    for (const ev of allEvents) {
-      const dateLabel = formatDateShort(ev.date);
-      const total = ev.present + ev.absent;
-      html += `
-        <div class="list-item att-event-row" onclick="window.memberApp.openAttendanceModal('${ev.id}')">
-          <span class="att-event-date">${dateLabel}</span>
-          <span>${escapeHtml(ev.displayLabel) || '-'}</span>
-          <span class="att-count-badge">
-            <span class="att-count-present">${ev.present}</span>/<span class="att-count-absent">${ev.absent}</span>
-            <span style="color:var(--gray-400);font-size:12px">(${total}名)</span>
-          </span>
-          <span style="color:var(--gray-500);font-size:13px">${escapeHtml(ev.note) || '-'}</span>
-          <span class="att-event-actions" onclick="event.stopPropagation()">
-            <button class="btn-icon" title="編集" onclick="window.memberApp.editEvent('${ev.id}')">
-              <span class="material-icons" style="font-size:18px">edit</span>
-            </button>
-            <button class="btn-icon" title="削除" onclick="window.memberApp.confirmDeleteEvent('${ev.id}')">
-              <span class="material-icons" style="font-size:18px;color:var(--danger-color)">delete</span>
-            </button>
-          </span>
-        </div>`;
-    }
-
-    listEl.innerHTML = html;
+    sortAndRenderEvents();
   } catch (err) {
     console.error('出欠イベント読み込みエラー:', err);
     listEl.innerHTML = '<p style="color:var(--danger-color);padding:20px">読み込みに失敗しました</p>';
   }
+}
+
+// ============================================
+// ソート＆描画
+// ============================================
+function sortAndRenderEvents() {
+  const sortValue = document.getElementById('att-mgmt-sort').value;
+  const sorted = [...allEvents];
+
+  switch (sortValue) {
+    case 'date_asc':
+      sorted.sort((a, b) => a.date.localeCompare(b.date));
+      break;
+    case 'classroom':
+      sorted.sort((a, b) => a.displayLabel.localeCompare(b.displayLabel, 'ja') || b.date.localeCompare(a.date));
+      break;
+    case 'date_desc':
+    default:
+      sorted.sort((a, b) => b.date.localeCompare(a.date));
+      break;
+  }
+
+  document.getElementById('att-event-count-text').textContent = `${sorted.length}件`;
+
+  const listEl = document.getElementById('att-event-list');
+
+  if (sorted.length === 0) {
+    listEl.innerHTML = `
+      <div class="empty-state">
+        <span class="material-icons empty-icon">event_busy</span>
+        <p>出欠データがありません</p>
+      </div>`;
+    return;
+  }
+
+  let html = `
+    <div class="att-event-grid-header">
+      <span>日付</span>
+      <span>教室</span>
+      <span>出欠</span>
+      <span>メモ</span>
+      <span>操作</span>
+    </div>`;
+
+  for (const ev of sorted) {
+    const dateLabel = formatDateShort(ev.date);
+    const total = ev.present + ev.absent;
+    const rate = total > 0 ? Math.round((ev.present / total) * 100) : 0;
+    const rateClass = rate >= 80 ? 'rate-high' : rate >= 50 ? 'rate-mid' : 'rate-low';
+
+    html += `
+      <div class="list-item att-event-row" onclick="window.memberApp.openAttendanceModal('${ev.id}')">
+        <span class="att-event-date">${dateLabel}</span>
+        <span class="att-event-classroom">${escapeHtml(ev.displayLabel) || '-'}</span>
+        <span class="att-count-badge">
+          <span class="att-count-present">${ev.present}</span> / <span class="att-count-absent">${ev.absent}</span>
+          <span class="att-count-total">(${total}名)</span>
+          ${total > 0 ? `<span class="att-event-rate ${rateClass}">${rate}%</span>` : ''}
+        </span>
+        <span class="att-event-note">${escapeHtml(ev.note) || '-'}</span>
+        <span class="att-event-actions" onclick="event.stopPropagation()">
+          <button class="btn-icon" title="編集" onclick="window.memberApp.editEvent('${ev.id}')">
+            <span class="material-icons" style="font-size:18px">edit</span>
+          </button>
+          <button class="btn-icon" title="削除" onclick="window.memberApp.confirmDeleteEvent('${ev.id}')">
+            <span class="material-icons" style="font-size:18px;color:var(--danger-color)">delete</span>
+          </button>
+        </span>
+      </div>`;
+  }
+
+  listEl.innerHTML = html;
 }
 
 // ============================================

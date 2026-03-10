@@ -8399,24 +8399,11 @@ select.form-control {
 
 /* ===== Attendance Management ===== */
 
-.att-mgmt-filters {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.att-event-count {
-  font-size: 13px;
-  color: var(--gray-500);
-  margin-bottom: 8px;
-}
-
 /* Event list grid */
 .att-event-grid-header,
 .att-event-row {
   display: grid;
-  grid-template-columns: 100px minmax(100px, 1.5fr) 120px minmax(80px, 1fr) 80px;
+  grid-template-columns: 90px minmax(120px, 1.5fr) minmax(140px, 1fr) minmax(80px, 1fr) 80px;
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
@@ -8430,6 +8417,7 @@ select.form-control {
   font-weight: 600;
   color: var(--gray-500);
   letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 
 .att-event-row {
@@ -8439,11 +8427,26 @@ select.form-control {
 .att-event-date {
   font-weight: 600;
   color: var(--gray-800);
+  font-size: 14px;
+}
+
+.att-event-classroom {
+  font-size: 13px;
+  color: var(--gray-700);
+}
+
+.att-event-note {
+  color: var(--gray-500);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .att-event-actions {
   display: flex;
   gap: 4px;
+  justify-content: flex-end;
 }
 
 /* Count badges */
@@ -8462,6 +8465,34 @@ select.form-control {
 .att-count-absent {
   color: var(--danger-color);
   font-weight: 600;
+}
+
+.att-count-total {
+  color: var(--gray-400);
+  font-size: 12px;
+}
+
+.att-event-rate {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: 2px;
+}
+
+.att-event-rate.rate-high {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.att-event-rate.rate-mid {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.att-event-rate.rate-low {
+  background: #fee2e2;
+  color: #ef4444;
 }
 
 /* Attendance modal */
@@ -8530,11 +8561,6 @@ select.form-control {
 }
 
 @media (max-width: 768px) {
-  .att-mgmt-filters {
-    flex-direction: column;
-    gap: 8px;
-  }
-
   .att-event-grid-header {
     display: none;
   }
@@ -8544,7 +8570,7 @@ select.form-control {
     gap: 4px;
   }
 
-  .att-event-row span:nth-child(4) {
+  .att-event-note {
     display: none;
   }
 }
