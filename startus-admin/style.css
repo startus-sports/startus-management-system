@@ -724,6 +724,145 @@ body {
   display: none;
 }
 
+/* ===== Sub-class Manager ===== */
+.sc-manager {
+  border: 1px solid var(--gray-200, #e5e7eb);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--gray-50, #f9fafb);
+}
+
+.sc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sc-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #fff;
+  border: 1px solid var(--gray-200, #e5e7eb);
+  border-radius: 6px;
+  transition: box-shadow 0.15s;
+}
+
+.sc-item:hover {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.sc-drag {
+  cursor: grab;
+  color: var(--gray-400, #9ca3af);
+  font-size: 18px;
+  flex-shrink: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sc-drag:active {
+  cursor: grabbing;
+}
+
+.sc-name {
+  flex: 1;
+  font-size: 14px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-edit-input {
+  flex: 1;
+  font-size: 14px;
+  padding: 2px 6px;
+  border: 1px solid var(--primary-color, #3b82f6);
+  border-radius: 4px;
+  outline: none;
+  min-width: 0;
+}
+
+.sc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  color: var(--gray-400, #9ca3af);
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.sc-btn .material-icons {
+  font-size: 18px;
+}
+
+.sc-btn:hover {
+  color: var(--gray-700, #374151);
+  background: var(--gray-100, #f3f4f6);
+}
+
+.sc-del-btn:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+.sc-add-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sc-add-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--gray-300, #d1d5db);
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.sc-add-input:focus {
+  border-color: var(--primary-color, #3b82f6);
+}
+
+.sc-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  font-size: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sc-add-btn .material-icons {
+  font-size: 18px;
+}
+
+.sc-item-placeholder {
+  opacity: 0.3;
+  border: 2px dashed var(--primary-color, #3b82f6);
+  background: var(--primary-lighter, #eff6ff);
+}
+
+.sc-item-clone {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  border-radius: 6px;
+  background: #fff;
+  opacity: 0.95;
+}
+
 /* ===== Member List ===== */
 .member-list {
   display: flex;

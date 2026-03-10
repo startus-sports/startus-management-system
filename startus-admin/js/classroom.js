@@ -449,9 +449,26 @@ function openClassroomForm(classroom) {
           </div>
           <div class="form-group" style="grid-column:1/-1">
             <label>サブクラス</label>
-            <input type="text" name="sub_classes" value="${escapeHtml((c.sub_classes || []).join(' / '))}" placeholder="例: パラ / 一般">
+            <div id="sub-classes-manager" class="sc-manager">
+              <div id="sc-list" class="sc-list">
+                ${(c.sub_classes || []).map((sc, i) => `
+                  <div class="sc-item" data-index="${i}">
+                    <span class="material-icons sc-drag">drag_indicator</span>
+                    <span class="sc-name">${escapeHtml(sc)}</span>
+                    <button type="button" class="sc-btn sc-edit-btn" title="編集"><span class="material-icons">edit</span></button>
+                    <button type="button" class="sc-btn sc-del-btn" title="削除"><span class="material-icons">close</span></button>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="sc-add-row">
+                <input type="text" id="sc-add-input" class="sc-add-input" placeholder="サブクラス名を入力">
+                <button type="button" id="sc-add-btn" class="btn btn-secondary sc-add-btn">
+                  <span class="material-icons">add</span>追加
+                </button>
+              </div>
+            </div>
             <small style="color:var(--gray-500);font-size:11px;margin-top:2px;display:block">
-              スラッシュ（/）区切りで入力。入力した順番が並び順になります。会員編集時に選択肢として表示されます
+              上から順に並び順になります。会員編集時に選択肢として表示されます
             </small>
           </div>
         </div>
@@ -493,6 +510,7 @@ function openClassroomForm(classroom) {
         saveClassroom(form, isEdit ? c.id : null);
       });
     }
+    initSubClassManager();
   }, 100);
 }
 
@@ -519,7 +537,7 @@ async function saveClassroom(form, id) {
     furikae_group: fd.get('furikae_group').trim(),
     attendance_group: fd.get('attendance_group').trim(),
     class_code: fd.get('class_code').trim(),
-    sub_classes: (fd.get('sub_classes') || '').split(/[\/,、]/).map(s => s.trim()).filter(Boolean),
+    sub_classes: getSubClassesFromUI(),
     memo: fd.get('memo').trim(),
   };
 
@@ -549,6 +567,205 @@ async function saveClassroom(form, id) {
   closeModal();
   await loadClassrooms();
   renderClassroomView();
+}
+
+// --- サブクラスマネージャー ---
+
+function initSubClassManager() {
+  const list = document.getElementById('sc-list');
+  const addBtn = document.getElementById('sc-add-btn');
+  const addInput = document.getElementById('sc-add-input');
+  if (!list || !addBtn || !addInput) return;
+
+  // 追加ボタン
+  addBtn.addEventListener('click', () => {
+    const name = addInput.value.trim();
+    if (!name) return;
+    // 重複チェック
+    const existing = Array.from(list.querySelectorAll('.sc-name')).map(el => el.textContent);
+    if (existing.includes(name)) {
+      showToast('同じ名前のサブクラスが既にあります', 'warning');
+      return;
+    }
+    appendSubClassItem(list, name);
+    addInput.value = '';
+    addInput.focus();
+  });
+
+  // Enter キーでも追加
+  addInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addBtn.click();
+    }
+  });
+
+  // 既存アイテムにイベント設定
+  list.querySelectorAll('.sc-item').forEach(item => bindSubClassItemEvents(item));
+
+  // ドラッグ並び替え
+  initSubClassDrag(list);
+}
+
+function appendSubClassItem(list, name) {
+  const div = document.createElement('div');
+  div.className = 'sc-item';
+  div.innerHTML = `
+    <span class="material-icons sc-drag">drag_indicator</span>
+    <span class="sc-name">${escapeHtml(name)}</span>
+    <button type="button" class="sc-btn sc-edit-btn" title="編集"><span class="material-icons">edit</span></button>
+    <button type="button" class="sc-btn sc-del-btn" title="削除"><span class="material-icons">close</span></button>
+  `;
+  list.appendChild(div);
+  bindSubClassItemEvents(div);
+}
+
+function bindSubClassItemEvents(item) {
+  // 削除
+  const delBtn = item.querySelector('.sc-del-btn');
+  if (delBtn) {
+    delBtn.addEventListener('click', () => {
+      item.style.transition = 'opacity 0.2s, transform 0.2s';
+      item.style.opacity = '0';
+      item.style.transform = 'translateX(20px)';
+      setTimeout(() => item.remove(), 200);
+    });
+  }
+
+  // 編集（インライン）
+  const editBtn = item.querySelector('.sc-edit-btn');
+  const nameSpan = item.querySelector('.sc-name');
+  if (editBtn && nameSpan) {
+    editBtn.addEventListener('click', () => {
+      const current = nameSpan.textContent;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'sc-edit-input';
+      input.value = current;
+      nameSpan.replaceWith(input);
+      input.focus();
+      input.select();
+
+      const commit = () => {
+        const val = input.value.trim() || current;
+        const span = document.createElement('span');
+        span.className = 'sc-name';
+        span.textContent = val;
+        input.replaceWith(span);
+        // 再バインド（新しいspan要素のため）
+        bindSubClassItemEvents(item);
+      };
+
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { input.value = current; input.blur(); }
+      });
+    });
+  }
+}
+
+function initSubClassDrag(list) {
+  let dragItem = null;
+  let dragClone = null;
+  let startY = 0;
+
+  const getY = (e) => (e.touches ? e.touches[0].clientY : e.clientY);
+
+  const onStart = (e) => {
+    const handle = e.target.closest('.sc-drag');
+    if (!handle) return;
+    const item = handle.closest('.sc-item');
+    if (!item) return;
+
+    e.preventDefault();
+    dragItem = item;
+    startY = getY(e);
+
+    // クローン作成
+    const rect = item.getBoundingClientRect();
+    dragClone = item.cloneNode(true);
+    dragClone.classList.add('sc-item-clone');
+    dragClone.style.width = rect.width + 'px';
+    dragClone.style.left = rect.left + 'px';
+    dragClone.style.top = rect.top + 'px';
+    document.body.appendChild(dragClone);
+
+    item.classList.add('sc-item-placeholder');
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  };
+
+  const onMove = (e) => {
+    if (!dragItem) return;
+    e.preventDefault();
+
+    const y = getY(e);
+    dragClone.style.top = (parseFloat(dragClone.style.top) + (y - startY)) + 'px';
+    startY = y;
+
+    // 挿入位置を検出
+    const items = Array.from(list.querySelectorAll('.sc-item:not(.sc-item-placeholder)'));
+    let insertTarget = null;
+    for (const item of items) {
+      const rect = item.getBoundingClientRect();
+      if (y < rect.top + rect.height / 2) {
+        insertTarget = item;
+        break;
+      }
+    }
+
+    // FLIP animation
+    const siblings = Array.from(list.querySelectorAll('.sc-item'));
+    const firstRects = new Map();
+    for (const el of siblings) {
+      firstRects.set(el, el.getBoundingClientRect());
+    }
+
+    if (insertTarget) {
+      list.insertBefore(dragItem, insertTarget);
+    } else {
+      list.appendChild(dragItem);
+    }
+
+    for (const [el, firstRect] of firstRects) {
+      const lastRect = el.getBoundingClientRect();
+      const dy = firstRect.top - lastRect.top;
+      if (Math.abs(dy) > 1 && el !== dragItem) {
+        el.style.transition = 'none';
+        el.style.transform = `translateY(${dy}px)`;
+        requestAnimationFrame(() => {
+          el.style.transition = 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)';
+          el.style.transform = '';
+        });
+      }
+    }
+  };
+
+  const onEnd = () => {
+    if (!dragItem) return;
+    dragItem.classList.remove('sc-item-placeholder');
+    if (dragClone) dragClone.remove();
+    dragItem = null;
+    dragClone = null;
+
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+  };
+
+  list.addEventListener('mousedown', onStart);
+  list.addEventListener('touchstart', onStart, { passive: false });
+}
+
+function getSubClassesFromUI() {
+  const list = document.getElementById('sc-list');
+  if (!list) return [];
+  return Array.from(list.querySelectorAll('.sc-item .sc-name')).map(el => el.textContent.trim()).filter(Boolean);
 }
 
 // --- 削除 ---
