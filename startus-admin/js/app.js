@@ -80,7 +80,8 @@ import {
   chatDeleteMessage, chatConfirmDelete, chatCancelDelete,
   chatAttachFile,
   chatOpenLinkPicker, chatCloseLinkPicker, chatSelectLinkCategory,
-  chatSearchLinkRecords, chatSendLinkMessage, chatLinkPickerBack
+  chatSearchLinkRecords, chatSendLinkMessage, chatLinkPickerBack,
+  chatCtxCopy, chatCtxEdit, chatCtxDelete
 } from './chat.js';
 import { initScheduleManager } from './sm-manager.js';
 import {
@@ -579,6 +580,9 @@ window.memberApp = {
   chatSearchLinkRecords,
   chatSendLinkMessage,
   chatLinkPickerBack,
+  chatCtxCopy,
+  chatCtxEdit,
+  chatCtxDelete,
   toggleSearchBar,
   isAdmin,
   toggleSidebar,

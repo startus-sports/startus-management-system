@@ -23,6 +23,7 @@ let sectionCollapsed = { channels: false, dms: false };
 let dmPartnerNames = {};
 let dmPartnerIds = {};
 let linkSearchTimeout = null;
+let longPressTimer = null;
 
 // --- Constants ---
 
@@ -565,7 +566,10 @@ function handleUpdatedMessage(payload) {
       const div = document.createElement('div');
       div.innerHTML = renderSlackMessage(item.msg, item.grouped);
       const newEl = div.firstElementChild;
-      if (newEl) el.replaceWith(newEl);
+      if (newEl) {
+        el.replaceWith(newEl);
+        attachContextMenu(newEl);
+      }
     }
   }
 }
@@ -709,21 +713,131 @@ function renderMessageThread() {
       textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
     });
   }
+  bindContextMenuEvents();
   scrollToBottom();
+}
+
+function bindContextMenuEvents() {
+  const scroll = document.getElementById('chat-messages-scroll');
+  if (!scroll) return;
+  scroll.querySelectorAll('.chat-msg[data-msg-id]').forEach(el => {
+    attachContextMenu(el);
+  });
+}
+
+function attachContextMenu(el) {
+  const msgId = el.dataset.msgId;
+  if (!msgId) return;
+
+  // Right-click (desktop)
+  el.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    showChatContextMenu(msgId, e.clientX, e.clientY);
+  });
+
+  // Long-press (mobile)
+  el.addEventListener('touchstart', (e) => {
+    longPressTimer = setTimeout(() => {
+      const touch = e.touches[0];
+      showChatContextMenu(msgId, touch.clientX, touch.clientY);
+    }, 500);
+  }, { passive: true });
+
+  el.addEventListener('touchend', () => {
+    clearTimeout(longPressTimer);
+  });
+
+  el.addEventListener('touchmove', () => {
+    clearTimeout(longPressTimer);
+  });
 }
 
 // ===== Message Rendering =====
 
 function buildMsgActions(msg) {
+  // Context menu replaces hover actions — no inline buttons needed
+  return '';
+}
+
+// ===== Context Menu =====
+
+function showChatContextMenu(msgId, x, y) {
+  closeChatContextMenu();
+  const msg = messages.find(m => m.id === msgId);
+  if (!msg || msg.is_deleted || msg.message_type === 'system') return;
+
   const isOwn = msg.sender_id === currentStaff?.id;
-  if (msg.is_deleted || !isOwn) return '';
   const isText = msg.message_type === 'text';
-  let actions = '';
+
+  let items = '';
+  // コピー — always available for text messages
   if (isText) {
-    actions += `<button class="chat-action-btn" title="編集" onclick="event.stopPropagation();window.memberApp.chatEditMessage('${msg.id}')"><span class="material-icons">edit</span></button>`;
+    items += `<div class="chat-ctx-item" onclick="window.memberApp.chatCtxCopy('${msgId}')">
+      <span class="material-icons">content_copy</span><span>コピー</span></div>`;
   }
-  actions += `<button class="chat-action-btn" title="削除" onclick="event.stopPropagation();window.memberApp.chatDeleteMessage('${msg.id}')"><span class="material-icons">delete</span></button>`;
-  return `<div class="chat-msg-actions">${actions}</div>`;
+  // 編集 — own text only
+  if (isOwn && isText) {
+    items += `<div class="chat-ctx-item" onclick="window.memberApp.chatCtxEdit('${msgId}')">
+      <span class="material-icons">edit</span><span>編集</span></div>`;
+  }
+  // 削除 — own messages only
+  if (isOwn) {
+    items += `<div class="chat-ctx-item chat-ctx-item--danger" onclick="window.memberApp.chatCtxDelete('${msgId}')">
+      <span class="material-icons">delete</span><span>削除</span></div>`;
+  }
+
+  if (!items) return;
+
+  const menu = document.createElement('div');
+  menu.className = 'chat-context-menu';
+  menu.id = 'chat-context-menu';
+  menu.innerHTML = items;
+  document.body.appendChild(menu);
+
+  // Position — keep within viewport
+  requestAnimationFrame(() => {
+    const rect = menu.getBoundingClientRect();
+    let left = x, top = y;
+    if (left + rect.width > window.innerWidth) left = window.innerWidth - rect.width - 8;
+    if (top + rect.height > window.innerHeight) top = window.innerHeight - rect.height - 8;
+    if (left < 0) left = 8;
+    if (top < 0) top = 8;
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+    menu.style.opacity = '1';
+  });
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', closeChatContextMenu, { once: true });
+    document.addEventListener('contextmenu', closeChatContextMenu, { once: true });
+  }, 0);
+}
+
+function closeChatContextMenu() {
+  const menu = document.getElementById('chat-context-menu');
+  if (menu) menu.remove();
+}
+
+function chatCtxCopy(msgId) {
+  closeChatContextMenu();
+  const msg = messages.find(m => m.id === msgId);
+  if (!msg) return;
+  navigator.clipboard.writeText(msg.body).then(() => {
+    showToast('コピーしました');
+  }).catch(() => {
+    showToast('コピーに失敗しました', 'error');
+  });
+}
+
+function chatCtxEdit(msgId) {
+  closeChatContextMenu();
+  chatEditMessage(msgId);
+}
+
+function chatCtxDelete(msgId) {
+  closeChatContextMenu();
+  chatDeleteMessage(msgId);
 }
 
 function renderSlackMessage(msg, isGrouped) {
@@ -927,7 +1041,10 @@ function appendMessageToThread(msg) {
   const div = document.createElement('div');
   div.innerHTML = renderSlackMessage(msg, isGrouped);
   const msgEl = div.firstElementChild;
-  if (msgEl) scroll.appendChild(msgEl);
+  if (msgEl) {
+    scroll.appendChild(msgEl);
+    attachContextMenu(msgEl);
+  }
 }
 
 function scrollToBottom() {
@@ -1010,7 +1127,10 @@ function reRenderMessage(msgId) {
   const div = document.createElement('div');
   div.innerHTML = renderSlackMessage(item.msg, item.grouped);
   const newEl = div.firstElementChild;
-  if (newEl) el.replaceWith(newEl);
+  if (newEl) {
+    el.replaceWith(newEl);
+    attachContextMenu(newEl);
+  }
 }
 
 // ===== Message Delete =====
@@ -1323,3 +1443,4 @@ export { chatEditMessage, chatSaveEdit, chatCancelEdit };
 export { chatDeleteMessage, chatConfirmDelete, chatCancelDelete };
 export { chatAttachFile };
 export { chatOpenLinkPicker, chatCloseLinkPicker, chatSelectLinkCategory, chatSearchLinkRecords, chatSendLinkMessage, chatLinkPickerBack };
+export { chatCtxCopy, chatCtxEdit, chatCtxDelete };

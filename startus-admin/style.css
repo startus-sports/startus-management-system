@@ -4352,47 +4352,52 @@ select.form-control {
   font-size: 0.88rem;
 }
 
-/* ---- Message Action Menu (hover toolbar) ---- */
+/* ---- Context Menu (right-click / long-press) ---- */
 
-.chat-msg-actions {
-  position: absolute;
-  top: -12px;
-  right: 12px;
-  display: none;
-  gap: 2px;
-  background: white;
+.chat-context-menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 160px;
+  background: #fff;
   border: 1px solid var(--gray-200);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 2px;
-  z-index: 5;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  padding: 4px 0;
+  opacity: 0;
+  transition: opacity 0.1s;
+  user-select: none;
 }
 
-.chat-msg:hover .chat-msg-actions {
-  display: flex;
-}
-
-.chat-action-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: transparent;
-  color: var(--gray-500);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
+.chat-ctx-item {
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: background 0.15s, color 0.15s;
+  gap: 10px;
+  padding: 9px 16px;
+  font-size: 0.875rem;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: background 0.12s;
 }
 
-.chat-action-btn:hover {
-  background: var(--gray-100);
-  color: var(--gray-800);
+.chat-ctx-item:hover {
+  background: var(--gray-50);
 }
 
-.chat-action-btn .material-icons {
-  font-size: 16px;
+.chat-ctx-item .material-icons {
+  font-size: 18px;
+  color: var(--gray-500);
+}
+
+.chat-ctx-item--danger {
+  color: var(--danger-color);
+}
+
+.chat-ctx-item--danger .material-icons {
+  color: var(--danger-color);
+}
+
+.chat-ctx-item--danger:hover {
+  background: #fef2f2;
 }
 
 /* ---- Edit UI ---- */
