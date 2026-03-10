@@ -87,7 +87,7 @@ function renderAppViewsScreen() {
 
     html += `
       <div class="list-item av-row${inactiveClass}" data-id="${v.id}"
-           onclick="window.memberApp.openViewEditForm('${v.id}')">
+           onclick="window.memberApp.openAttendanceAppWithView('${v.id}')">
         <div class="av-drag-handle">
           <span class="material-icons">drag_indicator</span>
         </div>
@@ -104,12 +104,16 @@ function renderAppViewsScreen() {
         </div>
         <div class="av-row-actions" onclick="event.stopPropagation()">
           <span class="av-row-order">${v.display_order}</span>
+          <button class="btn-icon" title="編集"
+                  onclick="window.memberApp.openViewEditForm('${v.id}')">
+            <span class="material-icons" style="font-size:18px;color:var(--primary-color)">edit</span>
+          </button>
           <button class="btn-icon" title="削除"
                   onclick="window.memberApp.confirmDeleteView('${v.id}', '${escapeHtml(v.name)}')">
             <span class="material-icons" style="font-size:18px;color:var(--danger-color)">delete</span>
           </button>
         </div>
-        <span class="material-icons av-row-arrow" style="color:var(--gray-300);font-size:20px">chevron_right</span>
+        <span class="material-icons av-row-arrow" style="color:var(--gray-300);font-size:20px">open_in_new</span>
       </div>`;
   }
 

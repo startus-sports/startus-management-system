@@ -226,13 +226,20 @@ function setPreviewDevice(device) {
 
 const ATTENDANCE_APP_URL = 'https://attendance-app-omega-ten.vercel.app';
 
-function openAttendanceApp() {
+function openAttendanceApp(viewId) {
+  const url = viewId
+    ? `${ATTENDANCE_APP_URL}?view=${viewId}`
+    : ATTENDANCE_APP_URL;
   const w = Math.min(1200, screen.availWidth - 100);
   const h = Math.min(800, screen.availHeight - 100);
   const left = Math.round((screen.availWidth - w) / 2);
   const top = Math.round((screen.availHeight - h) / 2);
-  window.open(ATTENDANCE_APP_URL, 'attendance-app',
+  window.open(url, 'attendance-app',
     `width=${w},height=${h},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes`);
+}
+
+function openAttendanceAppWithView(viewId) {
+  openAttendanceApp(viewId);
 }
 
 // --- フィルタパネル ---
@@ -625,6 +632,7 @@ window.memberApp = {
   showCustomerDetail,
   // App Preview / Attendance App Views
   openAttendanceApp,
+  openAttendanceAppWithView,
   openViewAddForm,
   openViewEditForm,
   confirmDeleteView,
