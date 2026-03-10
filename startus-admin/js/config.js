@@ -45,3 +45,6 @@ export const SCHEDULE_API_URL = 'https://script.google.com/macros/s/AKfycbzSckwI
 // スタッフカレンダーAPI（フォールバック）→ 本来は app_config テーブルで管理
 // GAS デプロイ後に URL を設定すること
 export const CALENDAR_API_URL = '';
+
+// 振替申請フォームURL（フォールバック）→ 本来は app_config テーブルで管理
+export const FURIKAE_APP_URL = 'https://script.google.com/macros/s/AKfycby2SHRUXC8n3xg9QZnh1Ukf8Y4pQHUk9tl1bQFdvs60gYyfhLwrxdoIDn2JzOcmG6hpQw/exec';

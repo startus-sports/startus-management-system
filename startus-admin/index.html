@@ -107,6 +107,21 @@
           <span class="sidebar-label">スケ管理</span>
         </a>
 
+        <!-- 出欠グループ -->
+        <div class="sidebar-divider"><span class="sidebar-group-label">出欠</span></div>
+        <a class="sidebar-item" data-tab="attendance" onclick="window.memberApp.switchTab('attendance')" title="出欠管理">
+          <span class="material-icons">fact_check</span>
+          <span class="sidebar-label">出欠管理</span>
+        </a>
+        <a class="sidebar-item" data-tab="attendance-stats" onclick="window.memberApp.switchTab('attendance-stats')" title="出欠統計">
+          <span class="material-icons">how_to_reg</span>
+          <span class="sidebar-label">出欠統計</span>
+        </a>
+        <a class="sidebar-item" data-tab="app-preview" onclick="window.memberApp.switchTab('app-preview')" title="アプリ画面">
+          <span class="material-icons">phone_android</span>
+          <span class="sidebar-label">アプリ画面</span>
+        </a>
+
         <!-- その他グループ -->
         <div class="sidebar-divider"><span class="sidebar-group-label">その他</span></div>
         <a class="sidebar-item" data-tab="staff" onclick="window.memberApp.switchTab('staff')" title="スタッフ">
@@ -116,14 +131,6 @@
         <a class="sidebar-item" data-tab="stats" onclick="window.memberApp.switchTab('stats')" title="統計">
           <span class="material-icons">bar_chart</span>
           <span class="sidebar-label">統計</span>
-        </a>
-        <a class="sidebar-item" data-tab="attendance" onclick="window.memberApp.switchTab('attendance')" title="出欠管理">
-          <span class="material-icons">fact_check</span>
-          <span class="sidebar-label">出欠管理</span>
-        </a>
-        <a class="sidebar-item" data-tab="attendance-stats" onclick="window.memberApp.switchTab('attendance-stats')" title="出欠統計">
-          <span class="material-icons">how_to_reg</span>
-          <span class="sidebar-label">出欠統計</span>
         </a>
 
         <!-- ショップ -->
@@ -630,6 +637,39 @@
       </div>
       <div class="att-event-count"><span id="att-event-count-text"></span></div>
       <div id="att-event-list" class="member-list"></div>
+    </main>
+
+    <!-- ===== アプリ画面（振替申請フォーム） ===== -->
+    <main class="main-content" id="app-preview-screen" style="display:none">
+      <div class="app-preview-toolbar">
+        <h2 class="app-preview-title">
+          <span class="material-icons">phone_android</span>
+          振替申請フォーム
+        </h2>
+        <div class="app-preview-devices">
+          <button class="app-preview-device-btn active" data-device="desktop" onclick="window.memberApp.setAppPreviewDevice('desktop')">
+            <span class="material-icons">desktop_windows</span>
+          </button>
+          <button class="app-preview-device-btn" data-device="tablet" onclick="window.memberApp.setAppPreviewDevice('tablet')">
+            <span class="material-icons">tablet_mac</span>
+          </button>
+          <button class="app-preview-device-btn" data-device="mobile" onclick="window.memberApp.setAppPreviewDevice('mobile')">
+            <span class="material-icons">phone_iphone</span>
+          </button>
+        </div>
+        <button class="app-preview-open" onclick="window.memberApp.openAppPreviewExternal()" title="新しいタブで開く">
+          <span class="material-icons">open_in_new</span>
+        </button>
+      </div>
+      <div class="app-preview-container" id="app-preview-container">
+        <div class="app-preview-frame" id="app-preview-frame">
+          <div class="app-preview-loading" id="app-preview-loading">
+            <span class="material-icons rotating">refresh</span>
+            <p>読み込み中...</p>
+          </div>
+          <iframe id="app-preview-iframe" src="" frameborder="0" onload="document.getElementById('app-preview-loading').style.display='none'"></iframe>
+        </div>
+      </div>
     </main>
 
     <!-- ===== スタッフ管理画面 ===== -->

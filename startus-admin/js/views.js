@@ -6,7 +6,7 @@ let onTabChange = null;
 const screens = [
   'dashboard-screen', 'members-screen', 'fee-overview-screen',
   'applications-screen', 'trials-screen', 'transfers-screen', 'stats-screen',
-  'attendance-stats-screen', 'attendance-screen',
+  'attendance-stats-screen', 'attendance-screen', 'app-preview-screen',
   'staff-screen', 'calendar-screen', 'schedule-screen',
   'sm-screen', 'master-screen', 'settings-screen',
   'shop-orders-screen', 'shop-products-screen', 'shop-preview-screen',

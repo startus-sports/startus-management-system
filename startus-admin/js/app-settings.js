@@ -11,6 +11,7 @@ import {
   CALENDAR_END_HOUR as DEFAULT_CALENDAR_END_HOUR,
   SCHEDULE_API_URL as DEFAULT_SCHEDULE_API_URL,
   CALENDAR_API_URL as DEFAULT_CALENDAR_API_URL,
+  FURIKAE_APP_URL as DEFAULT_FURIKAE_APP_URL,
 } from './config.js';
 
 // キャッシュ
@@ -73,6 +74,10 @@ export function getScheduleApiUrl() {
 
 export function getCalendarApiUrl() {
   return getSetting('calendar_api_url', DEFAULT_CALENDAR_API_URL);
+}
+
+export function getFurikaeAppUrl() {
+  return getSetting('furikae_app_url', DEFAULT_FURIKAE_APP_URL);
 }
 
 /**
@@ -150,6 +155,7 @@ export function renderAppSettings() {
   const calEndHour = getCalendarEndHour();
   const scheduleUrl = getScheduleApiUrl();
   const calendarApiUrl = getCalendarApiUrl();
+  const furikaeAppUrl = getFurikaeAppUrl();
 
   // 時間セレクトオプション生成
   const hourOptions = (selected) => {
@@ -196,6 +202,11 @@ export function renderAppSettings() {
           <input type="url" name="calendar_api_url" value="${escapeHtml(calendarApiUrl)}" placeholder="https://script.google.com/macros/s/...">
           <small style="color:var(--gray-400)">スタッフカレンダー日表示用。未設定時はカレンダータブに設定案内が表示されます。</small>
         </div>
+        <div class="form-group">
+          <label>振替申請フォームURL（GAS）</label>
+          <input type="url" name="furikae_app_url" value="${escapeHtml(furikaeAppUrl)}" placeholder="https://script.google.com/macros/s/...">
+          <small style="color:var(--gray-400)">出欠 → アプリ画面で表示される振替申請フォームのURL。</small>
+        </div>
       </div>
       <div class="form-actions">
         <button type="submit" class="btn btn-primary" id="settings-save-btn">
@@ -230,6 +241,7 @@ async function saveAppSettingsForm(form) {
     });
     await saveSetting('schedule_api_url', fd.get('schedule_api_url') || '');
     await saveSetting('calendar_api_url', fd.get('calendar_api_url') || '');
+    await saveSetting('furikae_app_url', fd.get('furikae_app_url') || '');
 
     // タイトル即時反映
     const newAppName = fd.get('app_name') || '';

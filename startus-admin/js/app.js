@@ -1,5 +1,5 @@
 import { checkSession, isAllowedEmail, isAdmin, signInWithGoogle, signOut, onAuthStateChange } from './auth.js';
-import { loadAppSettings, loadStaffCalendars, getAppName, renderAppSettings } from './app-settings.js';
+import { loadAppSettings, loadStaffCalendars, getAppName, getFurikaeAppUrl, renderAppSettings } from './app-settings.js';
 import {
   loadMembers, showDetail, openAddForm, openEditForm,
   confirmDelete, deleteMember, initSortSelect, initSearchInput,
@@ -213,6 +213,58 @@ function setPreviewDevice(device) {
   }
 }
 
+// --- アプリプレビュー ---
+
+const APP_PREVIEW_DEVICE_SIZES = {
+  desktop: { width: '100%', height: '100%' },
+  tablet: { width: '768px', height: '1024px' },
+  mobile: { width: '375px', height: '667px' },
+};
+
+function initAppPreview() {
+  const iframe = document.getElementById('app-preview-iframe');
+  const loading = document.getElementById('app-preview-loading');
+  const url = getFurikaeAppUrl();
+  if (!url) {
+    if (loading) loading.innerHTML = '<span class="material-icons">link_off</span><p>URLが設定されていません。<br>設定 → 外部連携 から振替申請フォームURLを設定してください。</p>';
+    return;
+  }
+  if (iframe && !iframe.src.includes('script.google.com')) {
+    if (loading) loading.style.display = 'flex';
+    iframe.src = url;
+  }
+}
+
+function setAppPreviewDevice(device) {
+  const frame = document.getElementById('app-preview-frame');
+  const container = document.getElementById('app-preview-container');
+  if (!frame) return;
+
+  document.querySelectorAll('.app-preview-device-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.device === device);
+  });
+
+  const size = APP_PREVIEW_DEVICE_SIZES[device];
+  if (device === 'desktop') {
+    frame.style.width = '100%';
+    frame.style.height = '100%';
+    frame.style.borderRadius = '0';
+    frame.style.boxShadow = 'none';
+    container.classList.remove('device-mode');
+  } else {
+    frame.style.width = size.width;
+    frame.style.height = size.height;
+    frame.style.borderRadius = '24px';
+    frame.style.boxShadow = '0 25px 50px -12px rgba(0,0,0,0.3)';
+    container.classList.add('device-mode');
+  }
+}
+
+function openAppPreviewExternal() {
+  const url = getFurikaeAppUrl();
+  if (url) window.open(url, '_blank');
+}
+
 // --- フィルタパネル ---
 
 function toggleFilterPanel() {
@@ -326,6 +378,7 @@ async function showApp(email) {
     if (tabName === 'settings') { renderAppSettings(); }
     if (tabName === 'attendance') initAttendance();
     if (tabName === 'attendance-stats') initAttendanceStats();
+    if (tabName === 'app-preview') initAppPreview();
     if (tabName === 'shop-preview') initShopPreview();
     if (tabName === 'shop-orders') loadShopOrders();
     if (tabName === 'shop-products') loadShopProducts();
@@ -588,6 +641,9 @@ window.memberApp = {
   loadShopInventory,
   loadShopCustomers,
   showCustomerDetail,
+  // App Preview
+  setAppPreviewDevice,
+  openAppPreviewExternal,
   // Attendance
   initAttendance,
   openCreateEventModal,
