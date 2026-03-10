@@ -768,13 +768,17 @@ function showChatContextMenu(msgId, x, y) {
 
   const isOwn = msg.sender_id === currentStaff?.id;
   const isText = msg.message_type === 'text';
+  const isCopyable = ['text', 'task', 'link', 'file'].includes(msg.message_type);
 
   let items = '';
-  // コピー — always available for text messages
-  if (isText) {
+  // コピー — text, task, link, file
+  if (isCopyable) {
     items += `<div class="chat-ctx-item" onclick="window.memberApp.chatCtxCopy('${msgId}')">
       <span class="material-icons">content_copy</span><span>コピー</span></div>`;
   }
+  // 転送 — all message types
+  items += `<div class="chat-ctx-item" onclick="window.memberApp.chatCtxForward('${msgId}')">
+    <span class="material-icons">forward</span><span>転送</span></div>`;
   // 編集 — own text only
   if (isOwn && isText) {
     items += `<div class="chat-ctx-item" onclick="window.memberApp.chatCtxEdit('${msgId}')">
@@ -785,8 +789,6 @@ function showChatContextMenu(msgId, x, y) {
     items += `<div class="chat-ctx-item chat-ctx-item--danger" onclick="window.memberApp.chatCtxDelete('${msgId}')">
       <span class="material-icons">delete</span><span>削除</span></div>`;
   }
-
-  if (!items) return;
 
   const menu = document.createElement('div');
   menu.className = 'chat-context-menu';
@@ -823,7 +825,19 @@ function chatCtxCopy(msgId) {
   closeChatContextMenu();
   const msg = messages.find(m => m.id === msgId);
   if (!msg) return;
-  navigator.clipboard.writeText(msg.body).then(() => {
+
+  let text = msg.body || '';
+  const meta = msg.metadata || {};
+  if (msg.message_type === 'task') {
+    text = `[${meta.ref_label || ''}] ${msg.body}`;
+  } else if (msg.message_type === 'link') {
+    const info = REF_TYPE_MAP[meta.ref_type] || { label: '' };
+    text = `[${info.label}] ${meta.ref_label || msg.body}`;
+  } else if (msg.message_type === 'file') {
+    text = meta.file_url || meta.file_name || msg.body;
+  }
+
+  navigator.clipboard.writeText(text).then(() => {
     showToast('コピーしました');
   }).catch(() => {
     showToast('コピーに失敗しました', 'error');
@@ -838,6 +852,113 @@ function chatCtxEdit(msgId) {
 function chatCtxDelete(msgId) {
   closeChatContextMenu();
   chatDeleteMessage(msgId);
+}
+
+// ===== Forward Message =====
+
+let forwardMsgId = null;
+
+function chatCtxForward(msgId) {
+  closeChatContextMenu();
+  forwardMsgId = msgId;
+  showForwardPicker();
+}
+
+function showForwardPicker() {
+  closeForwardPicker();
+  const overlay = document.createElement('div');
+  overlay.className = 'chat-forward-overlay';
+  overlay.id = 'chat-forward-overlay';
+  overlay.onclick = (e) => { if (e.target === overlay) closeForwardPicker(); };
+
+  const selfChannel = channels.find(c => c.type === 'self');
+  const groupChannels = channels.filter(c => c.type === 'group');
+  const dmChannels = channels.filter(c => c.type === 'dm');
+
+  let listHtml = '';
+  if (selfChannel) {
+    listHtml += `<div class="chat-forward-item" onclick="window.memberApp.chatForwardTo('${selfChannel.id}')">
+      <span class="material-icons" style="font-size:20px;color:var(--gray-400)">bookmark</span>
+      <span>自分メモ</span></div>`;
+  }
+  for (const ch of groupChannels) {
+    listHtml += `<div class="chat-forward-item" onclick="window.memberApp.chatForwardTo('${ch.id}')">
+      <span class="chat-channel-hash" style="font-size:16px">#</span>
+      <span>${escapeHtml(ch.name || 'グループ')}</span></div>`;
+  }
+  for (const ch of dmChannels) {
+    const name = dmPartnerNames[ch.id] || 'DM';
+    const partnerId = dmPartnerIds[ch.id];
+    listHtml += `<div class="chat-forward-item" onclick="window.memberApp.chatForwardTo('${ch.id}')">
+      ${renderAvatar(partnerId, 24)}
+      <span>${escapeHtml(name)}</span></div>`;
+  }
+
+  overlay.innerHTML = `<div class="chat-forward-picker">
+    <div class="chat-forward-picker-header">
+      <span>転送先を選択</span>
+      <button class="btn-icon" onclick="window.memberApp.chatCloseForwardPicker()"><span class="material-icons">close</span></button>
+    </div>
+    <div class="chat-forward-picker-body">${listHtml || '<div class="chat-empty">チャンネルがありません</div>'}</div>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+function closeForwardPicker() {
+  const overlay = document.getElementById('chat-forward-overlay');
+  if (overlay) overlay.remove();
+}
+
+async function chatForwardTo(channelId) {
+  closeForwardPicker();
+  const msg = messages.find(m => m.id === forwardMsgId);
+  if (!msg || !currentStaff) { forwardMsgId = null; return; }
+
+  const sender = getStaffById(msg.sender_id);
+  const senderName = sender ? sender.name : '不明';
+
+  // Build forwarded message based on type
+  let body, messageType, metadata;
+  if (msg.message_type === 'file') {
+    body = msg.body;
+    messageType = 'file';
+    metadata = { ...msg.metadata, forwarded_from: senderName };
+  } else if (msg.message_type === 'link') {
+    body = msg.body;
+    messageType = 'link';
+    metadata = { ...msg.metadata, forwarded_from: senderName };
+  } else if (msg.message_type === 'task') {
+    body = msg.body;
+    messageType = 'task';
+    metadata = { ...msg.metadata, forwarded_from: senderName };
+  } else {
+    // text — send as text with forwarded prefix
+    body = `【転送: ${senderName}】\n${msg.body}`;
+    messageType = 'text';
+    metadata = { forwarded_from: senderName };
+  }
+
+  const { data: inserted, error } = await supabase.from('chat_messages').insert({
+    channel_id: channelId, sender_id: currentStaff.id,
+    message_type: messageType, body, metadata,
+  }).select().single();
+
+  if (error) {
+    console.error('転送エラー:', error);
+    showToast('転送に失敗しました', 'error');
+  } else {
+    // If forwarded to current channel, append immediately
+    if (channelId === currentChannelId && inserted && !messages.find(m => m.id === inserted.id)) {
+      messages.push(inserted);
+      appendMessageToThread(inserted);
+      scrollToBottom();
+      markAsRead(channelId);
+    }
+    const destChannel = channels.find(c => c.id === channelId);
+    const destName = destChannel ? getChannelDisplayName(destChannel) : 'チャット';
+    showToast(`${destName} に転送しました`);
+  }
+  forwardMsgId = null;
 }
 
 function renderSlackMessage(msg, isGrouped) {
@@ -1443,4 +1564,4 @@ export { chatEditMessage, chatSaveEdit, chatCancelEdit };
 export { chatDeleteMessage, chatConfirmDelete, chatCancelDelete };
 export { chatAttachFile };
 export { chatOpenLinkPicker, chatCloseLinkPicker, chatSelectLinkCategory, chatSearchLinkRecords, chatSendLinkMessage, chatLinkPickerBack };
-export { chatCtxCopy, chatCtxEdit, chatCtxDelete };
+export { chatCtxCopy, chatCtxEdit, chatCtxDelete, chatCtxForward, chatForwardTo, chatCloseForwardPicker };
