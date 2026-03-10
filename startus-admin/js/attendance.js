@@ -11,6 +11,8 @@ import { getActiveClassrooms } from './classroom.js';
 let initialized = false;
 let classrooms = [];
 let allEvents = [];
+let currentClassroom = ''; // '' = 全教室, 'group:xxx' or classroomId
+let currentSort = { key: 'date', asc: false }; // date, classroom, rate
 
 // ============================================
 // 初期化
@@ -25,12 +27,9 @@ export async function initAttendance() {
   classrooms = getActiveClassrooms();
 
   buildFilters();
+  buildClassroomTabs();
 
   document.getElementById('att-mgmt-period').addEventListener('change', renderAttendanceList);
-  document.getElementById('att-mgmt-classroom').addEventListener('change', renderAttendanceList);
-  document.getElementById('att-mgmt-sort').addEventListener('change', () => {
-    sortAndRenderEvents();
-  });
 
   await renderAttendanceList();
 }
@@ -52,20 +51,31 @@ function buildFilters() {
   periodSelect.innerHTML = opts;
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   periodSelect.value = currentMonth;
+}
 
-  const classroomSelect = document.getElementById('att-mgmt-classroom');
+function buildClassroomTabs() {
+  const tabsEl = document.getElementById('att-mgmt-tabs');
   const groups = [...new Set(classrooms.filter(c => c.attendance_group).map(c => c.attendance_group))];
-  let classroomOpts = '<option value="">全教室</option>';
-  if (groups.length > 0) {
-    classroomOpts += '<optgroup label="合同グループ">';
-    for (const g of groups) {
-      classroomOpts += `<option value="group:${escapeHtml(g)}">[合同] ${escapeHtml(g)}</option>`;
-    }
-    classroomOpts += '</optgroup><optgroup label="教室">';
+
+  let html = `<button class="att-stats-tab active" data-classroom="">全教室</button>`;
+  for (const g of groups) {
+    html += `<button class="att-stats-tab" data-classroom="group:${escapeHtml(g)}">${escapeHtml(g)}</button>`;
   }
-  classroomOpts += classrooms.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
-  if (groups.length > 0) classroomOpts += '</optgroup>';
-  classroomSelect.innerHTML = classroomOpts;
+  for (const c of classrooms) {
+    // 合同グループに属する教室はグループタブでカバーされるのでスキップ
+    if (c.attendance_group) continue;
+    html += `<button class="att-stats-tab" data-classroom="${c.id}">${escapeHtml(c.name)}</button>`;
+  }
+  tabsEl.innerHTML = html;
+
+  tabsEl.querySelectorAll('.att-stats-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      currentClassroom = tab.dataset.classroom;
+      tabsEl.querySelectorAll('.att-stats-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderAttendanceList();
+    });
+  });
 }
 
 // ============================================
@@ -73,7 +83,6 @@ function buildFilters() {
 // ============================================
 export async function renderAttendanceList() {
   const period = document.getElementById('att-mgmt-period').value;
-  const classroomId = document.getElementById('att-mgmt-classroom').value;
   const listEl = document.getElementById('att-event-list');
 
   try {
@@ -82,10 +91,10 @@ export async function renderAttendanceList() {
       .select('id, date, classroom_id, attendance_group, note, classrooms(name)')
       .order('date', { ascending: false });
 
-    if (classroomId && classroomId.startsWith('group:')) {
-      query = query.eq('attendance_group', classroomId.replace('group:', ''));
-    } else if (classroomId) {
-      query = query.eq('classroom_id', classroomId);
+    if (currentClassroom && currentClassroom.startsWith('group:')) {
+      query = query.eq('attendance_group', currentClassroom.replace('group:', ''));
+    } else if (currentClassroom) {
+      query = query.eq('classroom_id', currentClassroom);
     }
 
     if (period && period !== 'all') {
@@ -142,19 +151,24 @@ export async function renderAttendanceList() {
 // ソート＆描画
 // ============================================
 function sortAndRenderEvents() {
-  const sortValue = document.getElementById('att-mgmt-sort').value;
   const sorted = [...allEvents];
 
-  switch (sortValue) {
-    case 'date_asc':
-      sorted.sort((a, b) => a.date.localeCompare(b.date));
+  switch (currentSort.key) {
+    case 'date':
+      sorted.sort((a, b) => currentSort.asc ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date));
       break;
     case 'classroom':
-      sorted.sort((a, b) => a.displayLabel.localeCompare(b.displayLabel, 'ja') || b.date.localeCompare(a.date));
+      sorted.sort((a, b) => {
+        const cmp = a.displayLabel.localeCompare(b.displayLabel, 'ja');
+        return currentSort.asc ? cmp || a.date.localeCompare(b.date) : -cmp || b.date.localeCompare(a.date);
+      });
       break;
-    case 'date_desc':
-    default:
-      sorted.sort((a, b) => b.date.localeCompare(a.date));
+    case 'rate':
+      sorted.sort((a, b) => {
+        const rateA = (a.present + a.absent) > 0 ? a.present / (a.present + a.absent) : 0;
+        const rateB = (b.present + b.absent) > 0 ? b.present / (b.present + b.absent) : 0;
+        return currentSort.asc ? rateA - rateB : rateB - rateA;
+      });
       break;
   }
 
@@ -171,11 +185,17 @@ function sortAndRenderEvents() {
     return;
   }
 
+  const sortIcon = (key) => {
+    if (currentSort.key !== key) return `<span class="material-icons att-sort-icon">unfold_more</span>`;
+    const icon = currentSort.asc ? 'arrow_upward' : 'arrow_downward';
+    return `<span class="material-icons att-sort-icon att-sort-active">${icon}</span>`;
+  };
+
   let html = `
     <div class="att-event-grid-header">
-      <span>日付</span>
-      <span>教室</span>
-      <span>出欠</span>
+      <span class="att-sortable" data-sort="date">日付${sortIcon('date')}</span>
+      <span class="att-sortable" data-sort="classroom">教室${sortIcon('classroom')}</span>
+      <span class="att-sortable" data-sort="rate">出欠${sortIcon('rate')}</span>
       <span>メモ</span>
       <span>操作</span>
     </div>`;
@@ -208,6 +228,19 @@ function sortAndRenderEvents() {
   }
 
   listEl.innerHTML = html;
+
+  // ソートヘッダーのクリックイベント
+  listEl.querySelectorAll('.att-sortable').forEach(el => {
+    el.addEventListener('click', () => {
+      const key = el.dataset.sort;
+      if (currentSort.key === key) {
+        currentSort.asc = !currentSort.asc;
+      } else {
+        currentSort = { key, asc: key === 'classroom' };
+      }
+      sortAndRenderEvents();
+    });
+  });
 }
 
 // ============================================

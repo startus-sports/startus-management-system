@@ -8171,6 +8171,12 @@ select.form-control {
   gap: 0;
   margin-bottom: 16px;
   border-bottom: 2px solid var(--gray-200);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.att-stats-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .att-stats-tab {
@@ -8187,6 +8193,8 @@ select.form-control {
   margin-bottom: -2px;
   cursor: pointer;
   transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .att-stats-tab .material-icons {
