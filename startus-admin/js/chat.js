@@ -302,6 +302,8 @@ export async function sendTaskMessage(targetStaffId, refType, refId, refLabel, b
 // ===== Open Reference from Chat =====
 
 export function openRefFromChat(refType, refId) {
+  // Close chat panel so the detail view is visible
+  if (isOpen) toggleChat();
   if (refType === 'member') window.memberApp.showDetail(refId);
   else if (refType === 'application') window.memberApp.showApplicationDetail(refId);
   else if (refType === 'trial') window.memberApp.showTrialDetail(refId);
