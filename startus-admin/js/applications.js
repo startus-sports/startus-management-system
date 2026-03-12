@@ -467,12 +467,12 @@ function buildAppGridRow(a) {
 // --- ワークロード表示 ---
 
 function buildAppWorkloadSummary() {
-  const allStaff = getAllActiveStaff();
+  const jimuStaff = getJimukyokuStaff();
   const active = allApplications.filter(a => a.status !== 'approved' && a.status !== 'rejected');
 
   let unassigned = 0;
   const counts = {};
-  allStaff.forEach(s => { counts[s.id] = 0; });
+  jimuStaff.forEach(s => { counts[s.id] = 0; });
 
   active.forEach(a => {
     if (!a.assigned_to) {
@@ -490,13 +490,10 @@ function buildAppWorkloadSummary() {
     未割当 <span class="${countClass(unassigned)}">${unassigned}</span>
   </div>`;
 
-  // ワークロードがあるスタッフのみ表示（ゼロ件の事務局は常時表示）
-  allStaff.forEach(s => {
+  jimuStaff.forEach(s => {
     const c = counts[s.id] || 0;
-    if (c === 0 && s.role !== '事務局') return;
-    const roleIcon = s.role === '事務局' ? 'admin_panel_settings' : 'person';
     html += `<div class="workload-card${isActive(s.id)}" onclick="window.memberApp.toggleAppWorkloadFilter('${s.id}')">
-      <span class="material-icons" style="font-size:16px;color:var(--primary-color)">${roleIcon}</span>
+      <span class="material-icons" style="font-size:16px;color:var(--primary-color)">admin_panel_settings</span>
       ${escapeHtml(s.name)} <span class="${countClass(c)}">${c}</span>
     </div>`;
   });
@@ -684,8 +681,8 @@ export async function showApplicationDetail(id) {
           ${app.status === 'pending' ? `
           <select class="assignee-select" onchange="window.memberApp.assignApplication('${app.id}', this.value)">
             <option value="">-- 未割当 --</option>
-            ${getAllActiveStaff().map(s =>
-              `<option value="${s.id}" ${app.assigned_to === s.id ? 'selected' : ''}>${escapeHtml(s.name)}${s.role !== 'スタッフ' ? ` (${escapeHtml(s.role)})` : ''}</option>`
+            ${getJimukyokuStaff().map(s =>
+              `<option value="${s.id}" ${app.assigned_to === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`
             ).join('')}
           </select>` : `
           <span class="badge badge-assignee">${receptionStaffName ? escapeHtml(receptionStaffName) : '未割当'}</span>`}
@@ -1089,7 +1086,7 @@ function updateAppAssigneeFilter() {
   const container = document.getElementById('app-assignee-filter');
   if (!container) return;
 
-  const staff = getAllActiveStaff();
+  const staff = getJimukyokuStaff();
   let html = '<label class="filter-pill"><input type="checkbox" value="unassigned">未割当</label>';
   html += staff.map(s =>
     `<label class="filter-pill"><input type="checkbox" value="${s.id}">${escapeHtml(s.name)}</label>`
@@ -1388,7 +1385,7 @@ export function showAppContextMenu(event, appId) {
 
   if (app.status === 'pending') {
     header.textContent = '受付担当を変更';
-    const staffList = getAllActiveStaff();
+    const staffList = getJimukyokuStaff();
     items.innerHTML = `
       <div class="context-menu-item" onclick="window.memberApp.contextAssign('${appId}', '')">
         <span class="material-icons" style="font-size:16px">person_off</span> 未割当にする
@@ -1397,7 +1394,7 @@ export function showAppContextMenu(event, appId) {
         <div class="context-menu-item ${app.assigned_to === s.id ? 'active' : ''}"
              onclick="window.memberApp.contextAssign('${appId}', '${s.id}')">
           <span class="material-icons" style="font-size:16px">person</span>
-          ${escapeHtml(s.name)}${s.role !== 'スタッフ' ? ` <span style="font-size:0.75rem;color:var(--gray-400)">(${escapeHtml(s.role)})</span>` : ''}
+          ${escapeHtml(s.name)}
         </div>`).join('')}`;
   } else if (app.status === 'reviewed') {
     header.textContent = '承認担当を割り当て';
