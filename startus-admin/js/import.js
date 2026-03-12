@@ -35,6 +35,26 @@ const COL_LABELS = {
 let importData = [];
 let duplicateFlags = []; // 各行の重複情報
 
+// Excelシリアル値 → YYYY-MM-DD 変換
+function parseBirthdate(value) {
+  if (!value) return null;
+  const v = value.trim();
+  if (!v) return null;
+  // 既に YYYY-MM-DD or YYYY/MM/DD 形式
+  if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test(v)) return v.replace(/\//g, '-');
+  // Excelシリアル値（数値のみ）
+  const num = Number(v);
+  if (!isNaN(num) && num > 1 && num < 100000) {
+    const ms = (num - 25569) * 86400000; // 25569 = 1899-12-30 → 1970-01-01
+    const date = new Date(ms);
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(date.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  return null;
+}
+
 export function openImportModal() {
   importData = [];
   duplicateFlags = [];
@@ -241,7 +261,7 @@ export async function executeImport() {
     furigana: row.furigana || '',
     member_type: row.member_type || '会員',
     status: row.status || '在籍',
-    birthdate: row.birthdate || null,
+    birthdate: parseBirthdate(row.birthdate),
     gender: row.gender || '',
     address: row.address || '',
     phone: row.phone || '',
